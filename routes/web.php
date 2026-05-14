@@ -19,6 +19,18 @@ Route::get('forgot-password/', function () {
 Route::get('reset-password/', function () {
     return view('auth.reset-password');
 });
+Route::get('home/', function () {
+    return view('index');
+});
+Route::get('product/', function () {
+    return view('product');
+});
+Route::get('store/', function () {
+    return view('store');
+});
+Route::get('checkout/', function () {
+    return view('checkout');
+});
 
 
 Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
