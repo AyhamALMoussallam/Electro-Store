@@ -41,7 +41,7 @@ button:hover { background:#45a049; }
 </div>
 
 <script>
-const apiBase = '';
+
 
 function login() {
     const email = document.getElementById('login-email').value;
@@ -60,7 +60,7 @@ function login() {
 }
 
 function googleLogin() {
-    window.location.href = `${apiBase}/auth/google/redirect`;
+    window.location.href = '/auth/google/redirect';
 }
 </script>
 
