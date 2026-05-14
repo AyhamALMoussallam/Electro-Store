@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Area extends Model
 {
+        protected $fillable = [
+        'name',
+        'city_id',
+    ];
+
+    
             public function City() :BelongsTo {
         return $this->belongsTo(City::class);
     }

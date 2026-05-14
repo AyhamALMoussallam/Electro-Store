@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class City extends Model
 {
+    protected $fillable = [
+        'name',
+    ];
+
      public function Area():HasMany {
         return $this->hasMany(Area::class);
     }
