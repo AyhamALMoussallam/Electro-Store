@@ -12,6 +12,8 @@ use App\Models\Collection;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Notifications\CustomVerifyEmail;
 use App\Notifications\ResetPasswordEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -36,19 +38,13 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    public function bookmarks()
-    {
-        return $this->hasMany(Bookmark::class);
+
+         public function Cart():HasMany {
+        return $this->hasMany(Cart::class);
     }
 
-    public function tags()
-    {
-        return $this->hasMany(Tag::class);
-    }
-
-    public function collections()
-    {
-        return $this->hasMany(Collection::class);
+         public function Order():HasMany {
+        return $this->hasMany(Order::class);
     }
 
     /**
