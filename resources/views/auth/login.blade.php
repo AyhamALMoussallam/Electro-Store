@@ -41,7 +41,7 @@ button:hover { background:#45a049; }
 </div>
 
 <script>
-const apiBase = '/api';
+const apiBase = '';
 
 function login() {
     const email = document.getElementById('login-email').value;
