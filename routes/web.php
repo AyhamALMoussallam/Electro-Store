@@ -13,6 +13,9 @@ Route::get('login/', function () {
 Route::get('signup/', function () {
     return view('auth.signup');
 });
+Route::get('profile/', function () {
+    return view('profile');
+});
 Route::get('forgot-password/', function () {
     return view('auth.forgot-password');
 });
@@ -34,6 +37,14 @@ Route::get('checkout/', function () {
 Route::get('dashboard/', function () {
     return view('dashboard');
 });
+
+
+
+
+
+
+
+
 
 
 Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
