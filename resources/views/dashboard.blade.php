@@ -336,25 +336,71 @@ body {
 </div>
 
         <!-- AREAS -->
-        <div id="areas" class="tab-content">
+<div id="areas" class="tab-content">
 
-            <div class="card-box">
-                <h4>Add Area</h4>
-                <input class="form-control" placeholder="Area name"><br>
-                <button class="btn btn-primary">Save</button>
-            </div>
+    <!-- ADD AREA -->
+    <div class="card-box">
 
-            <div class="card-box">
-                <h4>Areas List</h4>
-                <p>Table here...</p>
-            </div>
+        <h4>Add Area</h4>
 
-        </div>
+        <!-- CITY -->
+        <select
+            id="area-city"
+            class="form-control"
+        >
+            <option value="">
+                Select City
+            </option>
+        </select>
+
+        <br>
+
+        <!-- AREA NAME -->
+        <input
+            type="text"
+            id="area-name"
+            class="form-control"
+            placeholder="Area name"
+        >
+
+        <br>
+
+        <button
+            class="btn btn-primary"
+            onclick="addArea()"
+        >
+            Save
+        </button>
+
+    </div>
+
+    <!-- AREAS LIST -->
+    <div class="card-box">
+
+        <h4>Areas List</h4>
+
+        <table class="table table-striped">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Area</th>
+                    <th>City</th>
+                    <th width="150">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="areas-table-body">
+
+            </tbody>
+
+        </table>
 
     </div>
     
 
 </div>
+
 <script src="/js/dashboard.js"></script>
 </body>
 </html>

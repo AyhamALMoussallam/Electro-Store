@@ -432,3 +432,160 @@ async function deleteCity(id) {
 
     loadCities();
 }
+
+
+
+// =========================
+// AREAS
+// =========================
+
+const API_AREAS = "/api/areas";
+
+loadAreas();
+loadAreaCities();
+
+
+
+// LOAD CITIES INTO SELECT
+async function loadAreaCities() {
+
+    let res = await fetch(API_CITIES);
+    let data = await res.json();
+
+    let html = `
+        <option value="">
+            Select City
+        </option>
+    `;
+
+    data.data.forEach(city => {
+
+        html += `
+            <option value="${city.id}">
+                ${city.name}
+            </option>
+        `;
+    });
+
+    document.getElementById(
+        "area-city"
+    ).innerHTML = html;
+}
+
+
+
+
+// LOAD AREAS
+async function loadAreas() {
+
+    let res = await fetch(API_AREAS);
+    let data = await res.json();
+
+    let html = "";
+
+    data.data.forEach(area => {
+
+        html += `
+        <tr>
+
+            <td>${area.id}</td>
+
+            <td>${area.name}</td>
+
+            <td>${area.city?.name ?? '-'}</td>
+
+            <td>
+                <button
+                    onclick="deleteArea(${area.id})"
+                    class="btn btn-danger btn-sm">
+                    Delete
+                </button>
+            </td>
+
+        </tr>
+        `;
+    });
+
+    document.getElementById(
+        "areas-table-body"
+    ).innerHTML = html;
+}
+
+
+
+
+// ADD AREA
+async function addArea() {
+
+    let cityId = document
+        .getElementById("area-city")
+        .value;
+
+    let name = document
+        .getElementById("area-name")
+        .value;
+
+    if(cityId == "") {
+        alert("Select city");
+        return;
+    }
+
+    if(name.trim() == "") {
+        alert("Area name required");
+        return;
+    }
+
+    let res = await fetch(API_AREAS, {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+                "Bearer " +
+                localStorage.getItem("auth_token")
+        },
+
+        body: JSON.stringify({
+            city_id: cityId,
+            name: name
+        })
+    });
+
+    let data = await res.json();
+
+    if(!res.ok) {
+        alert(data.message || "Error");
+        return;
+    }
+
+    document.getElementById(
+        "area-name"
+    ).value = "";
+
+    loadAreas();
+}
+
+
+
+
+// DELETE AREA
+async function deleteArea(id) {
+
+    let ok = confirm("Delete area?");
+
+    if(!ok) return;
+
+    await fetch(API_AREAS + "/" + id, {
+
+        method: "DELETE",
+
+        headers: {
+            "Authorization":
+                "Bearer " +
+                localStorage.getItem("auth_token")
+        }
+    });
+
+    loadAreas();
+}
