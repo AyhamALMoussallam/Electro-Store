@@ -8,6 +8,7 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CityController;
 
 
 
@@ -62,3 +63,6 @@ Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
 
 Route::apiResource('products', ProductController::class);
+
+
+Route::apiResource('cities', CityController::class);

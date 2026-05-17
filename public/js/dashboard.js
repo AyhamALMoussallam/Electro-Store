@@ -317,3 +317,118 @@ async function deleteProduct(id) {
 
     loadProducts();
 }
+
+
+
+// =========================
+// CITIES
+// =========================
+
+const API_CITIES = "/api/cities";
+
+loadCities();
+
+
+
+// LOAD CITIES
+async function loadCities() {
+
+    let res = await fetch(API_CITIES);
+    let data = await res.json();
+
+    let html = "";
+
+    data.data.forEach(city => {
+
+        html += `
+        <tr>
+
+            <td>${city.id}</td>
+
+            <td>${city.name}</td>
+
+            <td>
+                <button
+                    onclick="deleteCity(${city.id})"
+                    class="btn btn-danger btn-sm">
+                    Delete
+                </button>
+            </td>
+
+        </tr>
+        `;
+    });
+
+    document.getElementById(
+        "cities-table-body"
+    ).innerHTML = html;
+}
+
+
+
+
+// ADD CITY
+async function addCity() {
+
+    let name = document
+        .getElementById("city-name")
+        .value;
+
+    if(name.trim() == "") {
+        alert("City name required");
+        return;
+    }
+
+    let res = await fetch(API_CITIES, {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+                "Bearer " +
+                localStorage.getItem("auth_token")
+        },
+
+        body: JSON.stringify({
+            name: name
+        })
+    });
+
+    let data = await res.json();
+
+    if(!res.ok) {
+        alert(data.message || "Error");
+        return;
+    }
+
+    document.getElementById(
+        "city-name"
+    ).value = "";
+
+    loadCities();
+}
+
+
+
+
+// DELETE CITY
+async function deleteCity(id) {
+
+    let ok = confirm("Delete city?");
+
+    if(!ok) return;
+
+    await fetch(API_CITIES + "/" + id, {
+
+        method: "DELETE",
+
+        headers: {
+            "Authorization":
+                "Bearer " +
+                localStorage.getItem("auth_token")
+        }
+    });
+
+    loadCities();
+}

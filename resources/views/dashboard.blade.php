@@ -285,20 +285,55 @@ body {
 </div>
 
         <!-- CITIES -->
-        <div id="cities" class="tab-content">
+<div id="cities" class="tab-content">
 
-            <div class="card-box">
-                <h4>Add City</h4>
-                <input class="form-control" placeholder="City name"><br>
-                <button class="btn btn-primary">Save</button>
-            </div>
+    <!-- ADD CITY -->
+    <div class="card-box">
 
-            <div class="card-box">
-                <h4>Cities List</h4>
-                <p>Table here...</p>
-            </div>
+        <h4>Add City</h4>
 
-        </div>
+        <input
+            type="text"
+            id="city-name"
+            class="form-control"
+            placeholder="City name"
+        >
+
+        <br>
+
+        <button
+            class="btn btn-primary"
+            onclick="addCity()"
+        >
+            Save
+        </button>
+
+    </div>
+
+    <!-- LIST -->
+    <div class="card-box">
+
+        <h4>Cities List</h4>
+
+        <table class="table table-striped">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th width="150">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="cities-table-body">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 
         <!-- AREAS -->
         <div id="areas" class="tab-content">
