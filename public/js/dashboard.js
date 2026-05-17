@@ -1,0 +1,319 @@
+const API_CATEGORIES = "/api/categories";
+const API_PRODUCTS = "/api/products";
+
+
+
+
+// tabs
+function showTab(tabId) {
+
+    let tabs = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(t => {
+        t.classList.remove('active');
+        t.style.display = 'none';
+    });
+
+    let activeTab = document.getElementById(tabId);
+
+    activeTab.style.display = 'block';
+    activeTab.classList.add('active');
+}
+
+
+// profile
+function goProfile() {
+    window.location.href = "/profile";
+}
+
+
+// logout
+function confirmLogout() {
+
+    let ok = confirm("Are you sure you want to logout?");
+
+    if (ok) {
+
+        fetch("/api/logout", {
+            method: "POST",
+
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("auth_token"),
+                "Content-Type": "application/json"
+            }
+
+        }).finally(() => {
+
+            localStorage.removeItem("auth_token");
+
+            window.location.href = "/";
+        });
+    }
+}
+// =========================
+// CATEGORY
+// =========================
+
+loadCategories();
+
+
+// LOAD CATEGORIES
+async function loadCategories() {
+
+    let res = await fetch(API_CATEGORIES);
+    let data = await res.json();
+
+    let html = "";
+
+    data.data.forEach(category => {
+
+        html += `
+        <tr>
+            <td>${category.id}</td>
+
+            <td>${category.name}</td>
+
+            <td>
+                <button
+                    class="btn btn-danger btn-sm"
+                    onclick="deleteCategory(${category.id})">
+                    Delete
+                </button>
+            </td>
+        </tr>
+        `;
+    });
+
+    document.getElementById("categories-table-body").innerHTML = html;}
+
+
+
+// ADD CATEGORY
+async function addCategory() {
+
+    let name = document.getElementById("category-name").value;
+
+    if(name.trim() == "") {
+        alert("Category name required");
+        return;
+    }
+
+    await fetch(API_CATEGORIES, {
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("auth_token")
+        },
+
+        body: JSON.stringify({
+            name: name
+        })
+    });
+
+    document.getElementById("category-name").value = "";
+
+    loadCategories();
+}
+
+
+
+// DELETE CATEGORY
+async function deleteCategory(id) {
+
+    let ok = confirm("Delete category?");
+
+    if(!ok) return;
+
+    await fetch(API_CATEGORIES + "/" + id, {
+
+        method: "DELETE",
+
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("auth_token")
+        }
+    });
+
+    loadCategories();
+}
+
+
+
+// =========================
+// PRODUCTS
+// =========================
+
+loadProducts();
+loadProductCategories();
+
+
+
+// LOAD CATEGORIES INTO SELECT
+async function loadProductCategories() {
+
+    let res = await fetch(API_CATEGORIES);
+    let data = await res.json();
+
+    let html = `
+        <option value="">
+            Select Category
+        </option>
+    `;
+
+    data.data.forEach(category => {
+
+        html += `
+            <option value="${category.id}">
+                ${category.name}
+            </option>
+        `;
+    });
+
+    document.getElementById("product-category").innerHTML = html;
+}
+
+
+
+
+// LOAD PRODUCTS
+async function loadProducts() {
+
+    let res = await fetch(API_PRODUCTS);
+    let data = await res.json();
+
+    let html = "";
+
+    data.data.forEach(product => {
+
+        html += `
+        <tr>
+
+            <td>${product.id}</td>
+
+            <td>
+                <img
+                    src="/storage/${product.image}"
+                    width="50">
+            </td>
+
+            <td>${product.name}</td>
+
+            <td>${product.category?.name ?? '-'}</td>
+
+            <td>${product.price}$</td>
+
+            <td>${product.stock}</td>
+
+            <td>
+                <button
+                    onclick="deleteProduct(${product.id})"
+                    class="btn btn-danger btn-sm">
+                    Delete
+                </button>
+            </td>
+
+        </tr>
+        `;
+    });
+
+    document.getElementById("products-table-body").innerHTML = html;
+}
+
+
+
+
+// ADD PRODUCT
+async function addProduct() {
+
+    let imageInput = document.getElementById("product-image");
+
+    if(imageInput.files.length === 0) {
+        alert("Choose image");
+        return;
+    }
+
+    let formData = new FormData();
+
+    formData.append(
+        "category_id",
+        document.getElementById("product-category").value
+    );
+
+    formData.append(
+        "name",
+        document.getElementById("product-name").value
+    );
+
+    formData.append(
+        "description",
+        document.getElementById("product-description").value
+    );
+
+    formData.append(
+        "price",
+        document.getElementById("product-price").value
+    );
+
+    formData.append(
+        "stock",
+        document.getElementById("product-stock").value
+    );
+
+    formData.append(
+        "image",
+        imageInput.files[0]
+    );
+
+
+    let res = await fetch(API_PRODUCTS, {
+
+        method: "POST",
+
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("auth_token")
+        },
+
+        body: formData
+    });
+
+    let data = await res.json();
+
+    console.log(data);
+
+    if(!res.ok) {
+        alert(data.message || "Error");
+        return;
+    }
+
+    alert("Product added");
+
+    document.getElementById("product-name").value = "";
+    document.getElementById("product-description").value = "";
+    document.getElementById("product-price").value = "";
+    document.getElementById("product-stock").value = "";
+    document.getElementById("product-image").value = "";
+
+    loadProducts();
+}
+
+
+
+
+// DELETE PRODUCT
+async function deleteProduct(id) {
+
+    let ok = confirm("Delete product?");
+
+    if(!ok) return;
+
+    await fetch(API_PRODUCTS + "/" + id, {
+
+        method: "DELETE",
+
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("auth_token")
+        }
+    });
+
+    loadProducts();
+}

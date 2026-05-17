@@ -125,11 +125,12 @@ body {
             id="category-name"
             class="form-control"
             placeholder="Category name"
+            
         >
 
         <br>
 
-        <button class="btn btn-primary" onclick="saveCategory()">
+        <button class="btn btn-primary" onclick="addCategory()">
             Save
         </button>
 
@@ -164,21 +165,124 @@ body {
 
 </div>
         <!-- PRODUCTS -->
-        <div id="products" class="tab-content">
+<div id="products" class="tab-content">
 
-            <div class="card-box">
-                <h4>Add Product</h4>
-                <input class="form-control" placeholder="Product name"><br>
-                <input class="form-control" placeholder="Price"><br>
-                <button class="btn btn-primary">Save</button>
-            </div>
+    <!-- ADD / EDIT PRODUCT -->
+    <div class="card-box">
 
-            <div class="card-box">
-                <h4>Products List</h4>
-                <p>Products table here...</p>
-            </div>
+        <h4 id="product-form-title">
+            Add Product
+        </h4>
 
-        </div>
+        <!-- CATEGORY -->
+        <select
+            id="product-category"
+            class="form-control"
+        >
+            <option value="">
+                Select Category
+            </option>
+        </select>
+
+        <br>
+
+
+        <!-- Product -->
+        <!-- NAME -->
+        <input
+            type="text"
+            id="product-name"
+            class="form-control"
+            placeholder="Product name"
+        >
+
+        <br>
+
+        <!-- DESCRIPTION -->
+        <textarea
+            id="product-description"
+            class="form-control"
+            placeholder="Description"
+        ></textarea>
+
+        <br>
+
+        <!-- PRICE -->
+        <input
+            type="number"
+            id="product-price"
+            class="form-control"
+            placeholder="Price"
+        >
+
+        <br>
+
+        <!-- STOCK -->
+        <input
+            type="number"
+            id="product-stock"
+            class="form-control"
+            placeholder="Stock"
+        >
+
+        <br>
+
+        <!-- IMAGE -->
+        <input
+            type="file"
+            id="product-image"
+            class="form-control"
+            accept="image/*"
+        >
+
+        <br>
+
+        <button
+            class="btn btn-primary"
+            onclick="addProduct()"
+        >
+            Save
+        </button>
+
+        <button
+            class="btn btn-secondary"
+            id="cancel-product-edit-btn"
+            style="display:none;"
+            onclick="cancelProductEdit()"
+        >
+            Cancel
+        </button>
+
+    </div>
+
+    <!-- PRODUCTS TABLE -->
+    <div class="card-box">
+
+        <h4>Products List</h4>
+
+        <table class="table table-striped">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th width="180">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="products-table-body">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 
         <!-- CITIES -->
         <div id="cities" class="tab-content">
@@ -216,192 +320,6 @@ body {
     
 
 </div>
-
-<script>
-function showTab(tabId) {
-
-    let tabs = document.querySelectorAll('.tab-content');
-
-    tabs.forEach(t => {
-        t.classList.remove('active');
-        t.style.display = 'none';
-    });
-
-    let activeTab = document.getElementById(tabId);
-    activeTab.style.display = 'block';
-    activeTab.classList.add('active');
-}
-
-
-function goProfile() {
-    window.location.href = "/profile";
-}
-
-function confirmLogout() {
-    let ok = confirm("Are you sure you want to logout?");
-
-    if (ok) {
-        fetch("/api/logout", {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("auth_token"),
-                "Content-Type": "application/json"
-            }
-        }).finally(() => {
-            localStorage.removeItem("auth_token");
-            window.location.href = "/";
-        });
-    }
-}
-
-let editingCategoryId = null;
-
-async function loadCategories() {
-
-    try {
-
-        const res = await fetch('/api/categories');
-
-        const categories = await res.json();
-
-        const tbody = document.getElementById('categories-table-body');
-
-        tbody.innerHTML = '';
-
-        categories.data.forEach(category => {
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>${category.id}</td>
-
-                    <td>${category.name}</td>
-
-                    <td>
-                        <button
-                            class="btn btn-warning btn-sm"
-                            onclick="editCategory(${category.id}, '${category.name}')"
-                        >
-                            Edit
-                        </button>
-
-                        <button
-                            class="btn btn-danger btn-sm"
-                            onclick="deleteCategory(${category.id})"
-                        >
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
-
-    } catch (err) {
-        console.error(err);
-    }
-}
-
-async function saveCategory() {
-
-    const name = document.getElementById('category-name').value;
-
-    if (!name.trim()) {
-        alert('Category name required');
-        return;
-    }
-
-    try {
-
-        let url = '/api/categories';
-        let method = 'POST';
-
-        if (editingCategoryId) {
-            url = `/api/categories/${editingCategoryId}`;
-            method = 'PUT';
-        }
-
-        const res = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
-            },
-            body: JSON.stringify({
-                name: name
-            })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-            alert(data.message || 'Error');
-            return;
-        }
-
-        document.getElementById('category-name').value = '';
-
-        cancelEdit();
-
-        loadCategories();
-
-    } catch (err) {
-        console.error(err);
-    }
-}
-
-function editCategory(id, name) {
-
-    editingCategoryId = id;
-
-    document.getElementById('category-name').value = name;
-
-    document.getElementById('category-form-title').innerText = 'Edit Category';
-
-    document.getElementById('cancel-edit-btn').style.display = 'inline-block';
-}
-
-function cancelEdit() {
-
-    editingCategoryId = null;
-
-    document.getElementById('category-name').value = '';
-
-    document.getElementById('category-form-title').innerText = 'Add Category';
-
-    document.getElementById('cancel-edit-btn').style.display = 'none';
-}
-
-async function deleteCategory(id) {
-
-    const ok = confirm('Delete this category?');
-
-    if (!ok) return;
-
-    try {
-
-        const res = await fetch(`/api/categories/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
-            }
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-            alert(data.message || 'Delete failed');
-            return;
-        }
-
-        loadCategories();
-
-    } catch (err) {
-        console.error(err);
-    }
-}
-
-loadCategories();
-
-</script>
-
+<script src="/js/dashboard.js"></script>
 </body>
 </html>

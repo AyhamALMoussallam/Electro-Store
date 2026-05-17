@@ -20,14 +20,14 @@ class Product extends Model
     ];
 
     
-        public function Category() :BelongsTo {
+        public function category() :BelongsTo {
         return $this->belongsTo(Category::class);
     }
 
-         public function CartItem():HasMany {
+         public function cartItem():HasMany {
         return $this->hasMany(CartItem::class);
     }
-         public function OrderItem():HasMany {
+         public function orderItem():HasMany {
         return $this->hasMany(OrderItem::class);
     }
 }
