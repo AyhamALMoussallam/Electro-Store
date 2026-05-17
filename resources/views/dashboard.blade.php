@@ -113,39 +113,56 @@ body {
             </div>
         </div>
 
-        <!-- CATEGORIES -->
-        <div id="categories" class="tab-content">
+<!-- CATEGORIES -->
+<div id="categories" class="tab-content">
 
-            <div class="card-box">
-                <h4>Add Category</h4>
-                <input class="form-control" placeholder="Category name">
-                <br>
-                <button class="btn btn-primary">Save</button>
-            </div>
+    <!-- ADD CATEGORY -->
+    <div class="card-box">
+        <h4 id="category-form-title">Add Category</h4>
 
-            <div class="card-box">
-                <h4>Categories List</h4>
+        <input
+            type="text"
+            id="category-name"
+            class="form-control"
+            placeholder="Category name"
+        >
 
-                <table class="table table-striped">
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Actions</th>
-                    </tr>
+        <br>
 
-                    <tr>
-                        <td>1</td>
-                        <td>Laptops</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm">Edit</button>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+        <button class="btn btn-primary" onclick="saveCategory()">
+            Save
+        </button>
 
-        </div>
+        <button
+            class="btn btn-secondary"
+            id="cancel-edit-btn"
+            style="display:none;"
+            onclick="cancelEdit()"
+        >
+            Cancel
+        </button>
+    </div>
 
+    <!-- LIST -->
+    <div class="card-box">
+        <h4>Categories List</h4>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th width="180">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="categories-table-body">
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
         <!-- PRODUCTS -->
         <div id="products" class="tab-content">
 
@@ -236,6 +253,154 @@ function confirmLogout() {
         });
     }
 }
+
+let editingCategoryId = null;
+
+async function loadCategories() {
+
+    try {
+
+        const res = await fetch('/api/categories');
+
+        const categories = await res.json();
+
+        const tbody = document.getElementById('categories-table-body');
+
+        tbody.innerHTML = '';
+
+        categories.data.forEach(category => {
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${category.id}</td>
+
+                    <td>${category.name}</td>
+
+                    <td>
+                        <button
+                            class="btn btn-warning btn-sm"
+                            onclick="editCategory(${category.id}, '${category.name}')"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            class="btn btn-danger btn-sm"
+                            onclick="deleteCategory(${category.id})"
+                        >
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function saveCategory() {
+
+    const name = document.getElementById('category-name').value;
+
+    if (!name.trim()) {
+        alert('Category name required');
+        return;
+    }
+
+    try {
+
+        let url = '/api/categories';
+        let method = 'POST';
+
+        if (editingCategoryId) {
+            url = `/api/categories/${editingCategoryId}`;
+            method = 'PUT';
+        }
+
+        const res = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
+            },
+            body: JSON.stringify({
+                name: name
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.message || 'Error');
+            return;
+        }
+
+        document.getElementById('category-name').value = '';
+
+        cancelEdit();
+
+        loadCategories();
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function editCategory(id, name) {
+
+    editingCategoryId = id;
+
+    document.getElementById('category-name').value = name;
+
+    document.getElementById('category-form-title').innerText = 'Edit Category';
+
+    document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+}
+
+function cancelEdit() {
+
+    editingCategoryId = null;
+
+    document.getElementById('category-name').value = '';
+
+    document.getElementById('category-form-title').innerText = 'Add Category';
+
+    document.getElementById('cancel-edit-btn').style.display = 'none';
+}
+
+async function deleteCategory(id) {
+
+    const ok = confirm('Delete this category?');
+
+    if (!ok) return;
+
+    try {
+
+        const res = await fetch(`/api/categories/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
+            }
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.message || 'Delete failed');
+            return;
+        }
+
+        loadCategories();
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+loadCategories();
+
 </script>
 
 </body>
