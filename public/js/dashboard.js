@@ -4,6 +4,18 @@ const API_PRODUCTS = "/api/products";
 
 
 
+
+// =========================
+// AUTH CHECK
+// =========================
+
+const token = localStorage.getItem("auth_token");
+
+if (!token) {
+    window.location.href = "/login";
+}
+
+
 // tabs
 function showTab(tabId) {
 
@@ -28,27 +40,30 @@ function goProfile() {
 
 
 // logout
-function confirmLogout() {
+async function confirmLogout() {
 
     let ok = confirm("Are you sure you want to logout?");
 
-    if (ok) {
+    if (!ok) return;
 
-        fetch("/api/logout", {
+    try {
+
+        await fetch("/api/logout", {
             method: "POST",
 
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("auth_token"),
                 "Content-Type": "application/json"
             }
-
-        }).finally(() => {
-
-            localStorage.removeItem("auth_token");
-
-            window.location.href = "/";
         });
+
+    } catch (e) {
+        console.log(e);
     }
+
+    localStorage.removeItem("auth_token");
+
+    window.location.href = "/login";
 }
 // =========================
 // CATEGORY
