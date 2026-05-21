@@ -47,7 +47,8 @@ class AreaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'city_id' => 'required|exists:cities,id',
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255',
+            'fee' => 'nullable|numeric|min:0'
         ]);
 
         if ($validator->fails()) {
@@ -58,7 +59,8 @@ class AreaController extends Controller
 
         $area = Area::create([
             'city_id' => $request->city_id,
-            'name' => $request->name
+            'name' => $request->name,
+            'fee' => $request->fee ?? 0
         ]);
 
         return $this->created(
@@ -80,7 +82,8 @@ class AreaController extends Controller
 
         $validator = Validator::make($request->all(), [
             'city_id' => 'required|exists:cities,id',
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255',
+            'fee' => 'nullable|numeric|min:0'
         ]);
 
         if ($validator->fails()) {
@@ -91,7 +94,8 @@ class AreaController extends Controller
 
         $area->update([
             'city_id' => $request->city_id,
-            'name' => $request->name
+            'name' => $request->name,
+            'fee' => $request->fee ?? 0
         ]);
 
         return $this->success(

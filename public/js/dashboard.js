@@ -148,7 +148,7 @@ async function loadProducts() {
     document.getElementById("products-table-body").innerHTML = html;
 }
 
-async function addProduct() {
+async function saveProduct() {
 
     let formData = new FormData();
 
@@ -234,6 +234,42 @@ async function loadCities() {
     document.getElementById("cities-table-body").innerHTML = html;
 }
 
+async function saveCity() {
+
+    let name = document.getElementById("city-name").value;
+
+    if (!name.trim()) {
+        return alert("Required");
+    }
+
+    let url = API_CITIES;
+    let method = "POST";
+
+    if (editState.type === "city") {
+        url = `${API_CITIES}/${editState.id}`;
+        method = "PUT";
+    }
+
+    await fetch(url, {
+        method,
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({
+            name
+        })
+    });
+
+    resetEdit();
+
+    document.getElementById("city-name").value = "";
+
+    await loadCities();
+    await loadCitySelect();
+    await loadAreas();
+}
+
 async function loadCitySelect() {
     let res = await fetch(API_CITIES);
     let data = await res.json();
@@ -274,6 +310,7 @@ async function loadAreas() {
             <td>${a.id}</td>
             <td>${a.name}</td>
             <td>${a.city?.name ?? '-'}</td>
+            <td>${a.fee ?? 0}</td>
             <td>
                 <button onclick='startEdit("area", ${JSON.stringify(a)})'>Edit</button>
                 <button onclick="deleteArea(${a.id})">Delete</button>
@@ -284,10 +321,11 @@ async function loadAreas() {
     document.getElementById("areas-table-body").innerHTML = html;
 }
 
-async function addArea() {
+async function saveArea() {
 
     let cityId = document.getElementById("area-city").value;
     let name = document.getElementById("area-name").value;
+    let fee = document.getElementById("area-fee").value;
 
     let url = API_AREAS;
     let method = "POST";
@@ -305,7 +343,8 @@ async function addArea() {
         },
         body: JSON.stringify({
             city_id: cityId,
-            name
+            name,
+            fee
         })
     });
 
@@ -343,14 +382,19 @@ function startEdit(type, item) {
     }
 
     if (type === "area") {
-        document.getElementById("edit-area-name").value = item.name;
 
-        loadCitiesForEdit().then(() => {
-            document.getElementById("edit-area-city").value = item.city_id;
-        });
+    document.getElementById("edit-area-name").value = item.name;
 
-        document.getElementById("areaModal").style.display = "flex";
-    }
+    document.getElementById("edit-area-fee").value =
+        item.fee ?? 0;
+
+    loadCitiesForEdit().then(() => {
+        document.getElementById("edit-area-city").value =
+            item.city_id;
+    });
+
+    document.getElementById("areaModal").style.display = "flex";
+}
 
     if (type === "product") {
 
@@ -439,7 +483,8 @@ async function saveEdit() {
 
         body = {
             name: document.getElementById("edit-area-name").value,
-            city_id: document.getElementById("edit-area-city").value
+            city_id: document.getElementById("edit-area-city").value,
+            fee: document.getElementById("edit-area-fee").value
         };
 
         url = `${API_AREAS}/${editState.id}`;

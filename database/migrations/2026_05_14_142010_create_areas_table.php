@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('city_id')->constrained('cities')->onDelete('cascade');
             $table->string('name');
+            $table->decimal('fee', 10, 2)->nullable()->default(0);
             $table->timestamps();
         });
     }

@@ -214,7 +214,7 @@ body {
 
         <br>
 
-        <button class="btn btn-primary" onclick="addCategory()">
+        <button class="btn btn-primary" onclick="saveCategory()">
             Save
         </button>
 
@@ -323,7 +323,7 @@ body {
 
         <button
             class="btn btn-primary"
-            onclick="addProduct()"
+            onclick="saveProduct()"
         >
             Save
         </button>
@@ -387,7 +387,7 @@ body {
 
         <button
             class="btn btn-primary"
-            onclick="addCity()"
+            onclick="saveCity()"
         >
             Save
         </button>
@@ -449,9 +449,20 @@ body {
 
         <br>
 
+        <!-- FEE -->
+        <input
+            type="number"
+            id="area-fee"
+            class="form-control"
+            placeholder="Shipping fee"
+            step="0.01"
+        >
+
+        <br>
+
         <button
             class="btn btn-primary"
-            onclick="addArea()"
+            onclick="saveArea()"
         >
             Save
         </button>
@@ -470,6 +481,7 @@ body {
                     <th>ID</th>
                     <th>Area</th>
                     <th>City</th>
+                    <th>Fee</th>
                     <th width="150">Actions</th>
                 </tr>
             </thead>
@@ -549,6 +561,13 @@ body {
 
         <label>City</label>
         <select id="edit-area-city"></select>
+
+        <label>Shipping Fee</label>
+        <input
+            type="number"
+            id="edit-area-fee"
+            step="0.01"
+        >
 
         <button onclick="saveEdit()">Save</button>
         <button onclick="closeAllModals()">Cancel</button>
