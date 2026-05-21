@@ -79,6 +79,90 @@ body {
 .tab-content.active {
     display: block;
 }
+
+
+/* =========================
+   MODAL BACKDROP
+========================= */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+
+    justify-content: center;
+    align-items: center;
+}
+
+/* =========================
+   MODAL BOX
+========================= */
+.modal > div {
+    background: #fff;
+    width: 420px;
+    max-width: 95%;
+    padding: 20px;
+    border-radius: 12px;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+    animation: pop 0.2s ease;
+}
+
+/* =========================
+   INPUTS
+========================= */
+.modal input,
+.modal select,
+.modal textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+
+    border: 1px solid #ddd;
+    border-radius: 6px;
+
+    font-size: 14px;
+}
+
+/* =========================
+   BUTTONS (inside modal)
+========================= */
+.modal button {
+    margin-top: 15px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+
+    cursor: pointer;
+}
+
+.modal button:first-of-type {
+    background: #D10024;
+    color: white;
+}
+
+.modal button:last-of-type {
+    background: #ccc;
+}
+
+/* =========================
+   ANIMATION
+========================= */
+@keyframes pop {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
 </style>
 </head>
 
@@ -400,6 +484,79 @@ body {
     
 
 </div>
+
+
+
+<div id="categoryModal" class="modal">
+    <div>
+        <h3>Edit Category</h3>
+
+        <label>Category Name</label>
+        <input id="edit-category-name">
+
+        <button onclick="saveEdit()">Save</button>
+        <button onclick="closeAllModals()">Cancel</button>
+    </div>
+</div>
+
+
+<div id="productModal" class="modal">
+    <div>
+        <h3>Edit Product</h3>
+
+        <label>Product Name</label>
+        <input id="edit-product-name">
+
+        <label>Category</label>
+        <select id="edit-product-category"></select>
+
+        <label>Price</label>
+        <input id="edit-product-price" type="number">
+
+        <label>Stock</label>
+        <input id="edit-product-stock" type="number">
+
+        <label>Description</label>
+        <textarea id="edit-product-desc"></textarea>
+
+        <label>Image</label>
+        <input type="file" id="edit-product-image">
+
+        <button onclick="saveEdit()">Save</button>
+        <button onclick="closeAllModals()">Cancel</button>
+    </div>
+</div>
+
+<div id="cityModal" class="modal">
+    <div>
+        <h3>Edit City</h3>
+
+        <label>City Name</label>
+        <input id="edit-city-name">
+
+        <button onclick="saveEdit()">Save</button>
+        <button onclick="closeAllModals()">Cancel</button>
+    </div>
+</div>
+
+
+<div id="areaModal" class="modal">
+    <div>
+        <h3>Edit Area</h3>
+
+        <label>Area Name</label>
+        <input id="edit-area-name">
+
+        <label>City</label>
+        <select id="edit-area-city"></select>
+
+        <button onclick="saveEdit()">Save</button>
+        <button onclick="closeAllModals()">Cancel</button>
+    </div>
+</div>
+
+
+
 
 <script src="/js/dashboard.js"></script>
 </body>

@@ -1,107 +1,76 @@
 // =========================
-// API ENDPOINTS
+// API
 // =========================
 const API_CATEGORIES = "/api/categories";
 const API_PRODUCTS   = "/api/products";
 const API_CITIES     = "/api/cities";
 const API_AREAS      = "/api/areas";
 
-
-// =========================
-// AUTH CHECK
-// =========================
 const token = localStorage.getItem("auth_token");
-
-if (!token) {
-    window.location.href = "/login";
-}
+if (!token) window.location.href = "/login";
 
 
 // =========================
-// TAB SYSTEM (WITH PERSISTENCE)
+// TAB SYSTEM
 // =========================
 function showTab(tabId) {
-
-    let tabs = document.querySelectorAll('.tab-content');
-
-    tabs.forEach(t => {
-        t.classList.remove('active');
-        t.style.display = 'none';
+    document.querySelectorAll(".tab-content").forEach(t => {
+        t.classList.remove("active");
+        t.style.display = "none";
     });
 
-    let activeTab = document.getElementById(tabId);
-
-    if (activeTab) {
-        activeTab.style.display = 'block';
-        activeTab.classList.add('active');
+    let tab = document.getElementById(tabId);
+    if (tab) {
+        tab.style.display = "block";
+        tab.classList.add("active");
     }
 
     localStorage.setItem("activeTab", tabId);
 }
 
-window.addEventListener("load", function () {
+window.addEventListener("load", () => {
+    showTab(localStorage.getItem("activeTab") || "categories");
 
-    let savedTab = localStorage.getItem("activeTab");
-
-    if (savedTab) {
-        showTab(savedTab);
-    } else {
-        showTab("categories");
-    }
-
+    boot();
 });
 
-
-// =========================
-// LOGOUT
-// =========================
-async function confirmLogout() {
-
-    if (!confirm("Are you sure?")) return;
-
-    try {
-        await fetch("/api/logout", {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json"
-            }
-        });
-    } catch (e) {
-        console.log(e);
-    }
-
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("activeTab");
-
-    window.location.href = "/login";
+function boot() {
+    loadCategories();
+    loadProducts();
+    loadCities();
+    loadAreas();
+    loadProductCategories();
+    loadCitySelect();
 }
 
 
-// =======================================================
+// =========================
+// EDIT STATE
+// =========================
+let editState = {
+    type: null,
+    id: null,
+    data: null
+};
+
+
+// =========================
 // CATEGORIES
-// =======================================================
-
-loadCategories();
-
+// =========================
 async function loadCategories() {
-
     let res = await fetch(API_CATEGORIES);
     let data = await res.json();
 
     let html = "";
 
-    data.data.forEach(category => {
-
+    data.data.forEach(c => {
         html += `
         <tr>
-            <td>${category.id}</td>
-            <td>${category.name}</td>
+            <td>${c.id}</td>
+            <td>${c.name}</td>
             <td>
-                <button class="btn btn-danger btn-sm"
-                    onclick="deleteCategory(${category.id})">
-                    Delete
-                </button>
+                <button onclick='startEdit("category", ${JSON.stringify(c)})'>Edit</button>
+                <button onclick="deleteCategory(${c.id})">Delete</button>
             </td>
         </tr>`;
     });
@@ -109,16 +78,20 @@ async function loadCategories() {
     document.getElementById("categories-table-body").innerHTML = html;
 }
 
-
-// ADD CATEGORY
-async function addCategory() {
-
+async function saveCategory() {
     let name = document.getElementById("category-name").value;
+    if (!name.trim()) return alert("Required");
 
-    if (!name.trim()) return alert("Category required");
+    let url = API_CATEGORIES;
+    let method = "POST";
 
-    await fetch(API_CATEGORIES, {
-        method: "POST",
+    if (editState.type === "category") {
+        url = `${API_CATEGORIES}/${editState.id}`;
+        method = "PUT";
+    }
+
+    await fetch(url, {
+        method,
         headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token
@@ -126,38 +99,104 @@ async function addCategory() {
         body: JSON.stringify({ name })
     });
 
-    document.getElementById("category-name").value = "";
-
-    loadCategories();
-    loadProductCategories(); // 🔥 مهم
+    resetEdit();
+    await loadCategories();
+    await loadProductCategories();
+    await loadProducts();
 }
 
-
-// DELETE CATEGORY
 async function deleteCategory(id) {
-
-    if (!confirm("Delete category?")) return;
-
-    await fetch(API_CATEGORIES + "/" + id, {
+    await fetch(`${API_CATEGORIES}/${id}`, {
         method: "DELETE",
         headers: { "Authorization": "Bearer " + token }
     });
 
-    loadCategories();
-    loadProductCategories();
+    await loadCategories();
+    await loadProductCategories();
+    await loadProducts();
 }
 
 
-
-// =======================================================
+// =========================
 // PRODUCTS
-// =======================================================
+// =========================
+async function loadProducts() {
 
-loadProducts();
-loadProductCategories();
+    let res = await fetch(API_PRODUCTS);
+    let data = await res.json();
 
+    let items = data.data ?? data;
+
+    let html = "";
+
+    items.forEach(p => {
+        html += `
+        <tr>
+            <td>${p.id}</td>
+            <td><img src="/storage/${p.image}" width="50"></td>
+            <td>${p.name}</td>
+            <td>${p.category?.name ?? '-'}</td>
+            <td>${p.price}</td>
+            <td>${p.stock}</td>
+            <td>
+                <button onclick='startEdit("product", ${JSON.stringify(p)})'>Edit</button>
+                <button onclick="deleteProduct(${p.id})">Delete</button>
+            </td>
+        </tr>`;
+    });
+
+    document.getElementById("products-table-body").innerHTML = html;
+}
+
+async function addProduct() {
+
+    let formData = new FormData();
+
+    formData.append("category_id", document.getElementById("product-category").value);
+    formData.append("name", document.getElementById("product-name").value);
+    formData.append("description", document.getElementById("product-description").value);
+    formData.append("price", document.getElementById("product-price").value);
+    formData.append("stock", document.getElementById("product-stock").value);
+    formData.append("image", document.getElementById("product-image").files[0]);
+
+    let url = API_PRODUCTS;
+    let method = "POST";
+
+    if (editState.type === "product") {
+        url = `${API_PRODUCTS}/${editState.id}`;
+        method = "POST"; // حسب API عندك
+    }
+
+    await fetch(url, {
+        method,
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        body: formData
+    });
+
+    resetEdit();
+    await loadProducts();
+}
+
+
+// =========================
+// DELETE PRODUCT
+// =========================
+async function deleteProduct(id) {
+    await fetch(`${API_PRODUCTS}/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
+    });
+
+    await loadProducts();
+}
+
+
+// =========================
+// PRODUCT CATEGORIES SELECT
+// =========================
 async function loadProductCategories() {
-
     let res = await fetch(API_CATEGORIES);
     let data = await res.json();
 
@@ -171,45 +210,10 @@ async function loadProductCategories() {
 }
 
 
-async function loadProducts() {
-
-    let res = await fetch(API_PRODUCTS);
-    let data = await res.json();
-
-    let html = "";
-
-    data.data.forEach(p => {
-
-        html += `
-        <tr>
-            <td>${p.id}</td>
-            <td><img src="/storage/${p.image}" width="50"></td>
-            <td>${p.name}</td>
-            <td>${p.category?.name ?? '-'}</td>
-            <td>${p.price}$</td>
-            <td>${p.stock}</td>
-            <td>
-                <button class="btn btn-danger btn-sm"
-                    onclick="deleteProduct(${p.id})">
-                    Delete
-                </button>
-            </td>
-        </tr>`;
-    });
-
-    document.getElementById("products-table-body").innerHTML = html;
-}
-
-
-// =======================================================
+// =========================
 // CITIES
-// =======================================================
-
-loadCities();
-loadCitySelect();
-
+// =========================
 async function loadCities() {
-
     let res = await fetch(API_CITIES);
     let data = await res.json();
 
@@ -221,10 +225,8 @@ async function loadCities() {
             <td>${c.id}</td>
             <td>${c.name}</td>
             <td>
-                <button class="btn btn-danger btn-sm"
-                    onclick="deleteCity(${c.id})">
-                    Delete
-                </button>
+                <button onclick='startEdit("city", ${JSON.stringify(c)})'>Edit</button>
+                <button onclick="deleteCity(${c.id})">Delete</button>
             </td>
         </tr>`;
     });
@@ -232,86 +234,49 @@ async function loadCities() {
     document.getElementById("cities-table-body").innerHTML = html;
 }
 
-
-// dropdown (city → areas page)
 async function loadCitySelect() {
+    let res = await fetch(API_CITIES);
+    let data = await res.json();
 
-    try {
-        let res = await fetch(API_CITIES);
-        let data = await res.json();
+    let html = `<option value="">Select City</option>`;
 
-        console.log("CITIES SELECT:", data);
-
-        let html = `<option value="">Select City</option>`;
-
-        data.data.forEach(c => {
-            html += `<option value="${c.id}">${c.name}</option>`;
-        });
-
-        const citySelect = document.getElementById("area-city");
-
-        if (!citySelect) {
-            console.error("area-city not found in DOM");
-            return;
-        }
-
-        citySelect.innerHTML = html;
-
-    } catch (err) {
-        console.error("CITY SELECT ERROR:", err);
-    }
-}
-
-
-// ADD CITY
-async function addCity() {
-
-    let name = document.getElementById("city-name").value;
-
-    if (!name.trim()) return alert("City required");
-
-    await fetch(API_CITIES, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify({ name })
+    data.data.forEach(c => {
+        html += `<option value="${c.id}">${c.name}</option>`;
     });
 
-    document.getElementById("city-name").value = "";
+    document.getElementById("area-city").innerHTML = html;
+}
 
-    loadCities();
-    loadCitySelect();
+async function deleteCity(id) {
+    await fetch(`${API_CITIES}/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
+    });
+
+    await loadCities();
+    await loadCitySelect();
+    await loadAreas();
 }
 
 
-
-// =======================================================
-// AREAS (DEPENDENT ON CITY)
-// =======================================================
-
-loadAreas();
-
+// =========================
+// AREAS
+// =========================
 async function loadAreas() {
-
     let res = await fetch(API_AREAS);
     let data = await res.json();
 
     let html = "";
 
     data.data.forEach(a => {
-
         html += `
         <tr>
             <td>${a.id}</td>
             <td>${a.name}</td>
             <td>${a.city?.name ?? '-'}</td>
             <td>
-                <button class="btn btn-danger btn-sm"
-                    onclick="deleteArea(${a.id})">
-                    Delete
-                </button>
+                <button onclick='startEdit("area", ${JSON.stringify(a)})'>Edit</button>
+                <button onclick="deleteArea(${a.id})">Delete</button>
             </td>
         </tr>`;
     });
@@ -319,59 +284,21 @@ async function loadAreas() {
     document.getElementById("areas-table-body").innerHTML = html;
 }
 
-
-// CITY → AREAS dropdown (checkout / form)
-document.addEventListener("DOMContentLoaded", function () {
-
-    const citySelect = document.getElementById("area-city");
-    const areaSelect = document.getElementById("area-select") 
-        || document.getElementById("area-city"); // fallback
-
-    if (!citySelect) {
-        console.error("city select missing");
-        return;
-    }
-
-    citySelect.addEventListener("change", async function () {
-
-        let cityId = this.value;
-
-        console.log("CITY ID:", cityId);
-
-        if (!cityId) {
-            areaSelect.innerHTML = `<option value="">Select Area</option>`;
-            return;
-        }
-
-        let res = await fetch(`/api/cities/${cityId}/areas`);
-        let data = await res.json();
-
-        console.log("AREAS RAW:", data);
-
-        let html = `<option value="">Select Area</option>`;
-
-        data.forEach(a => {
-            html += `<option value="${a.id}">${a.name}</option>`;
-        });
-
-        areaSelect.innerHTML = html;
-    });
-
-});
-
-
-
-// ADD AREA
 async function addArea() {
 
     let cityId = document.getElementById("area-city").value;
     let name = document.getElementById("area-name").value;
 
-    if (!cityId) return alert("Select city");
-    if (!name.trim()) return alert("Area required");
+    let url = API_AREAS;
+    let method = "POST";
 
-    await fetch(API_AREAS, {
-        method: "POST",
+    if (editState.type === "area") {
+        url = `${API_AREAS}/${editState.id}`;
+        method = "PUT";
+    }
+
+    await fetch(url, {
+        method,
         headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token
@@ -382,7 +309,206 @@ async function addArea() {
         })
     });
 
-    document.getElementById("area-name").value = "";
-
-    loadAreas();
+    resetEdit();
+    await loadAreas();
 }
+
+async function deleteArea(id) {
+    await fetch(`${API_AREAS}/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
+    });
+
+    await loadAreas();
+}
+
+
+// =========================
+// EDIT SYSTEM
+// =========================
+function startEdit(type, item) {
+
+    editState = { type, id: item.id, data: item };
+
+    closeAllModals();
+
+    if (type === "category") {
+        document.getElementById("edit-category-name").value = item.name;
+        document.getElementById("categoryModal").style.display = "flex";
+    }
+
+    if (type === "city") {
+        document.getElementById("edit-city-name").value = item.name;
+        document.getElementById("cityModal").style.display = "flex";
+    }
+
+    if (type === "area") {
+        document.getElementById("edit-area-name").value = item.name;
+
+        loadCitiesForEdit().then(() => {
+            document.getElementById("edit-area-city").value = item.city_id;
+        });
+
+        document.getElementById("areaModal").style.display = "flex";
+    }
+
+    if (type === "product") {
+
+        document.getElementById("edit-product-name").value = item.name;
+        document.getElementById("edit-product-price").value = item.price;
+        document.getElementById("edit-product-stock").value = item.stock;
+        document.getElementById("edit-product-desc").value = item.description || "";
+
+        loadCategoriesForEdit().then(() => {
+            document.getElementById("edit-product-category").value = item.category_id;
+        });
+
+        document.getElementById("productModal").style.display = "flex";
+    }
+}
+
+function closeAllModals() {
+    document.getElementById("categoryModal").style.display = "none";
+    document.getElementById("cityModal").style.display = "none";
+    document.getElementById("areaModal").style.display = "none";
+    document.getElementById("productModal").style.display = "none";
+}
+
+
+
+async function loadCategoriesForEdit() {
+    let res = await fetch(API_CATEGORIES);
+    let data = await res.json();
+
+    let html = "";
+
+    data.data.forEach(c => {
+        html += `<option value="${c.id}">${c.name}</option>`;
+    });
+
+    document.getElementById("edit-product-category").innerHTML = html;
+}
+
+
+
+
+async function loadCitiesForEdit() {
+    let res = await fetch(API_CITIES);
+    let data = await res.json();
+
+    let html = "";
+
+    data.data.forEach(c => {
+        html += `<option value="${c.id}">${c.name}</option>`;
+    });
+
+    document.getElementById("edit-area-city").innerHTML = html;
+}
+
+
+// =========================
+// SAVE EDIT
+// =========================
+async function saveEdit() {
+
+    let body = {};
+    let url = "";
+
+    // CATEGORY
+    if (editState.type === "category") {
+
+        body = {
+            name: document.getElementById("edit-category-name").value
+        };
+
+        url = `${API_CATEGORIES}/${editState.id}`;
+    }
+
+    // CITY
+    if (editState.type === "city") {
+
+        body = {
+            name: document.getElementById("edit-city-name").value
+        };
+
+        url = `${API_CITIES}/${editState.id}`;
+    }
+
+    // AREA
+    if (editState.type === "area") {
+
+        body = {
+            name: document.getElementById("edit-area-name").value,
+            city_id: document.getElementById("edit-area-city").value
+        };
+
+        url = `${API_AREAS}/${editState.id}`;
+    }
+
+    // PRODUCT
+    if (editState.type === "product") {
+
+        body = {
+            name: document.getElementById("edit-product-name").value,
+            price: document.getElementById("edit-product-price").value,
+            stock: document.getElementById("edit-product-stock").value,
+            description: document.getElementById("edit-product-desc").value,
+            category_id: document.getElementById("edit-product-category").value
+        };
+
+        url = `${API_PRODUCTS}/${editState.id}`;
+    }
+
+    let res = await fetch(url, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+        console.error(await res.text());
+        return;
+    }
+
+    closeAllModals();
+
+    await loadCategories();
+    await loadCities();
+    await loadAreas();
+    await loadProducts();
+}
+
+
+// =========================
+// RESET
+// =========================
+function resetEdit() {
+    editState = { type: null, id: null, data: null };
+
+    document.getElementById("category-name").value = "";
+    document.getElementById("city-name").value = "";
+    document.getElementById("area-name").value = "";
+}
+
+
+// =========================
+// CITY → AREAS
+// =========================
+document.addEventListener("change", async (e) => {
+
+    if (e.target.id !== "city-select") return;
+
+    let res = await fetch(`/api/cities/${e.target.value}/areas`);
+    let data = await res.json();
+
+    let html = `<option value="">Select Area</option>`;
+
+    data.data.forEach(a => {
+        html += `<option value="${a.id}">${a.name}</option>`;
+    });
+
+    document.getElementById("area-select").innerHTML = html;
+}); 
