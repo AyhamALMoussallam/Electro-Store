@@ -118,4 +118,10 @@ class AreaController extends Controller
             'Area deleted successfully'
         );
     }
+
+
+        public function byCity($cityId)
+    {
+        return Area::where('city_id', $cityId)->get();
+    }
 }

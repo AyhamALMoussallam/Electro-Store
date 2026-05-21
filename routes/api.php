@@ -10,6 +10,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\AreaController;
+use App\Http\Controllers\CartItemController;
 
 
 
@@ -67,3 +68,16 @@ Route::apiResource('products', ProductController::class);
 Route::apiResource('cities', CityController::class);
 
 Route::apiResource('areas', AreaController::class);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::apiResource(
+        'cart-items',
+        CartItemController::class
+    );
+
+});
+
+Route::get('/cities/{id}/areas', [CityController::class, 'areas']);
+Route::get('/cities/{city}/areas', [AreaController::class, 'byCity']);

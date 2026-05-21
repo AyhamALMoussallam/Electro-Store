@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\City;
+use App\Models\Area;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -112,4 +113,10 @@ class CityController extends Controller
             'City deleted successfully'
         );
     }
+
+
+    public function areas($id)
+{
+    return Area::where('city_id', $id)->get();
+}
 }
