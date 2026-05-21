@@ -270,8 +270,13 @@
 
 							<div class="order-col">
 								<div>Shipping</div>
-								<div><strong>FREE</strong></div>
-							</div>
+
+									<div>
+										<strong id="shipping-fee">
+											FREE
+										</strong>
+									</div>
+								</div>
 
 							<div class="order-col">
 								<div><strong>TOTAL</strong></div>
@@ -465,6 +470,8 @@
 
 		<script>
 
+		let shippingFee = 0;
+
 		async function loadCheckoutCart() {
 
 			let token = localStorage.getItem("auth_token");
@@ -483,7 +490,8 @@
 			let items = data.data;
 
 			let html = "";
-			let total = 0;
+
+			cartSubtotal = 0;
 
 			items.forEach(item => {
 
@@ -491,7 +499,7 @@
 					item.quantity *
 					item.product.price;
 
-				total += subtotal;
+				cartSubtotal += subtotal;
 
 				html += `
 					<div class="order-col">
@@ -511,10 +519,26 @@
 				"checkout-products"
 			).innerHTML = html;
 
+			updateCheckoutTotal();
+		}
+
+		let cartSubtotal = 0;
+
+
+		// =========================
+		// UPDATE TOTAL
+		// =========================
+		function updateCheckoutTotal() {
+
+			let finalTotal =
+				cartSubtotal + shippingFee;
+
 			document.getElementById(
 				"checkout-total"
-			).innerText = "$" + total;
+			).innerText =
+				"$" + finalTotal.toFixed(2);
 		}
+
 
 		loadCheckoutCart();
 
@@ -542,6 +566,39 @@
 				`;
 			});
 		});
+
+
+
+document.getElementById("area-select").addEventListener("change", async function () {
+
+    let areaId = this.value;
+
+    // no area selected
+    if (!areaId) {
+
+        shippingFee = 0;
+
+        document.getElementById("shipping-fee").innerText =
+            "FREE";
+
+        updateCheckoutTotal();
+
+        return;
+    }
+
+    // get area
+    let res = await fetch(`/api/areas/${areaId}`);
+    let data = await res.json();
+
+    shippingFee = Number(data.data.fee ?? 0);
+
+    // render fee
+    document.getElementById("shipping-fee").innerText =
+        `$${shippingFee.toFixed(2)}`;
+
+    // update total
+    updateCheckoutTotal();
+});
 
 
 		</script>	
