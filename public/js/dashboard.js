@@ -512,3 +512,48 @@ document.addEventListener("change", async (e) => {
 
     document.getElementById("area-select").innerHTML = html;
 }); 
+
+
+
+
+
+
+
+
+
+// =========================
+// PROFILE
+// =========================
+function goProfile() {
+    window.location.href = "/profile";
+}
+
+
+// =========================
+// LOGOUT
+// =========================
+async function confirmLogout() {
+
+    let ok = confirm("Are you sure you want to logout?");
+
+    if (!ok) return;
+
+    try {
+
+        await fetch("/api/logout", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            }
+        });
+
+    } catch (err) {
+        console.error(err);
+    }
+
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("activeTab");
+
+    window.location.href = "/login";
+}
