@@ -536,7 +536,7 @@
 
 			areaSelect.innerHTML = '<option value="">Select Area</option>';
 
-			data.forEach(area => {
+			data.data.forEach(area => {
 				areaSelect.innerHTML += `
 					<option value="${area.id}">${area.name}</option>
 				`;

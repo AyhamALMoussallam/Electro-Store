@@ -116,7 +116,11 @@ class CityController extends Controller
 
 
     public function areas($id)
-{
-    return Area::where('city_id', $id)->get();
-}
+    {
+        $areas = Area::where('city_id', $id)->get();
+
+        return response()->json([
+            'data' => $areas
+        ]);
+    }
 }

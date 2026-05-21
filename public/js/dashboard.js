@@ -1,14 +1,15 @@
+// =========================
+// API ENDPOINTS
+// =========================
 const API_CATEGORIES = "/api/categories";
-const API_PRODUCTS = "/api/products";
-
-
-
+const API_PRODUCTS   = "/api/products";
+const API_CITIES     = "/api/cities";
+const API_AREAS      = "/api/areas";
 
 
 // =========================
 // AUTH CHECK
 // =========================
-
 const token = localStorage.getItem("auth_token");
 
 if (!token) {
@@ -16,7 +17,9 @@ if (!token) {
 }
 
 
-// tabs
+// =========================
+// TAB SYSTEM (WITH PERSISTENCE)
+// =========================
 function showTab(tabId) {
 
     let tabs = document.querySelectorAll('.tab-content');
@@ -28,51 +31,59 @@ function showTab(tabId) {
 
     let activeTab = document.getElementById(tabId);
 
-    activeTab.style.display = 'block';
-    activeTab.classList.add('active');
+    if (activeTab) {
+        activeTab.style.display = 'block';
+        activeTab.classList.add('active');
+    }
+
+    localStorage.setItem("activeTab", tabId);
 }
 
+window.addEventListener("load", function () {
 
-// profile
-function goProfile() {
-    window.location.href = "/profile";
-}
+    let savedTab = localStorage.getItem("activeTab");
+
+    if (savedTab) {
+        showTab(savedTab);
+    } else {
+        showTab("categories");
+    }
+
+});
 
 
-// logout
+// =========================
+// LOGOUT
+// =========================
 async function confirmLogout() {
 
-    let ok = confirm("Are you sure you want to logout?");
-
-    if (!ok) return;
+    if (!confirm("Are you sure?")) return;
 
     try {
-
         await fetch("/api/logout", {
             method: "POST",
-
             headers: {
-                "Authorization": "Bearer " + localStorage.getItem("auth_token"),
+                "Authorization": "Bearer " + token,
                 "Content-Type": "application/json"
             }
         });
-
     } catch (e) {
         console.log(e);
     }
 
     localStorage.removeItem("auth_token");
+    localStorage.removeItem("activeTab");
 
     window.location.href = "/login";
 }
-// =========================
-// CATEGORY
-// =========================
+
+
+// =======================================================
+// CATEGORIES
+// =======================================================
 
 loadCategories();
 
-
-// LOAD CATEGORIES
 async function loadCategories() {
 
     let res = await fetch(API_CATEGORIES);
@@ -85,22 +96,18 @@ async function loadCategories() {
         html += `
         <tr>
             <td>${category.id}</td>
-
             <td>${category.name}</td>
-
             <td>
-                <button
-                    class="btn btn-danger btn-sm"
+                <button class="btn btn-danger btn-sm"
                     onclick="deleteCategory(${category.id})">
                     Delete
                 </button>
             </td>
-        </tr>
-        `;
+        </tr>`;
     });
 
-    document.getElementById("categories-table-body").innerHTML = html;}
-
+    document.getElementById("categories-table-body").innerHTML = html;
+}
 
 
 // ADD CATEGORY
@@ -108,89 +115,62 @@ async function addCategory() {
 
     let name = document.getElementById("category-name").value;
 
-    if(name.trim() == "") {
-        alert("Category name required");
-        return;
-    }
+    if (!name.trim()) return alert("Category required");
 
     await fetch(API_CATEGORIES, {
         method: "POST",
-
         headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.getItem("auth_token")
+            "Authorization": "Bearer " + token
         },
-
-        body: JSON.stringify({
-            name: name
-        })
+        body: JSON.stringify({ name })
     });
 
     document.getElementById("category-name").value = "";
 
     loadCategories();
+    loadProductCategories(); // 🔥 مهم
 }
-
 
 
 // DELETE CATEGORY
 async function deleteCategory(id) {
 
-    let ok = confirm("Delete category?");
-
-    if(!ok) return;
+    if (!confirm("Delete category?")) return;
 
     await fetch(API_CATEGORIES + "/" + id, {
-
         method: "DELETE",
-
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("auth_token")
-        }
+        headers: { "Authorization": "Bearer " + token }
     });
 
     loadCategories();
+    loadProductCategories();
 }
 
 
 
-// =========================
+// =======================================================
 // PRODUCTS
-// =========================
+// =======================================================
 
 loadProducts();
 loadProductCategories();
 
-
-
-// LOAD CATEGORIES INTO SELECT
 async function loadProductCategories() {
 
     let res = await fetch(API_CATEGORIES);
     let data = await res.json();
 
-    let html = `
-        <option value="">
-            Select Category
-        </option>
-    `;
+    let html = `<option value="">Select Category</option>`;
 
-    data.data.forEach(category => {
-
-        html += `
-            <option value="${category.id}">
-                ${category.name}
-            </option>
-        `;
+    data.data.forEach(c => {
+        html += `<option value="${c.id}">${c.name}</option>`;
     });
 
     document.getElementById("product-category").innerHTML = html;
 }
 
 
-
-
-// LOAD PRODUCTS
 async function loadProducts() {
 
     let res = await fetch(API_PRODUCTS);
@@ -198,154 +178,36 @@ async function loadProducts() {
 
     let html = "";
 
-    data.data.forEach(product => {
+    data.data.forEach(p => {
 
         html += `
         <tr>
-
-            <td>${product.id}</td>
-
+            <td>${p.id}</td>
+            <td><img src="/storage/${p.image}" width="50"></td>
+            <td>${p.name}</td>
+            <td>${p.category?.name ?? '-'}</td>
+            <td>${p.price}$</td>
+            <td>${p.stock}</td>
             <td>
-                <img
-                    src="/storage/${product.image}"
-                    width="50">
-            </td>
-
-            <td>${product.name}</td>
-
-            <td>${product.category?.name ?? '-'}</td>
-
-            <td>${product.price}$</td>
-
-            <td>${product.stock}</td>
-
-            <td>
-                <button
-                    onclick="deleteProduct(${product.id})"
-                    class="btn btn-danger btn-sm">
+                <button class="btn btn-danger btn-sm"
+                    onclick="deleteProduct(${p.id})">
                     Delete
                 </button>
             </td>
-
-        </tr>
-        `;
+        </tr>`;
     });
 
     document.getElementById("products-table-body").innerHTML = html;
 }
 
 
-
-
-// ADD PRODUCT
-async function addProduct() {
-
-    let imageInput = document.getElementById("product-image");
-
-    if(imageInput.files.length === 0) {
-        alert("Choose image");
-        return;
-    }
-
-    let formData = new FormData();
-
-    formData.append(
-        "category_id",
-        document.getElementById("product-category").value
-    );
-
-    formData.append(
-        "name",
-        document.getElementById("product-name").value
-    );
-
-    formData.append(
-        "description",
-        document.getElementById("product-description").value
-    );
-
-    formData.append(
-        "price",
-        document.getElementById("product-price").value
-    );
-
-    formData.append(
-        "stock",
-        document.getElementById("product-stock").value
-    );
-
-    formData.append(
-        "image",
-        imageInput.files[0]
-    );
-
-
-    let res = await fetch(API_PRODUCTS, {
-
-        method: "POST",
-
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("auth_token")
-        },
-
-        body: formData
-    });
-
-    let data = await res.json();
-
-    console.log(data);
-
-    if(!res.ok) {
-        alert(data.message || "Error");
-        return;
-    }
-
-    alert("Product added");
-
-    document.getElementById("product-name").value = "";
-    document.getElementById("product-description").value = "";
-    document.getElementById("product-price").value = "";
-    document.getElementById("product-stock").value = "";
-    document.getElementById("product-image").value = "";
-
-    loadProducts();
-}
-
-
-
-
-// DELETE PRODUCT
-async function deleteProduct(id) {
-
-    let ok = confirm("Delete product?");
-
-    if(!ok) return;
-
-    await fetch(API_PRODUCTS + "/" + id, {
-
-        method: "DELETE",
-
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("auth_token")
-        }
-    });
-
-    loadProducts();
-}
-
-
-
-// =========================
+// =======================================================
 // CITIES
-// =========================
-
-const API_CITIES = "/api/cities";
+// =======================================================
 
 loadCities();
+loadCitySelect();
 
-
-
-// LOAD CITIES
 async function loadCities() {
 
     let res = await fetch(API_CITIES);
@@ -353,144 +215,84 @@ async function loadCities() {
 
     let html = "";
 
-    data.data.forEach(city => {
-
+    data.data.forEach(c => {
         html += `
         <tr>
-
-            <td>${city.id}</td>
-
-            <td>${city.name}</td>
-
+            <td>${c.id}</td>
+            <td>${c.name}</td>
             <td>
-                <button
-                    onclick="deleteCity(${city.id})"
-                    class="btn btn-danger btn-sm">
+                <button class="btn btn-danger btn-sm"
+                    onclick="deleteCity(${c.id})">
                     Delete
                 </button>
             </td>
-
-        </tr>
-        `;
+        </tr>`;
     });
 
-    document.getElementById(
-        "cities-table-body"
-    ).innerHTML = html;
+    document.getElementById("cities-table-body").innerHTML = html;
 }
 
 
+// dropdown (city → areas page)
+async function loadCitySelect() {
+
+    try {
+        let res = await fetch(API_CITIES);
+        let data = await res.json();
+
+        console.log("CITIES SELECT:", data);
+
+        let html = `<option value="">Select City</option>`;
+
+        data.data.forEach(c => {
+            html += `<option value="${c.id}">${c.name}</option>`;
+        });
+
+        const citySelect = document.getElementById("area-city");
+
+        if (!citySelect) {
+            console.error("area-city not found in DOM");
+            return;
+        }
+
+        citySelect.innerHTML = html;
+
+    } catch (err) {
+        console.error("CITY SELECT ERROR:", err);
+    }
+}
 
 
 // ADD CITY
 async function addCity() {
 
-    let name = document
-        .getElementById("city-name")
-        .value;
+    let name = document.getElementById("city-name").value;
 
-    if(name.trim() == "") {
-        alert("City name required");
-        return;
-    }
+    if (!name.trim()) return alert("City required");
 
-    let res = await fetch(API_CITIES, {
-
+    await fetch(API_CITIES, {
         method: "POST",
-
         headers: {
             "Content-Type": "application/json",
-            "Authorization":
-                "Bearer " +
-                localStorage.getItem("auth_token")
+            "Authorization": "Bearer " + token
         },
-
-        body: JSON.stringify({
-            name: name
-        })
+        body: JSON.stringify({ name })
     });
 
-    let data = await res.json();
-
-    if(!res.ok) {
-        alert(data.message || "Error");
-        return;
-    }
-
-    document.getElementById(
-        "city-name"
-    ).value = "";
+    document.getElementById("city-name").value = "";
 
     loadCities();
+    loadCitySelect();
 }
 
 
 
-
-// DELETE CITY
-async function deleteCity(id) {
-
-    let ok = confirm("Delete city?");
-
-    if(!ok) return;
-
-    await fetch(API_CITIES + "/" + id, {
-
-        method: "DELETE",
-
-        headers: {
-            "Authorization":
-                "Bearer " +
-                localStorage.getItem("auth_token")
-        }
-    });
-
-    loadCities();
-}
-
-
-
-// =========================
-// AREAS
-// =========================
-
-const API_AREAS = "/api/areas";
+// =======================================================
+// AREAS (DEPENDENT ON CITY)
+// =======================================================
 
 loadAreas();
-loadAreaCities();
 
-
-
-// LOAD CITIES INTO SELECT
-async function loadAreaCities() {
-
-    let res = await fetch(API_CITIES);
-    let data = await res.json();
-
-    let html = `
-        <option value="">
-            Select City
-        </option>
-    `;
-
-    data.data.forEach(city => {
-
-        html += `
-            <option value="${city.id}">
-                ${city.name}
-            </option>
-        `;
-    });
-
-    document.getElementById(
-        "area-city"
-    ).innerHTML = html;
-}
-
-
-
-
-// LOAD AREAS
 async function loadAreas() {
 
     let res = await fetch(API_AREAS);
@@ -498,109 +300,89 @@ async function loadAreas() {
 
     let html = "";
 
-    data.data.forEach(area => {
+    data.data.forEach(a => {
 
         html += `
         <tr>
-
-            <td>${area.id}</td>
-
-            <td>${area.name}</td>
-
-            <td>${area.city?.name ?? '-'}</td>
-
+            <td>${a.id}</td>
+            <td>${a.name}</td>
+            <td>${a.city?.name ?? '-'}</td>
             <td>
-                <button
-                    onclick="deleteArea(${area.id})"
-                    class="btn btn-danger btn-sm">
+                <button class="btn btn-danger btn-sm"
+                    onclick="deleteArea(${a.id})">
                     Delete
                 </button>
             </td>
-
-        </tr>
-        `;
+        </tr>`;
     });
 
-    document.getElementById(
-        "areas-table-body"
-    ).innerHTML = html;
+    document.getElementById("areas-table-body").innerHTML = html;
 }
 
+
+// CITY → AREAS dropdown (checkout / form)
+document.addEventListener("DOMContentLoaded", function () {
+
+    const citySelect = document.getElementById("area-city");
+    const areaSelect = document.getElementById("area-select") 
+        || document.getElementById("area-city"); // fallback
+
+    if (!citySelect) {
+        console.error("city select missing");
+        return;
+    }
+
+    citySelect.addEventListener("change", async function () {
+
+        let cityId = this.value;
+
+        console.log("CITY ID:", cityId);
+
+        if (!cityId) {
+            areaSelect.innerHTML = `<option value="">Select Area</option>`;
+            return;
+        }
+
+        let res = await fetch(`/api/cities/${cityId}/areas`);
+        let data = await res.json();
+
+        console.log("AREAS RAW:", data);
+
+        let html = `<option value="">Select Area</option>`;
+
+        data.forEach(a => {
+            html += `<option value="${a.id}">${a.name}</option>`;
+        });
+
+        areaSelect.innerHTML = html;
+    });
+
+});
 
 
 
 // ADD AREA
 async function addArea() {
 
-    let cityId = document
-        .getElementById("area-city")
-        .value;
+    let cityId = document.getElementById("area-city").value;
+    let name = document.getElementById("area-name").value;
 
-    let name = document
-        .getElementById("area-name")
-        .value;
+    if (!cityId) return alert("Select city");
+    if (!name.trim()) return alert("Area required");
 
-    if(cityId == "") {
-        alert("Select city");
-        return;
-    }
-
-    if(name.trim() == "") {
-        alert("Area name required");
-        return;
-    }
-
-    let res = await fetch(API_AREAS, {
-
+    await fetch(API_AREAS, {
         method: "POST",
-
         headers: {
             "Content-Type": "application/json",
-            "Authorization":
-                "Bearer " +
-                localStorage.getItem("auth_token")
+            "Authorization": "Bearer " + token
         },
-
         body: JSON.stringify({
             city_id: cityId,
-            name: name
+            name
         })
     });
 
-    let data = await res.json();
-
-    if(!res.ok) {
-        alert(data.message || "Error");
-        return;
-    }
-
-    document.getElementById(
-        "area-name"
-    ).value = "";
-
-    loadAreas();
-}
-
-
-
-
-// DELETE AREA
-async function deleteArea(id) {
-
-    let ok = confirm("Delete area?");
-
-    if(!ok) return;
-
-    await fetch(API_AREAS + "/" + id, {
-
-        method: "DELETE",
-
-        headers: {
-            "Authorization":
-                "Bearer " +
-                localStorage.getItem("auth_token")
-        }
-    });
+    document.getElementById("area-name").value = "";
 
     loadAreas();
 }
