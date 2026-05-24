@@ -47,6 +47,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Order::class);
     }
 
+         public function Review():HasMany {
+        return $this->hasMany(Review::class);
+    }
+
     /**
      * Override default email verification notification
      */
