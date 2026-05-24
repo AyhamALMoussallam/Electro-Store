@@ -15,12 +15,13 @@ class Order extends Model
         'area_id',
         'total_price',
         'status',
-        'Note',
+        'note',
     ];
 
-         public function Orderitem():HasMany {
-        return $this->hasMany(Orderitem::class);
-    }
+             public function items()
+        {
+            return $this->hasMany(OrderItem::class);
+        }
 
             public function User() :BelongsTo {
         return $this->belongsTo(User::class);
@@ -28,4 +29,6 @@ class Order extends Model
             public function Area() :BelongsTo {
         return $this->belongsTo(Area::class);
     }
+
+    
 }

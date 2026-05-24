@@ -241,7 +241,11 @@
 							</div>
 						<!-- Order notes -->
 						<div class="order-notes">
-							<textarea class="input" placeholder="Order Notes"></textarea>
+							<textarea
+								class="input"
+								id="order-note"
+								placeholder="Order Notes"
+							></textarea>
 						</div>
 						<!-- /Order notes -->
 					</div>
@@ -312,12 +316,12 @@
 
 						</div>
 
-						<a
-							href="#"
-							class="primary-btn order-submit"
-						>
-							Place order
-						</a>
+							<button
+								class="primary-btn order-submit"
+								onclick="placeOrder()"
+							>
+								Place Order
+							</button>
 
 					</div>
 					<!-- /Order Details -->
@@ -599,6 +603,89 @@ document.getElementById("area-select").addEventListener("change", async function
     // update total
     updateCheckoutTotal();
 });
+
+
+
+// =========================
+// PLACE ORDER
+// =========================
+async function placeOrder() {
+
+	let token = localStorage.getItem("auth_token");
+
+	let areaId =
+		document.getElementById("area-select").value;
+
+	let note =
+		document.getElementById("order-note").value;
+
+	let terms =
+		document.getElementById("terms").checked;
+
+	// validation
+	if (!areaId) {
+		alert("Please select area");
+		return;
+	}
+
+	if (!terms) {
+		alert("Please accept terms");
+		return;
+	}
+
+	try {
+
+		let res = await fetch("/api/orders", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": "Bearer " + token,
+				"Accept": "application/json"
+			},
+			body: JSON.stringify({
+				area_id: areaId,
+				note: note
+			})
+		});
+
+		let data = await res.json();
+
+		console.log(data);
+
+		if (!res.ok) {
+			alert(data.message || "Order failed");
+			return;
+		}
+
+		alert("Order placed successfully");
+
+		// clear ui
+		document.getElementById(
+			"checkout-products"
+		).innerHTML = "";
+
+		document.getElementById(
+			"checkout-total"
+		).innerText = "$0";
+
+		document.getElementById(
+			"shipping-fee"
+		).innerText = "FREE";
+
+		document.getElementById(
+			"order-note"
+		).value = "";
+
+		shippingFee = 0;
+		cartSubtotal = 0;
+
+	} catch (err) {
+
+		console.error(err);
+
+		alert("Something went wrong");
+	}
+}
 
 
 		</script>	

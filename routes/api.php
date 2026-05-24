@@ -11,6 +11,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\CartItemController;
+use App\Http\Controllers\OrderController;
 
 
 
@@ -81,3 +82,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('/cities/{id}/areas', [CityController::class, 'areas']);
 Route::get('/cities/{city}/areas', [AreaController::class, 'byCity']);
+
+
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::apiResource('orders', OrderController::class);
+
+});
