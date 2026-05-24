@@ -23,6 +23,7 @@ return new class extends Migration
             'delivered',
             'canceled'
             ]);
+            $table->text('Note');
             $table->timestamps();
         });
     }

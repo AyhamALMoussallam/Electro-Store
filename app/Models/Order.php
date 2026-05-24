@@ -15,6 +15,7 @@ class Order extends Model
         'area_id',
         'total_price',
         'status',
+        'Note',
     ];
 
          public function Orderitem():HasMany {
