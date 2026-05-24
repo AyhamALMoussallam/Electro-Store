@@ -236,6 +236,9 @@ body {
 
     <!-- ADD CATEGORY -->
     <div class="card-box">
+
+        <h3>Categories</h3>
+        <br>
         <h4 id="category-form-title">Add Category</h4>
 
         <input
@@ -287,6 +290,9 @@ body {
 
     <!-- ADD / EDIT PRODUCT -->
     <div class="card-box">
+
+                <h3>Products</h3>
+        <br>
 
         <h4 id="product-form-title">
             Add Product
@@ -408,6 +414,9 @@ body {
     <!-- ADD CITY -->
     <div class="card-box">
 
+                <h3>Cities</h3>
+        <br>
+
         <h4>Add City</h4>
 
         <input
@@ -458,6 +467,9 @@ body {
 
     <!-- ADD AREA -->
     <div class="card-box">
+
+                <h3>Areas</h3>
+        <br>
 
         <h4>Add Area</h4>
 
