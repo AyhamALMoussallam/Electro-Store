@@ -30,5 +30,10 @@ class Order extends Model
         return $this->belongsTo(Area::class);
     }
 
+    public function logs()
+{
+    return $this->hasMany(OrderLog::class);
+}
+
     
 }

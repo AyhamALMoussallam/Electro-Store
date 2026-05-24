@@ -602,3 +602,208 @@ async function confirmLogout() {
 
     window.location.href = "/login";
 }
+
+
+
+let allOrders = [];
+
+async function loadOrders() {
+
+    const token = localStorage.getItem("auth_token");
+
+    const res = await fetch("/api/orders", {
+        headers: {
+            "Authorization": "Bearer " + token,
+            "Accept": "application/json"
+        }
+    });
+
+    const data = await res.json();
+
+    allOrders = data.data;
+
+    renderOrders();
+}
+
+
+
+function renderOrders() {
+
+    const tbody =
+        document.getElementById(
+            "orders-table-body"
+        );
+
+    tbody.innerHTML = "";
+
+    allOrders.forEach(order => {
+
+        tbody.innerHTML += `
+            <tr>
+
+                <td>#${order.id}</td>
+
+                <td>
+                    ${order.user?.name ?? '-'}
+                </td>
+
+                <td>
+                    ${order.area?.city?.name ?? '-'}
+                </td>
+
+                <td>
+                    ${order.area?.name ?? '-'}
+                </td>
+
+                <td>
+                    $${order.total_price}
+                </td>
+
+                <td>
+                    <span class="label label-info">
+                        ${order.status}
+                    </span>
+                </td>
+
+                <td>
+                    ${formatDate(order.created_at)}
+                </td>
+
+                <td>
+                    ${formatDate(order.updated_at)}
+                </td>
+
+                <td>
+
+                    <select
+                        id="status-${order.id}"
+                        class="form-control"
+                    >
+                        <option value="pending">pending</option>
+                        <option value="paid">paid</option>
+                        <option value="shipped">shipped</option>
+                        <option value="delivered">delivered</option>
+                        <option value="canceled">canceled</option>
+                    </select>
+
+                    <br>
+
+                    <button
+                        class="btn btn-primary btn-sm"
+                        onclick="updateOrderStatus(${order.id})"
+                    >
+                        Update
+                    </button>
+
+                    <button
+                        class="btn btn-default btn-sm"
+                        onclick="showOrderLogs(${order.id})"
+                    >
+                        Logs
+                    </button>
+
+                </td>
+
+            </tr>
+        `;
+
+        setTimeout(() => {
+
+            document.getElementById(
+                `status-${order.id}`
+            ).value = order.status;
+
+        }, 0);
+    });
+}
+
+
+
+
+async function updateOrderStatus(orderId) {
+
+    const token =
+        localStorage.getItem("auth_token");
+
+    const status =
+        document.getElementById(
+            `status-${orderId}`
+        ).value;
+
+    const res = await fetch(
+        `/api/orders/${orderId}/status`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                status: status
+            })
+        }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        alert(data.message || "Update failed");
+        return;
+    }
+
+    alert("Status updated");
+
+    loadOrders();
+}
+
+
+
+function showOrderLogs(orderId) {
+
+    const order =
+        allOrders.find(o => o.id == orderId);
+
+    if (!order) return;
+
+    let text = "";
+
+    order.logs.forEach(log => {
+
+        text += `
+Admin:
+${log.admin?.name ?? '-'}
+
+Action:
+${log.action}
+
+From:
+${log.old_status}
+
+To:
+${log.new_status}
+
+At:
+${formatDate(log.created_at)}
+
+-------------------------
+`;
+    });
+
+    if (!text) {
+        text = "No logs yet";
+    }
+
+    alert(text);
+}
+
+
+
+function formatDate(dateString) {
+
+    const date = new Date(dateString);
+
+    return date.toLocaleString();
+}
+
+loadOrders();

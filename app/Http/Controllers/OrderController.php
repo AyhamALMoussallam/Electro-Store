@@ -6,6 +6,7 @@ use App\Models\Area;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\CartItem;
+use App\Models\OrderLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +21,8 @@ class OrderController extends Controller
         $orders = Order::with([
             'user',
             'area.city',
-            'items.product'
+            'items.product',
+            'logs.admin'
         ])->latest()->get();
 
         return $this->success(
@@ -184,33 +186,44 @@ class OrderController extends Controller
     /**
      * Update order status
      */
-    public function updateStatus(Request $request, string $id)
-    {
-        $order = Order::find($id);
+public function updateStatus(Request $request, string $id)
+{
+    $order = Order::find($id);
 
-        if (!$order) {
-            return $this->notFound('Order');
-        }
+    if (!$order) {
+        return $this->notFound('Order');
+    }
 
-        $validator = Validator::make($request->all(), [
-            'status' => 'required|in:pending,paid,shipped,delivered,canceled'
-        ]);
+    $validator = Validator::make($request->all(), [
+        'status' => 'required|in:pending,paid,shipped,delivered,canceled'
+    ]);
 
-        if ($validator->fails()) {
-            return $this->validationError(
-                $validator->errors()
-            );
-        }
-
-        $order->update([
-            'status' => $request->status
-        ]);
-
-        return $this->success(
-            $order,
-            'Order status updated successfully'
+    if ($validator->fails()) {
+        return $this->validationError(
+            $validator->errors()
         );
     }
+
+    $oldStatus = $order->status;
+
+    $order->update([
+        'status' => $request->status
+    ]);
+
+    // save log
+    OrderLog::create([
+        'order_id' => $order->id,
+        'admin_id' => auth()->id(),
+        'action' => 'Updated order status',
+        'old_status' => $oldStatus,
+        'new_status' => $request->status
+    ]);
+
+    return $this->success(
+        $order,
+        'Order status updated successfully'
+    );
+}
 
     /**
      * Delete order

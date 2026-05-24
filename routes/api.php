@@ -16,6 +16,7 @@ use App\Http\Controllers\OrderController;
 
 
 
+
 // ------------------------------
 // Public Routes
 // ------------------------------
@@ -85,8 +86,14 @@ Route::get('/cities/{city}/areas', [AreaController::class, 'byCity']);
 
 
 
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('orders', OrderController::class);
+
+    Route::put(
+        'orders/{id}/status',
+        [OrderController::class, 'updateStatus']
+    );
 
 });

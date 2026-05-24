@@ -175,6 +175,7 @@ body {
     <h3>ADMIN</h3>
 
     <a onclick="showTab('dashboard')">Dashboard</a>
+    <a onclick="showTab('orders')">Orders</a>
     <a onclick="showTab('categories')">Categories</a>
     <a onclick="showTab('products')">Products</a>
     <a onclick="showTab('cities')">Cities</a>
@@ -196,6 +197,39 @@ body {
                 <p>Manage your ecommerce system from here.</p>
             </div>
         </div>
+
+        <!-- ORDERS -->
+<div id="orders" class="tab-content">
+
+    <div class="card-box">
+
+        <h3>Orders Management</h3>
+
+        <table class="table table-striped">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>City</th>
+                    <th>Area</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th width="220">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="orders-table-body">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 
 <!-- CATEGORIES -->
 <div id="categories" class="tab-content">
