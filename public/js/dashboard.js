@@ -41,6 +41,7 @@ function boot() {
     loadAreas();
     loadProductCategories();
     loadCitySelect();
+    loadOrders();
 }
 
 
@@ -766,35 +767,67 @@ function showOrderLogs(orderId) {
 
     if (!order) return;
 
-    let text = "";
+    let html = "";
 
-    order.logs.forEach(log => {
+    (order.logs || []).forEach(log => {
 
-        text += `
-Admin:
-${log.admin?.name ?? '-'}
+        html += `
 
-Action:
-${log.action}
+            <div style="
+                border:1px solid #ddd;
+                padding:10px;
+                margin-bottom:10px;
+                border-radius:8px;
+            ">
 
-From:
-${log.old_status}
+                <p>
+                    <strong>Admin:</strong>
+                    ${log.admin?.name ?? '-'}
+                </p>
 
-To:
-${log.new_status}
+                <p>
+                    <strong>Action:</strong>
+                    ${log.action}
+                </p>
 
-At:
-${formatDate(log.created_at)}
+                <p>
+                    <strong>From:</strong>
+                    ${log.old_status}
+                </p>
 
--------------------------
-`;
+                <p>
+                    <strong>To:</strong>
+                    ${log.new_status}
+                </p>
+
+                <p>
+                    <strong>At:</strong>
+                    ${formatDate(log.created_at)}
+                </p>
+
+            </div>
+        `;
     });
 
-    if (!text) {
-        text = "No logs yet";
+    if (!html) {
+        html = "<p>No logs yet</p>";
     }
 
-    alert(text);
+    document.getElementById(
+        "logs-content"
+    ).innerHTML = html;
+
+    document.getElementById(
+        "logsModal"
+    ).style.display = "flex";
+}
+
+
+function closeLogsModal() {
+
+    document.getElementById(
+        "logsModal"
+    ).style.display = "none";
 }
 
 
@@ -806,4 +839,3 @@ function formatDate(dateString) {
     return date.toLocaleString();
 }
 
-loadOrders();

@@ -205,18 +205,28 @@ public function updateStatus(Request $request, string $id)
     }
 
     $oldStatus = $order->status;
+    $newStatus = $request->status;
 
-    $order->update([
-        'status' => $request->status
-    ]);
+    // prevent same status
+    if ($oldStatus === $newStatus) {
 
-    // save log
+        return response()->json([
+            'success' => false,
+            'message' => 'Order already has this status'
+        ], 400);
+    }
+
+    // update status
+    $order->status = $newStatus;
+    $order->save();
+
+    // create log
     OrderLog::create([
-        'order_id' => $order->id,
-        'admin_id' => auth()->id(),
-        'action' => 'Updated order status',
+        'order_id'   => $order->id,
+        'admin_id'   => auth()->id(),
+        'action'     => 'Updated order status',
         'old_status' => $oldStatus,
-        'new_status' => $request->status
+        'new_status' => $newStatus
     ]);
 
     return $this->success(

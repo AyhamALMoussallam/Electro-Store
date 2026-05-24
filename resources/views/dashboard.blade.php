@@ -622,6 +622,21 @@ body {
 
 
 
+<div id="logsModal" class="modal">
+    <div style="width:700px; max-height:80vh; overflow:auto;">
+
+        <h3>Order Logs</h3>
+
+        <div id="logs-content"></div>
+
+        <button onclick="closeLogsModal()">
+            Close
+        </button>
+
+    </div>
+</div>
+
+
 
 <script src="/js/dashboard.js"></script>
 </body>
