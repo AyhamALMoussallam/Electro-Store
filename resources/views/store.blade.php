@@ -255,55 +255,8 @@
 						<!-- aside Widget -->
 						<div class="aside">
 							<h3 class="aside-title">Brand</h3>
-							<div class="checkbox-filter">
-								<div class="input-checkbox">
-									<input type="checkbox" id="brand-1">
-									<label for="brand-1">
-										<span></span>
-										SAMSUNG
-										<small>(578)</small>
-									</label>
-								</div>
-								<div class="input-checkbox">
-									<input type="checkbox" id="brand-2">
-									<label for="brand-2">
-										<span></span>
-										LG
-										<small>(125)</small>
-									</label>
-								</div>
-								<div class="input-checkbox">
-									<input type="checkbox" id="brand-3">
-									<label for="brand-3">
-										<span></span>
-										SONY
-										<small>(755)</small>
-									</label>
-								</div>
-								<div class="input-checkbox">
-									<input type="checkbox" id="brand-4">
-									<label for="brand-4">
-										<span></span>
-										SAMSUNG
-										<small>(578)</small>
-									</label>
-								</div>
-								<div class="input-checkbox">
-									<input type="checkbox" id="brand-5">
-									<label for="brand-5">
-										<span></span>
-										LG
-										<small>(125)</small>
-									</label>
-								</div>
-								<div class="input-checkbox">
-									<input type="checkbox" id="brand-6">
-									<label for="brand-6">
-										<span></span>
-										SONY
-										<small>(755)</small>
-									</label>
-								</div>
+							<div class="checkbox-filter" id="brands-filter">
+								
 							</div>
 						</div>
 						<!-- /aside Widget -->
@@ -554,6 +507,7 @@
 			async function boot() {
 
 				await loadCategories();
+				await loadBrands();
 				await loadProducts();
 			}
 
@@ -588,6 +542,22 @@
 				allCategories = data.data;
 
 				renderCategories();
+			}
+
+
+
+			// =========================
+			// LOAD BRANDS
+			// =========================
+			async function loadBrands() {
+
+				const res = await fetch("/api/brands");
+
+				const data = await res.json();
+
+				allBrands = data.data;
+
+				renderBrands();
 			}
 
 
@@ -656,6 +626,10 @@
 									$${product.price}
 								</h4>
 
+								<p class="product-brand">
+									By ${product.brand?.name ?? 'Unknown'}
+								</p>
+
 							</div>
 
 							<div class="add-to-cart">
@@ -719,6 +693,45 @@
 			}
 
 
+
+			// =========================
+			// RENDER BRANDS
+			// =========================
+			function renderBrands() {
+
+				const container =
+					document.getElementById(
+						"brands-filter"
+					);
+
+				container.innerHTML = "";
+
+				allBrands.forEach(brand => {
+
+					container.innerHTML += `
+
+					<div class="input-checkbox">
+
+						<input
+							type="checkbox"
+							id="brand-${brand.id}"
+							value="${brand.id}"
+						>
+
+						<label for="brand-${brand.id}">
+
+							<span></span>
+
+							${brand.name}
+
+						</label>
+
+					</div>
+					`;
+				});
+			}
+
+
 			// =========================
 			// APPLY FILTERS
 			// =========================
@@ -742,6 +755,26 @@
 
 						return selectedCategories.includes(
 							product.category_id
+						);
+					});
+				}
+
+				// selected brands
+				const checkedBrands =
+					document.querySelectorAll(
+						'#brands-filter input:checked'
+					);
+
+				const selectedBrands =
+					[...checkedBrands].map(b => Number(b.value));
+
+				// filter brands
+				if (selectedBrands.length) {
+
+					filtered = filtered.filter(product => {
+
+						return selectedBrands.includes(
+							product.brand_id
 						);
 					});
 				}

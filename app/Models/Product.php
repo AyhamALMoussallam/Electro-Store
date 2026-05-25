@@ -26,7 +26,7 @@ class Product extends Model
     }
 
         public function brand() :BelongsTo {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Brand::class);
     }
 
          public function cartItem():HasMany {
