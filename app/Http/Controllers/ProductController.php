@@ -14,7 +14,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('category')
+        $products = Product::with(['category', 'brand'])
             ->latest()
             ->get();
 
@@ -52,6 +52,7 @@ class ProductController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'brand_id' => 'required|exists:brands,id',
 
             // IMAGE
             'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -80,6 +81,7 @@ class ProductController extends Controller
             'price' => $request->price,
             'stock' => $request->stock,
             'image' => $imagePath,
+            'brand_id' => $request->brand_id,
         ]);
 
         return $this->created(
@@ -105,6 +107,7 @@ class ProductController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'brand_id' => $request->brand_id,
 
             // IMAGE OPTIONAL
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',

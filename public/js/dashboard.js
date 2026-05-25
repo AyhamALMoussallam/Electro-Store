@@ -2,6 +2,7 @@
 // API
 // =========================
 const API_CATEGORIES = "/api/categories";
+const API_BRANDS     = "/api/brands";
 const API_PRODUCTS   = "/api/products";
 const API_CITIES     = "/api/cities";
 const API_AREAS      = "/api/areas";
@@ -34,6 +35,129 @@ window.addEventListener("load", () => {
     boot();
 });
 
+
+
+
+
+async function loadBrands() {
+
+    let res = await fetch(API_BRANDS);
+
+    let data = await res.json();
+
+    let html = "";
+
+    data.data.forEach(b => {
+
+        html += `
+            <tr>
+                <td>${b.id}</td>
+
+                <td>${b.name}</td>
+
+                <td>
+                    <button onclick='startEdit("brand", ${JSON.stringify(b).replace(/'/g, "&apos;")})'>
+                        Edit
+                    </button>
+
+                    <button
+                        onclick="deleteBrand(${b.id})"
+                    >
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    document.getElementById(
+        "brands-table-body"
+    ).innerHTML = html;
+}
+
+
+
+
+async function saveBrand() {
+
+    let name =
+        document.getElementById(
+            "brand-name"
+        ).value;
+
+    let url = API_BRANDS;
+
+    let method = "POST";
+
+    if (editState.type === "brand") {
+
+        url =
+            `${API_BRANDS}/${editState.id}`;
+
+        method = "PUT";
+    }
+
+    await fetch(url, {
+        method,
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({
+            name
+        })
+    });
+
+    document.getElementById(
+        "brand-name"
+    ).value = "";
+
+    resetEdit();
+
+    await loadBrands();
+    await loadProductBrands();
+}
+
+
+
+
+async function deleteBrand(id) {
+
+    await fetch(`${API_BRANDS}/${id}`, {
+        method: "DELETE",
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    });
+
+    await loadBrands();
+    await loadProductBrands();
+}
+
+
+async function loadProductBrands() {
+
+    let res = await fetch(API_BRANDS);
+
+    let data = await res.json();
+
+    let html =
+        `<option value="">Select Brand</option>`;
+
+    data.data.forEach(b => {
+
+        html += `
+            <option value="${b.id}">
+                ${b.name}
+            </option>
+        `;
+    });
+
+    document.getElementById(
+        "product-brand"
+    ).innerHTML = html;
+}
+
 function boot() {
     loadCategories();
     loadProducts();
@@ -42,6 +166,8 @@ function boot() {
     loadProductCategories();
     loadCitySelect();
     loadOrders();
+    loadBrands();
+    loadProductBrands();
 }
 
 
@@ -137,10 +263,13 @@ async function loadProducts() {
             <td><img src="/storage/${p.image}" width="50"></td>
             <td>${p.name}</td>
             <td>${p.category?.name ?? '-'}</td>
+            <td>${p.brand?.name ?? '-'}</td>
             <td>${p.price}</td>
             <td>${p.stock}</td>
             <td>
-                <button onclick='startEdit("product", ${JSON.stringify(p)})'>Edit</button>
+                <button onclick='startEdit("product", ${JSON.stringify(p).replace(/'/g, "&apos;")})'>
+                    Edit
+                </button>
                 <button onclick="deleteProduct(${p.id})">Delete</button>
             </td>
         </tr>`;
@@ -154,6 +283,7 @@ async function saveProduct() {
     let formData = new FormData();
 
     formData.append("category_id", document.getElementById("product-category").value);
+    formData.append("brand_id", document.getElementById("product-brand").value);
     formData.append("name", document.getElementById("product-name").value);
     formData.append("description", document.getElementById("product-description").value);
     formData.append("price", document.getElementById("product-price").value);
@@ -313,7 +443,9 @@ async function loadAreas() {
             <td>${a.city?.name ?? '-'}</td>
             <td>${a.fee ?? 0}</td>
             <td>
-                <button onclick='startEdit("area", ${JSON.stringify(a)})'>Edit</button>
+                <button onclick='startEdit("area", ${JSON.stringify(a).replace(/'/g, "&apos;")})'>
+                    Edit
+                </button>
                 <button onclick="deleteArea(${a.id})">Delete</button>
             </td>
         </tr>`;
@@ -377,6 +509,13 @@ function startEdit(type, item) {
         document.getElementById("categoryModal").style.display = "flex";
     }
 
+    if (type === "brand") {
+
+    document.getElementById(
+        "brand-name"
+    ).value = item.name;
+    }
+
     if (type === "city") {
         document.getElementById("edit-city-name").value = item.name;
         document.getElementById("cityModal").style.display = "flex";
@@ -408,6 +547,12 @@ function startEdit(type, item) {
             document.getElementById("edit-product-category").value = item.category_id;
         });
 
+        loadBrandsForEdit().then(() => {
+            document.getElementById(
+                "edit-product-brand"
+            ).value = item.brand_id;
+        });
+
         document.getElementById("productModal").style.display = "flex";
     }
 }
@@ -432,6 +577,29 @@ async function loadCategoriesForEdit() {
     });
 
     document.getElementById("edit-product-category").innerHTML = html;
+}
+
+
+async function loadBrandsForEdit() {
+
+    let res = await fetch(API_BRANDS);
+
+    let data = await res.json();
+
+    let html = "";
+
+    data.data.forEach(b => {
+
+        html += `
+            <option value="${b.id}">
+                ${b.name}
+            </option>
+        `;
+    });
+
+    document.getElementById(
+        "edit-product-brand"
+    ).innerHTML = html;
 }
 
 
@@ -469,6 +637,18 @@ async function saveEdit() {
         url = `${API_CATEGORIES}/${editState.id}`;
     }
 
+    // BRAND
+    if (editState.type === "brand") {
+
+        body = {
+            name: document.getElementById(
+                "brand-name"
+            ).value
+        };
+
+        url = `${API_BRANDS}/${editState.id}`;
+    }
+
     // CITY
     if (editState.type === "city") {
 
@@ -499,7 +679,8 @@ async function saveEdit() {
             price: document.getElementById("edit-product-price").value,
             stock: document.getElementById("edit-product-stock").value,
             description: document.getElementById("edit-product-desc").value,
-            category_id: document.getElementById("edit-product-category").value
+            category_id: document.getElementById("edit-product-category").value,
+            brand_id: document.getElementById("edit-product-brand").value
         };
 
         url = `${API_PRODUCTS}/${editState.id}`;
@@ -535,6 +716,7 @@ function resetEdit() {
     editState = { type: null, id: null, data: null };
 
     document.getElementById("category-name").value = "";
+    document.getElementById("brand-name").value = "";
     document.getElementById("city-name").value = "";
     document.getElementById("area-name").value = "";
 }

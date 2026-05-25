@@ -12,6 +12,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\BrandController;
 
 
 
@@ -97,3 +98,10 @@ Route::middleware('auth:sanctum')->group(function () {
     );
 
 });
+
+
+
+Route::apiResource(
+    'brands',
+    BrandController::class
+);

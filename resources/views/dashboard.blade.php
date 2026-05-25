@@ -177,6 +177,7 @@ body {
     <a onclick="showTab('dashboard')">Dashboard</a>
     <a onclick="showTab('orders')">Orders</a>
     <a onclick="showTab('categories')">Categories</a>
+    <a onclick="showTab('brands')">Brands</a>
     <a onclick="showTab('products')">Products</a>
     <a onclick="showTab('cities')">Cities</a>
     <a onclick="showTab('areas')">Areas</a>
@@ -285,6 +286,55 @@ body {
     </div>
 
 </div>
+
+
+        <!-- BRANDS -->
+<div id="brands" class="tab-content">
+
+    <div class="card-box">
+
+        <h3>Brands</h3>
+        <br>
+
+        <input
+            type="text"
+            id="brand-name"
+            class="form-control"
+            placeholder="Brand name"
+        >
+
+        <br>
+
+        <button
+            class="btn btn-primary"
+            onclick="saveBrand()"
+        >
+            Save
+        </button>
+
+    </div>
+
+    <div class="card-box">
+
+        <h4>Brands List</h4>
+
+        <table class="table table-striped">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th width="180">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="brands-table-body"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
         <!-- PRODUCTS -->
 <div id="products" class="tab-content">
 
@@ -305,6 +355,20 @@ body {
         >
             <option value="">
                 Select Category
+            </option>
+        </select>
+
+        <br>
+
+
+        <!-- BRAND -->
+
+                <select
+            id="product-brand"
+            class="form-control"
+        >
+            <option value="">
+                Select Brand
             </option>
         </select>
 
@@ -392,6 +456,7 @@ body {
                     <th>Image</th>
                     <th>Name</th>
                     <th>Category</th>
+                    <th>Brand</th>
                     <th>Price</th>
                     <th>Stock</th>
                     <th width="180">Actions</th>
@@ -567,6 +632,9 @@ body {
 
         <label>Category</label>
         <select id="edit-product-category"></select>
+
+        <label>Brand</label>
+        <select id="edit-product-brand"></select>
 
         <label>Price</label>
         <input id="edit-product-price" type="number">
