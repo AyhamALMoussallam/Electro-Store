@@ -24,13 +24,17 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+        public function brand() :BelongsTo {
+        return $this->belongsTo(Category::class);
+    }
+
          public function cartItem():HasMany {
         return $this->hasMany(CartItem::class);
     }
          public function orderItem():HasMany {
         return $this->hasMany(OrderItem::class);
     }
-        public function Review():HasMany {
+        public function review():HasMany {
         return $this->hasMany(Review::class);
     }
 }
