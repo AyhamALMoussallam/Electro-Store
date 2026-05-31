@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Review extends Model
 {
+
+    protected $fillable = [
+        'user_id',
+        'product_id',
+        'rating',
+        'comment',
+    ];
+
+
     public function Product() :BelongsTo {
         return $this->belongsTo(Product::class);
     }

@@ -103,7 +103,7 @@
 										<div class="cart-list">
 											<div class="product-widget">
 												<div class="product-img">
-													<img src="./img/product01.png" alt="">
+													<img id="product-image" src="" alt="">
 												</div>
 												<div class="product-body">
 													<h3 class="product-name"><a href="#">product name goes here</a></h3>
@@ -254,7 +254,7 @@
 					<!-- Product details -->
 					<div class="col-md-5">
 						<div class="product-details">
-							<h2 class="product-name">product name goes here</h2>
+							<h2 id="product-name"></h2>
 							<div>
 								<div class="product-rating">
 									<i class="fa fa-star"></i>
@@ -266,10 +266,10 @@
 								<a class="review-link" href="#">10 Review(s) | Add your review</a>
 							</div>
 							<div>
-								<h3 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h3>
-								<span class="product-available">In Stock</span>
+								<h3 id="product-price"></h3>
+								<span id="product-stock"></span>
 							</div>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+							<p id="product-description"></p>
 
 							<div class="product-options">
 								<label>
@@ -326,33 +326,11 @@
 						<div id="product-tab">
 							<!-- product tab nav -->
 							<ul class="tab-nav">
-								<li class="active"><a data-toggle="tab" href="#tab1">Description</a></li>
-								<li><a data-toggle="tab" href="#tab2">Details</a></li>
-								<li><a data-toggle="tab" href="#tab3">Reviews (3)</a></li>
+								<li class="active"><a data-toggle="tab" href="#tab3">Reviews</a></li>
 							</ul>
 							<!-- /product tab nav -->
 
-							<!-- product tab content -->
-							<div class="tab-content">
-								<!-- tab1  -->
-								<div id="tab1" class="tab-pane fade in active">
-									<div class="row">
-										<div class="col-md-12">
-											<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-										</div>
-									</div>
-								</div>
-								<!-- /tab1  -->
-
-								<!-- tab2  -->
-								<div id="tab2" class="tab-pane fade in">
-									<div class="row">
-										<div class="col-md-12">
-											<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-										</div>
-									</div>
-								</div>
-								<!-- /tab2  -->
+							
 
 								<!-- tab3  -->
 								<div id="tab3" class="tab-pane fade in">
@@ -444,56 +422,8 @@
 										<!-- Reviews -->
 										<div class="col-md-6">
 											<div id="reviews">
-												<ul class="reviews">
-													<li>
-														<div class="review-heading">
-															<h5 class="name">John</h5>
-															<p class="date">27 DEC 2018, 8:0 PM</p>
-															<div class="review-rating">
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star-o empty"></i>
-															</div>
-														</div>
-														<div class="review-body">
-															<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
-														</div>
-													</li>
-													<li>
-														<div class="review-heading">
-															<h5 class="name">John</h5>
-															<p class="date">27 DEC 2018, 8:0 PM</p>
-															<div class="review-rating">
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star-o empty"></i>
-															</div>
-														</div>
-														<div class="review-body">
-															<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
-														</div>
-													</li>
-													<li>
-														<div class="review-heading">
-															<h5 class="name">John</h5>
-															<p class="date">27 DEC 2018, 8:0 PM</p>
-															<div class="review-rating">
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star-o empty"></i>
-															</div>
-														</div>
-														<div class="review-body">
-															<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
-														</div>
-													</li>
-												</ul>
+												<ul class="reviews" id="reviews-list"></ul>
+
 												<ul class="reviews-pagination">
 													<li class="active">1</li>
 													<li><a href="#">2</a></li>
@@ -556,122 +486,7 @@
 					</div>
 
 					<!-- product -->
-					<div class="col-md-3 col-xs-6">
-						<div class="product">
-							<div class="product-img">
-								<img src="./img/product01.png" alt="">
-								<div class="product-label">
-									<span class="sale">-30%</span>
-								</div>
-							</div>
-							<div class="product-body">
-								<p class="product-category">Category</p>
-								<h3 class="product-name"><a href="#">product name goes here</a></h3>
-								<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
-								<div class="product-rating">
-								</div>
-								<div class="product-btns">
-									<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
-									<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
-									<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
-								</div>
-							</div>
-							<div class="add-to-cart">
-								<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
-							</div>
-						</div>
-					</div>
-					<!-- /product -->
-
-					<!-- product -->
-					<div class="col-md-3 col-xs-6">
-						<div class="product">
-							<div class="product-img">
-								<img src="./img/product02.png" alt="">
-								<div class="product-label">
-									<span class="new">NEW</span>
-								</div>
-							</div>
-							<div class="product-body">
-								<p class="product-category">Category</p>
-								<h3 class="product-name"><a href="#">product name goes here</a></h3>
-								<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
-								<div class="product-rating">
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star"></i>
-								</div>
-								<div class="product-btns">
-									<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
-									<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
-									<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
-								</div>
-							</div>
-							<div class="add-to-cart">
-								<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
-							</div>
-						</div>
-					</div>
-					<!-- /product -->
-
-					<div class="clearfix visible-sm visible-xs"></div>
-
-					<!-- product -->
-					<div class="col-md-3 col-xs-6">
-						<div class="product">
-							<div class="product-img">
-								<img src="./img/product03.png" alt="">
-							</div>
-							<div class="product-body">
-								<p class="product-category">Category</p>
-								<h3 class="product-name"><a href="#">product name goes here</a></h3>
-								<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
-								<div class="product-rating">
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star-o"></i>
-								</div>
-								<div class="product-btns">
-									<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
-									<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
-									<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
-								</div>
-							</div>
-							<div class="add-to-cart">
-								<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
-							</div>
-						</div>
-					</div>
-					<!-- /product -->
-
-					<!-- product -->
-					<div class="col-md-3 col-xs-6">
-						<div class="product">
-							<div class="product-img">
-								<img src="./img/product04.png" alt="">
-							</div>
-							<div class="product-body">
-								<p class="product-category">Category</p>
-								<h3 class="product-name"><a href="#">product name goes here</a></h3>
-								<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
-								<div class="product-rating">
-								</div>
-								<div class="product-btns">
-									<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
-									<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
-									<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
-								</div>
-							</div>
-							<div class="add-to-cart">
-								<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
-							</div>
-						</div>
-					</div>
-					<!-- /product -->
+					<div class="row" id="related-products"></div>
 
 				</div>
 				<!-- /row -->
@@ -819,6 +634,191 @@
 		<script src="js/nouislider.min.js"></script>
 		<script src="js/jquery.zoom.min.js"></script>
 		<script src="js/main.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+
+		<script>
+
+		const productId =
+			new URLSearchParams(window.location.search)
+			.get('id');
+
+		let currentProduct = null;
+
+
+		// ======================
+		// LOAD PRODUCT
+		// ======================
+		axios.get(`/api/products/${productId}`)
+		.then(res => {
+
+		const product = res.data.data;
+
+		currentProduct = product;
+
+		document.getElementById('product-name').textContent =
+			product.name;
+
+		document.getElementById('product-price').textContent =
+			'$' + product.price;
+
+		document.getElementById('product-description').textContent =
+			product.description;
+
+		document.getElementById('product-stock').textContent =
+			product.stock > 0
+				? `In Stock (${product.stock})`
+				: 'Out Of Stock';
+
+		document.getElementById('product-image').src =
+			'/storage/' + product.image;
+
+		loadRelatedProducts();
+
+		loadReviews(productId); // 👈 هون تمام
+	})
+		.catch(error => {
+
+			console.log(error);
+
+			alert('Product not found');
+
+		});
+
+
+		// ======================
+		// RELATED PRODUCTS
+		// ======================
+		function loadRelatedProducts() {
+
+			axios.get('/api/products')
+			.then(res => {
+
+				const products = res.data.data;
+
+				const related = products
+					.filter(p =>
+
+						p.id != currentProduct.id &&
+						p.category_id ==
+						currentProduct.category_id
+
+					)
+					.slice(0, 4);
+
+				renderRelatedProducts(related);
+
+			});
+		}
+
+
+		// ======================
+		// RENDER RELATED
+		// ======================
+		function renderRelatedProducts(products) {
+
+			const container =
+				document.getElementById(
+					'related-products'
+				);
+
+			container.innerHTML = '';
+
+			products.forEach(product => {
+
+				container.innerHTML += `
+
+				<div class="col-md-3 col-xs-6">
+
+					<div class="product">
+
+						<div class="product-img">
+
+							<img
+								src="/storage/${product.image}"
+								alt=""
+							>
+
+						</div>
+
+						<div class="product-body">
+
+							<p class="product-category">
+								${product.category?.name ?? ''}
+							</p>
+
+							<h3 class="product-name">
+
+								<a href="/product?id=${product.id}">
+									${product.name}
+								</a>
+
+							</h3>
+
+							<h4 class="product-price">
+								$${product.price}
+							</h4>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				`;
+			});
+		}
+
+
+		function loadReviews(productId) {
+    	axios.get(`/api/products/${productId}/reviews`)
+        .then(res => {
+
+            const reviews = res.data;
+
+            const container = document.getElementById('reviews-list');
+
+            container.innerHTML = '';
+
+            reviews.forEach(review => {
+
+                container.innerHTML += `
+                    <li>
+                        <div class="review-heading">
+                            <h5 class="name">${review.user.name}</h5>
+                            <p class="date">${new Date(review.created_at).toLocaleString()}</p>
+                            <div class="review-rating">
+                                ${renderStars(review.rating)}
+                            </div>
+                        </div>
+
+                        <div class="review-body">
+                            <p>${review.comment}</p>
+                        </div>
+                    </li>
+                `;
+            });
+
+        });
+	}
+
+
+
+		function renderStars(rating) {
+    let stars = '';
+
+    for (let i = 1; i <= 5; i++) {
+        stars += i <= rating
+            ? '<i class="fa fa-star"></i>'
+            : '<i class="fa fa-star-o"></i>';
+    }
+
+    return stars;
+}
+
+
+		</script>
 
 	</body>
 </html>

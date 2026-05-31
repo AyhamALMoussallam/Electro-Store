@@ -867,7 +867,17 @@ textarea.input {
 }
 
 .product .product-img {
-  position: relative;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+}
+
+.product .product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .product .product-img>img {

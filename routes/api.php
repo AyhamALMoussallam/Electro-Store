@@ -13,6 +13,8 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ReviewController;
+
 
 
 
@@ -105,3 +107,9 @@ Route::apiResource(
     'brands',
     BrandController::class
 );
+
+
+
+
+Route::get('/products/{id}/reviews', [ReviewController::class, 'index']);
+Route::post('/reviews', [ReviewController::class, 'store'])->middleware('auth');

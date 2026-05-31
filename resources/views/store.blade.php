@@ -602,12 +602,9 @@
 						<div class="product">
 
 							<div class="product-img">
-
-								<img
-									src="/storage/${product.image}"
-									alt=""
-								>
-
+								<a href="/product?id=${product.id}">
+									<img src="/storage/${product.image}" alt="">
+								</a>
 							</div>
 
 							<div class="product-body">
@@ -617,7 +614,7 @@
 								</p>
 
 								<h3 class="product-name">
-									<a href="#">
+									<a href="/product?id=${product.id}">
 										${product.name}
 									</a>
 								</h3>

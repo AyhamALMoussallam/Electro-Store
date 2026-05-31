@@ -29,7 +29,7 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::with('category')->find($id);
+        $product = Product::with(['category', 'brand'])->find($id);
 
         if (!$product) {
             return $this->notFound('Product');
