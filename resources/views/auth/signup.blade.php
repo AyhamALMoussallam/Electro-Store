@@ -25,6 +25,7 @@ button:hover { background:#45a049; }
 
     <input type="text" id="signup-name" placeholder="Name">
     <input type="email" id="signup-email" placeholder="Email">
+    <input type="text" id="signup-phone" placeholder="09XXXXXXXX" maxlength="10" inputmode="numeric">
     <input type="password" id="signup-password" placeholder="Password">
     <input type="password" id="signup-password-confirm" placeholder="Confirm password">
     <button onclick="signup()">Sign Up</button>
@@ -43,9 +44,12 @@ button:hover { background:#45a049; }
 <script>
 const apiBase = '/api';
 
+document.getElementById("signup-phone").addEventListener("input", function(){ this.value = this.value.replace(/\D/g, "").slice(0,10); });
+
 function signup() {
     const name = document.getElementById('signup-name').value;
     const email = document.getElementById('signup-email').value;
+    const phone = document.getElementById('signup-phone').value;
     const password = document.getElementById('signup-password').value;
     const passwordConfirm = document.getElementById('signup-password-confirm').value;
 
@@ -55,7 +59,7 @@ function signup() {
         return;
     }
 
-    axios.post(`${apiBase}/signup`, { name, email, password, password_confirmation: passwordConfirm })
+    axios.post(`${apiBase}/signup`, { name, email, password, phone, password_confirmation: passwordConfirm })
         .then(res => {
             document.getElementById('message').style.color = 'green';
             document.getElementById('message').textContent =

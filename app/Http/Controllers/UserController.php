@@ -13,9 +13,10 @@ class UserController extends Controller
     public function signup(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:50',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
+            'phone' => 'required|digits:10',
+            'password' => 'required|string|min:6|max:35|confirmed',
         ]);
 
         if ($validator->fails()) {
@@ -27,6 +28,7 @@ class UserController extends Controller
                 
                 'name' => $request->name,
                 'email' => $request->email,
+                'phone' => $request->phone,
                 'password' => Hash::make($request->password),
             ]);
             $user->sendEmailVerificationNotification();
@@ -37,6 +39,8 @@ class UserController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'phone' => $user->phone,
+                    'role' => $user->role,
                     'created_at' => $user->created_at,
                 ],
             ], 'User registered successfully');
@@ -88,6 +92,8 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => $user->role,
                 'created_at' => $user->created_at,
             ],
         ], 200);
@@ -130,6 +136,8 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => $user->role,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
             ]
@@ -173,6 +181,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
+            'phone' => 'sometimes|required|digits:10',
         ]);
 
         if ($validator->fails()) {
@@ -188,6 +197,10 @@ class UserController extends Controller
         
         if ($request->has('email')) {
             $updateData['email'] = $request->email;
+        }
+
+        if ($request->has('phone')) {
+            $updateData['phone'] = $request->phone;
         }
         
 
