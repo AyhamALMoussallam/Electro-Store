@@ -112,4 +112,4 @@ Route::apiResource(
 
 
 Route::get('/products/{id}/reviews', [ReviewController::class, 'index']);
-Route::post('/reviews', [ReviewController::class, 'store'])->middleware('auth');
+Route::post('/reviews', [ReviewController::class, 'store'])->middleware('auth:sanctum');

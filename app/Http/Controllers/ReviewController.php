@@ -18,20 +18,26 @@ class ReviewController extends Controller
 
     // إضافة review
     public function store(Request $request)
-    {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string',
-        ]);
+{
+    $userId = auth()->id();
 
-        $review = Review::create([
-            'user_id' => auth()->id(),
-            'product_id' => $request->product_id,
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-        ]);
+    $exists = Review::where('user_id', $userId)
+        ->where('product_id', $request->product_id)
+        ->exists();
 
-        return response()->json($review, 201);
+    if ($exists) {
+        return response()->json([
+            'message' => 'You already reviewed this product'
+        ], 409);
     }
+
+    Review::create([
+        'user_id' => $userId,
+        'product_id' => $request->product_id,
+        'rating' => $request->rating,
+        'comment' => $request->comment,
+    ]);
+
+    return response()->json(['message' => 'success']);
+}
 }

@@ -339,15 +339,9 @@
 										<div class="col-md-3">
 											<div id="rating">
 												<div class="rating-avg">
-													<span>4.5</span>
-													<div class="rating-stars">
-														<i class="fa fa-star"></i>
-														<i class="fa fa-star"></i>
-														<i class="fa fa-star"></i>
-														<i class="fa fa-star"></i>
-														<i class="fa fa-star-o"></i>
-													</div>
-												</div>
+												<span>0.0</span>
+												<div class="rating-stars"></div>
+											</div>
 												<ul class="rating">
 													<li>
 														<div class="rating-stars">
@@ -439,9 +433,8 @@
 										<div class="col-md-3">
 											<div id="review-form">
 												<form class="review-form">
-													<input class="input" type="text" placeholder="Your Name">
-													<input class="input" type="email" placeholder="Your Email">
-													<textarea class="input" placeholder="Your Review"></textarea>
+													<textarea class="input" id="review-comment" placeholder="Your Review"></textarea>
+													
 													<div class="input-rating">
 														<span>Your Rating: </span>
 														<div class="stars">
@@ -640,6 +633,10 @@
 
 		<script>
 
+
+			axios.defaults.headers.common['Authorization'] =
+   			 'Bearer ' + localStorage.getItem('auth_token');
+
 		const productId =
 			new URLSearchParams(window.location.search)
 			.get('id');
@@ -676,7 +673,9 @@
 
 		loadRelatedProducts();
 
-		loadReviews(productId); // 👈 هون تمام
+		loadReviews(productId); 
+
+		updateRatingUI(reviews);
 	})
 		.catch(error => {
 
@@ -771,37 +770,42 @@
 		}
 
 
-		function loadReviews(productId) {
-    	axios.get(`/api/products/${productId}/reviews`)
-        .then(res => {
+function loadReviews(productId) {
+    axios.get(`/api/products/${productId}/reviews`)
+    .then(res => {
 
-            const reviews = res.data;
+        const reviews = res.data;
 
-            const container = document.getElementById('reviews-list');
+        const container = document.getElementById('reviews-list');
+        container.innerHTML = '';
 
-            container.innerHTML = '';
-
-            reviews.forEach(review => {
-
-                container.innerHTML += `
-                    <li>
-                        <div class="review-heading">
-                            <h5 class="name">${review.user.name}</h5>
-                            <p class="date">${new Date(review.created_at).toLocaleString()}</p>
-                            <div class="review-rating">
-                                ${renderStars(review.rating)}
-                            </div>
+        reviews.forEach(review => {
+            container.innerHTML += `
+                <li>
+                    <div class="review-heading">
+                        <h5 class="name">${review.user.name}</h5>
+                        <p class="date">${new Date(review.created_at).toLocaleString()}</p>
+                        <div class="review-rating">
+                            ${renderStars(review.rating)}
                         </div>
+                    </div>
 
-                        <div class="review-body">
-                            <p>${review.comment}</p>
-                        </div>
-                    </li>
-                `;
-            });
-
+                    <div class="review-body">
+                        <p>${review.comment}</p>
+                    </div>
+                </li>
+            `;
         });
-	}
+
+        // IMPORTANT FIX
+        updateRatingUI(reviews);
+
+    })
+    .catch(err => {
+        console.log(err);
+    });
+}
+	
 
 
 
@@ -816,6 +820,82 @@
 
     return stars;
 }
+
+
+function updateRatingUI(reviews) {
+
+    if (!reviews.length) {
+        setAvgRating(0);
+        setDistribution([]);
+        return;
+    }
+
+    let sum = 0;
+    let counts = [0, 0, 0, 0, 0];
+
+    reviews.forEach(r => {
+        sum += r.rating;
+        counts[r.rating - 1]++;
+    });
+
+    const avg = sum / reviews.length;
+
+    setAvgRating(avg);
+    setDistribution(counts, reviews.length);
+}
+
+
+
+function setAvgRating(avg) {
+
+    document.querySelector('.rating-avg span')
+        .textContent = avg.toFixed(1);
+
+    const stars = document.querySelector('.rating-avg .rating-stars');
+
+    stars.innerHTML = renderStars(Math.round(avg));
+}
+
+
+
+function setDistribution(counts, total) {
+
+    const items = document.querySelectorAll('#rating ul.rating li');
+
+    for (let i = 5; i >= 1; i--) {
+
+        const count = counts[i - 1];
+        const percent = total ? (count / total) * 100 : 0;
+
+        const row = items[5 - i];
+
+        const bar = row.querySelector('.rating-progress div');
+        const sum = row.querySelector('.sum');
+
+        bar.style.width = percent + '%';
+        sum.textContent = count;
+    }
+}
+
+
+document.querySelector('.review-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const comment = document.getElementById('review-comment').value;
+    const rating = document.querySelector('input[name="rating"]:checked')?.value;
+
+    axios.post('/api/reviews', {
+        product_id: productId,
+        comment: comment,
+        rating: rating
+    })
+    .then(() => {
+        loadReviews(productId);
+    })
+    .catch(err => {
+        alert(err.response?.data?.message || 'Error');
+    });
+});
 
 
 		</script>
