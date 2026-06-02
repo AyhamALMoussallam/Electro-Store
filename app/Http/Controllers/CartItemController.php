@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -44,6 +45,18 @@ class CartItemController extends Controller
             return $this->validationError($validator->errors());
         }
 
+        $product = Product::findOrFail(
+            $request->product_id
+        );
+
+        if ($request->quantity > $product->stock) {
+
+            return response()->json([
+                'message' => "Only {$product->stock} item(s) available"
+            ], 422);
+
+        }
+
         $user = $request->user();
 
         // get or create cart
@@ -58,12 +71,25 @@ class CartItemController extends Controller
 
         if ($cartItem) {
 
-            $cartItem->increment(
-                'quantity',
-                $request->quantity
-            );
+            $newQuantity =
+                $cartItem->quantity +
+                $request->quantity;
 
-        } else {
+            if ($newQuantity > $product->stock) {
+
+                return response()->json([
+                    'message' => "Only {$product->stock} item(s) available"
+                ], 422);
+
+            }
+
+            $cartItem->update([
+                'quantity' => $newQuantity
+            ]);
+
+        }
+
+        else {
 
             $cartItem = CartItem::create([
                 'cart_id'   => $cart->id,

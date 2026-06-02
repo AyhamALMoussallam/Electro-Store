@@ -208,25 +208,15 @@
 				<!-- row -->
 				<div class="row">
 					<!-- Product main img -->
-					<div class="col-md-5 col-md-push-2">
-						<div id="product-main-img">
-							<div class="product-preview">
-								<img src="./img/product01.png" alt="">
-							</div>
-
-							<div class="product-preview">
-								<img src="./img/product03.png" alt="">
-							</div>
-
-							<div class="product-preview">
-								<img src="./img/product06.png" alt="">
-							</div>
-
-							<div class="product-preview">
-								<img src="./img/product08.png" alt="">
+					
+						<div class="col-md-5 col-md-push-2">
+							<div id="product-main-img">
+								<div class="product-preview">
+									<img id="product-image-main" src="" alt="">
+								</div>
 							</div>
 						</div>
-					</div>
+					
 					<!-- /Product main img -->
 
 					<!-- Product thumb imgs -->
@@ -255,66 +245,54 @@
 					<div class="col-md-5">
 						<div class="product-details">
 							<h2 id="product-name"></h2>
-							<div>
-								<div class="product-rating">
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star"></i>
-									<i class="fa fa-star-o"></i>
-								</div>
-								<a class="review-link" href="#">10 Review(s) | Add your review</a>
-							</div>
+							
 							<div>
 								<h3 id="product-price"></h3>
 								<span id="product-stock"></span>
 							</div>
+							<br>
 							<p id="product-description"></p>
 
-							<div class="product-options">
-								<label>
-									Size
-									<select class="input-select">
-										<option value="0">X</option>
-									</select>
-								</label>
-								<label>
-									Color
-									<select class="input-select">
-										<option value="0">Red</option>
-									</select>
-								</label>
-							</div>
+							
 
 							<div class="add-to-cart">
 								<div class="qty-label">
 									Qty
 									<div class="input-number">
-										<input type="number">
+										<input
+											type="number"
+											id="quantity"
+											value="1"
+											min="1"
+										>
 										<span class="qty-up">+</span>
 										<span class="qty-down">-</span>
 									</div>
 								</div>
-								<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+
+								<button
+									class="add-to-cart-btn"
+									id="add-to-cart-btn"
+								>
+									<i class="fa fa-shopping-cart"></i>
+									add to cart
+								</button>
 							</div>
 
-							<ul class="product-btns">
-								<li><a href="#"><i class="fa fa-heart-o"></i> add to wishlist</a></li>
-								<li><a href="#"><i class="fa fa-exchange"></i> add to compare</a></li>
-							</ul>
+							
 
 							<ul class="product-links">
 								<li>Category:</li>
-								<li><a href="#">Headphones</a></li>
-								<li><a href="#">Accessories</a></li>
+								<li><a href="#" id="product-category"></a></li>
 							</ul>
 
 							<ul class="product-links">
 								<li>Share:</li>
-								<li><a href="#"><i class="fa fa-facebook"></i></a></li>
-								<li><a href="#"><i class="fa fa-twitter"></i></a></li>
-								<li><a href="#"><i class="fa fa-google-plus"></i></a></li>
-								<li><a href="#"><i class="fa fa-envelope"></i></a></li>
+								<li>
+									<a href="#" id="copy-link-btn">
+										<i class="fa fa-link"></i> Copy Link
+									</a>
+								</li>
 							</ul>
 
 						</div>
@@ -418,13 +396,7 @@
 											<div id="reviews">
 												<ul class="reviews" id="reviews-list"></ul>
 
-												<ul class="reviews-pagination">
-													<li class="active">1</li>
-													<li><a href="#">2</a></li>
-													<li><a href="#">3</a></li>
-													<li><a href="#">4</a></li>
-													<li><a href="#"><i class="fa fa-angle-right"></i></a></li>
-												</ul>
+												<ul class="reviews-pagination" id="reviews-pagination"></ul>
 											</div>
 										</div>
 										<!-- /Reviews -->
@@ -653,23 +625,51 @@
 		const product = res.data.data;
 
 		currentProduct = product;
+		const qtyInput = document.getElementById('quantity');
+
+		qtyInput.max = product.stock;
+
+		if (product.stock <= 0) {
+			qtyInput.disabled = true;
+
+			document.querySelector('.add-to-cart-btn').disabled = true;
+		}
 
 		document.getElementById('product-name').textContent =
 			product.name;
 
+		document.getElementById('product-category').textContent =
+    		product.category?.name ?? 'No Category';
+
 		document.getElementById('product-price').textContent =
 			'$' + product.price;
 
-		document.getElementById('product-description').textContent =
-			product.description;
+		document.getElementById('product-description').innerHTML =
+    		product.description.replace(/\n/g, '<br>');
 
 		document.getElementById('product-stock').textContent =
 			product.stock > 0
 				? `In Stock (${product.stock})`
 				: 'Out Of Stock';
 
-		document.getElementById('product-image').src =
-			'/storage/' + product.image;
+		document.getElementById('product-image-main').src =
+   			 '/storage/' + product.image;
+
+
+
+		document.getElementById('copy-link-btn').addEventListener('click', function (e) {
+			e.preventDefault();
+
+			const url = window.location.href;
+
+			navigator.clipboard.writeText(url)
+				.then(() => {
+					alert('Link copied!');
+				})
+				.catch(() => {
+					alert('Failed to copy link');
+				});
+		});	 
 
 		loadRelatedProducts();
 
@@ -730,7 +730,9 @@
 
 				<div class="col-md-3 col-xs-6">
 
-					<div class="product">
+					<div class="product"
+						style="cursor:pointer"
+						onclick="window.location.href='/product?id=${product.id}'">
 
 						<div class="product-img">
 
@@ -770,40 +772,90 @@
 		}
 
 
+
+		const reviewsPerPage = 4;
+		let allReviews = [];
+		let currentPage = 1;
+
 function loadReviews(productId) {
+
     axios.get(`/api/products/${productId}/reviews`)
     .then(res => {
 
-        const reviews = res.data;
+        allReviews = res.data;
 
-        const container = document.getElementById('reviews-list');
-        container.innerHTML = '';
+        renderReviewsPage(1);
 
-        reviews.forEach(review => {
-            container.innerHTML += `
-                <li>
-                    <div class="review-heading">
-                        <h5 class="name">${review.user.name}</h5>
-                        <p class="date">${new Date(review.created_at).toLocaleString()}</p>
-                        <div class="review-rating">
-                            ${renderStars(review.rating)}
-                        </div>
-                    </div>
-
-                    <div class="review-body">
-                        <p>${review.comment}</p>
-                    </div>
-                </li>
-            `;
-        });
-
-        // IMPORTANT FIX
-        updateRatingUI(reviews);
+        updateRatingUI(allReviews);
 
     })
     .catch(err => {
         console.log(err);
     });
+
+}
+
+function renderReviewsPage(page) {
+
+    currentPage = page;
+
+    const container = document.getElementById('reviews-list');
+
+    container.innerHTML = '';
+
+    const start = (page - 1) * reviewsPerPage;
+    const end = start + reviewsPerPage;
+
+    const reviews = allReviews.slice(start, end);
+
+    reviews.forEach(review => {
+
+        container.innerHTML += `
+            <li>
+                <div class="review-heading">
+                    <h5 class="name">${review.user.name}</h5>
+                    <p class="date">
+                        ${new Date(review.created_at).toLocaleString()}
+                    </p>
+                    <div class="review-rating">
+                        ${renderStars(review.rating)}
+                    </div>
+                </div>
+
+                <div class="review-body">
+                    <p>${review.comment}</p>
+                </div>
+            </li>
+        `;
+    });
+
+    renderPagination();
+}
+
+
+
+
+function renderPagination() {
+
+    const totalPages = Math.ceil(
+        allReviews.length / reviewsPerPage
+    );
+
+    const pagination =
+        document.getElementById('reviews-pagination');
+
+    pagination.innerHTML = '';
+
+    for (let i = 1; i <= totalPages; i++) {
+
+        pagination.innerHTML += `
+            <li class="${i === currentPage ? 'active' : ''}">
+                <a href="#" onclick="renderReviewsPage(${i}); return false;">
+                    ${i}
+                </a>
+            </li>
+        `;
+    }
 }
 	
 
@@ -878,24 +930,71 @@ function setDistribution(counts, total) {
 }
 
 
-document.querySelector('.review-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+		document.querySelector('.review-form').addEventListener('submit', function(e) {
+			e.preventDefault();
 
-    const comment = document.getElementById('review-comment').value;
-    const rating = document.querySelector('input[name="rating"]:checked')?.value;
+			const comment = document.getElementById('review-comment').value;
+			const rating = document.querySelector('input[name="rating"]:checked')?.value;
 
-    axios.post('/api/reviews', {
-        product_id: productId,
-        comment: comment,
-        rating: rating
-    })
-    .then(() => {
-        loadReviews(productId);
-    })
-    .catch(err => {
-        alert(err.response?.data?.message || 'Error');
-    });
-});
+			axios.post('/api/reviews', {
+				product_id: productId,
+				comment: comment,
+				rating: rating
+			})
+			.then(() => {
+				loadReviews(productId);
+			})
+			.catch(err => {
+				alert(err.response?.data?.message || 'Error');
+			});
+		});
+
+
+		
+
+
+		document.querySelector('.add-to-cart-btn')
+		.addEventListener('click', function () {
+
+			const qty = parseInt(
+				document.getElementById('quantity').value
+			);
+
+			if (qty > currentProduct.stock) {
+
+				alert(
+					`Only ${currentProduct.stock} item(s) available in stock`
+				);
+
+				return;
+			}
+
+			if (qty < 1) {
+
+				alert('Quantity must be at least 1');
+
+				return;
+			}
+
+			axios.post('/api/cart-items', {
+				product_id: currentProduct.id,
+				quantity: qty
+			})
+			.then(res => {
+
+				alert('Product added to cart');
+
+			})
+			.catch(err => {
+
+				alert(
+					err.response?.data?.message ||
+					'Error adding product'
+				);
+
+			});
+
+		});
 
 
 		</script>

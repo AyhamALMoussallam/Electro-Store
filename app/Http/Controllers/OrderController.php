@@ -98,7 +98,25 @@ class OrderController extends Controller
             ], 400);
         }
 
+
+
+
         DB::beginTransaction();
+
+        foreach ($cartItems as $item) {
+
+            $item->product->refresh();
+
+            if ($item->quantity > $item->product->stock) {
+
+                throw new \Exception(
+                    $item->product->name .
+                    ' has only ' .
+                    $item->product->stock .
+                    ' item(s) available'
+                );
+            }
+        }
 
         try {
 
@@ -144,6 +162,9 @@ class OrderController extends Controller
             // =========================
             // CREATE ORDER ITEMS
             // =========================
+
+
+
             foreach ($cartItems as $item) {
 
                 OrderItem::create([
@@ -152,6 +173,11 @@ class OrderController extends Controller
                     'price' => $item->product->price,
                     'quantity' => $item->quantity
                 ]);
+
+                $item->product->decrement(
+                    'stock',
+                    $item->quantity
+                );
             }
 
             // =========================
