@@ -17,6 +17,9 @@ Route::get('signup/', function () {
 Route::get('profile/', function () {
     return view('profile');
 });
+Route::get('orders/', function () {
+    return view('orders');
+});
 Route::get('forgot-password/', function () {
     return view('auth.forgot-password');
 });

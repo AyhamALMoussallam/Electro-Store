@@ -1,0 +1,296 @@
+/* Account & auth pages — matches Electro store theme */
+
+.account-page-section,
+.account-auth-section {
+  background-color: #FBFBFC;
+}
+
+.account-page-section {
+  padding: 40px 0 60px;
+  min-height: calc(100vh - 220px);
+}
+
+.account-auth-section {
+  padding: 50px 15px 60px;
+  min-height: calc(100vh - 180px);
+  display: flex;
+  align-items: center;
+}
+
+.account-container {
+  max-width: 560px;
+}
+
+.account-container-wide {
+  max-width: 900px;
+}
+
+.account-card,
+.auth-card {
+  background-color: #FFF;
+  border: 1px solid #E4E7ED;
+  padding: 30px;
+  margin-bottom: 30px;
+}
+
+.auth-card {
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.auth-card h2,
+.account-card h3 {
+  color: #2B2D42;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.auth-card h2 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.account-toolbar {
+  background-color: #15161D;
+  padding: 14px 0;
+}
+
+.account-toolbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.account-toolbar-left a {
+  color: #FFF;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.account-toolbar-left a:hover {
+  color: #D10024;
+}
+
+.account-toolbar-title {
+  color: #FFF;
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: uppercase;
+  flex: 1;
+  text-align: center;
+}
+
+.account-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.account-toolbar-actions .primary-btn {
+  padding: 8px 20px;
+  font-size: 12px;
+}
+
+.account-btn-outline {
+  display: inline-block;
+  padding: 8px 20px;
+  border: 2px solid #FFF;
+  border-radius: 40px;
+  background: transparent;
+  color: #FFF;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.2s all;
+}
+
+.account-btn-outline:hover {
+  background: #FFF;
+  color: #15161D;
+}
+
+.account-info-row {
+  margin-bottom: 15px;
+}
+
+.account-info-row label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #8D99AE;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.account-info-row .value {
+  padding: 10px 15px;
+  background: #FBFBFC;
+  border: 1px solid #E4E7ED;
+  color: #2B2D42;
+}
+
+.account-card .input,
+.auth-card .input {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.account-card p,
+.auth-card p.auth-subtitle {
+  color: #8D99AE;
+  font-size: 14px;
+  margin: 0 0 15px;
+}
+
+.auth-card .primary-btn,
+.account-card .primary-btn {
+  width: 100%;
+  margin-top: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.auth-card .primary-btn.google-btn {
+  background-color: #db4437;
+  margin-top: 15px;
+}
+
+.auth-card .primary-btn.google-btn:hover {
+  opacity: 0.9;
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.auth-link a {
+  color: #D10024;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.account-message {
+  margin-top: 12px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.account-message.success {
+  color: #2e7d32;
+}
+
+.account-message.error {
+  color: #D10024;
+}
+
+.account-loading,
+.account-empty {
+  text-align: center;
+  color: #8D99AE;
+  padding: 30px;
+}
+
+.auth-error-box {
+  background: #FFF;
+  border: 1px solid #D10024;
+  color: #D10024;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* Orders page */
+.order-card {
+  background: #FFF;
+  border: 1px solid #E4E7ED;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.order-card h3 {
+  color: #2B2D42;
+  margin: 0 0 15px;
+}
+
+.order-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #8D99AE;
+}
+
+.order-status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 40px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #E4E7ED;
+  color: #2B2D42;
+}
+
+.order-status.pending {
+  background: #FFF3E0;
+  color: #EF6C00;
+}
+
+.order-status.canceled {
+  background: #FFEBEE;
+  color: #D10024;
+}
+
+.order-status.paid,
+.order-status.shipped,
+.order-status.delivered {
+  background: #E8F5E9;
+  color: #2e7d32;
+}
+
+.order-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.order-items-table th,
+.order-items-table td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid #E4E7ED;
+}
+
+.order-items-table th {
+  color: #8D99AE;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.order-note {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #8D99AE;
+}
+
+@media (max-width: 767px) {
+  .account-toolbar-title {
+    order: 3;
+    width: 100%;
+    text-align: left;
+    margin-top: 5px;
+  }
+
+  .account-toolbar-actions {
+    margin-left: auto;
+  }
+}

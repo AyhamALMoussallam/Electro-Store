@@ -31,18 +31,24 @@ class EmailVerificationController extends Controller
             'email' => 'required|email'
         ]);
 
-        $user = User::where('email', $request->email)->firstOrFail();
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            return response()->json([
+                'message' => 'No account found with this email.',
+            ], 404);
+        }
 
         if ($user->hasVerifiedEmail()) {
             return response()->json([
-                'message' => 'Email already verified'
+                'message' => 'This email is already verified. You can sign in.',
             ], 400);
         }
 
         $user->sendEmailVerificationNotification();
 
         return response()->json([
-            'message' => 'Verification link sent'
+            'message' => 'Verification email sent. Please check your inbox.',
         ]);
     }
 }

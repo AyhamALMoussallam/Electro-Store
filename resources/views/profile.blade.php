@@ -1,65 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profile</title>
+@include('partials.electro-head', ['title' => 'Electro - Profile', 'accountPage' => true])
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<style>
-body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f2f5; }
-header { background:#4CAF50; color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
-header a { color:white; text-decoration:none; font-weight:bold; }
-header a:hover { text-decoration:underline; }
-.container { padding:20px; max-width:500px; margin:0 auto; }
-.card { background:white; padding:24px; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.1); margin-bottom:20px; }
-.card h3 { margin-top:0; margin-bottom:16px; color:#333; }
-.info-row { margin-bottom:12px; }
-.info-row label { display:block; font-size:12px; color:#666; margin-bottom:4px; }
-.info-row .value { padding:8px 12px; background:#f5f5f5; border-radius:6px; color:#333; }
-input[type="password"], input[type="text"] { width:100%; padding:10px 12px; margin:6px 0; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; }
-button { padding:10px 20px; border:none; border-radius:6px; cursor:pointer; font-size:14px; }
-button.primary { background:#4CAF50; color:white; }
-button.primary:hover { background:#45a049; }
-.message { margin-top:10px; text-align:center; font-size:14px; }
-.loading { text-align:center; color:#666; padding:20px; }
-</style>
 </head>
-<body>
+<body data-active-nav="">
 
-<header>
-    <a href="/dashboard">&larr; Dashboard</a>
-    <span id="header-name">Profile</span>
-    <button onclick="logout()" style="background:rgba(255,255,255,0.2); color:white; padding:6px 12px;">Logout</button>
-</header>
+@include('partials.electro-header')
+@include('partials.electro-account-toolbar', ['toolbarTitle' => 'Profile', 'showLogout' => true])
 
-<div class="container">
-    <div id="loading" class="card loading">Loading profile...</div>
+<div class="account-page-section">
+	<div class="container account-container">
+		<div id="loading" class="account-card account-loading">Loading profile...</div>
 
-    <div id="profile-content" style="display:none;">
-        <!-- User info (read-only) -->
-        <div class="card">
-            <h3>Account info</h3>
-            <div class="info-row">
-                <label>Name</label>
-                <div class="value" id="profile-name"></div>
-            </div>
-            <div class="info-row">
-                <label>Email</label>
-                <div class="value" id="profile-email"></div>
-            </div>
-        </div>
+		<div id="profile-content" style="display:none;">
+			<div class="account-card">
+				<h3>Account info</h3>
+				<div class="account-info-row">
+					<label>Name</label>
+					<div class="value" id="profile-name"></div>
+				</div>
+				<div class="account-info-row">
+					<label>Email</label>
+					<div class="value" id="profile-email"></div>
+				</div>
+			</div>
 
-        <!-- Change password -->
-        <div class="card">
-            <h3>Change password</h3>
-            <input type="password" id="current-password" placeholder="Current password" autocomplete="current-password">
-            <input type="password" id="new-password" placeholder="New password" autocomplete="new-password">
-            <input type="password" id="new-password-confirm" placeholder="Confirm new password" autocomplete="new-password">
-            <button class="primary" onclick="changePassword()">Update password</button>
-            <div class="message" id="password-message"></div>
-        </div>
-    </div>
+			<div class="account-card">
+				<h3>Phone number</h3>
+				<p>Add or update your phone number (10 digits, e.g. 09XXXXXXXX).</p>
+				<input type="text" class="input" id="profile-phone" placeholder="09XXXXXXXX" maxlength="10" inputmode="numeric">
+				<button type="button" class="primary-btn" onclick="updatePhone()">Save phone number</button>
+				<div class="account-message" id="phone-message"></div>
+			</div>
+
+			<div class="account-card" id="orders-link-card" style="display:none;">
+				<h3>Orders</h3>
+				<p>View your order history and current status.</p>
+				<a href="/orders" class="primary-btn" style="display:inline-block; width:auto;">My Orders</a>
+			</div>
+
+			<div class="account-card">
+				<h3>Change password</h3>
+				<input type="password" class="input" id="current-password" placeholder="Current password" autocomplete="current-password">
+				<input type="password" class="input" id="new-password" placeholder="New password" autocomplete="new-password">
+				<input type="password" class="input" id="new-password-confirm" placeholder="Confirm new password" autocomplete="new-password">
+				<button type="button" class="primary-btn" onclick="changePassword()">Update password</button>
+				<div class="account-message" id="password-message"></div>
+			</div>
+		</div>
+	</div>
 </div>
+
+@include('partials.electro-footer')
+
+@include('partials.electro-scripts')
 
 <script>
 const apiBase = '/api';
@@ -68,6 +63,25 @@ if (!token) {
     window.location.href = '/login';
 }
 const headers = { Authorization: 'Bearer ' + token };
+
+document.getElementById('profile-phone').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 10);
+});
+
+function setMessage(el, text, type) {
+    el.textContent = text;
+    el.className = 'account-message' + (type ? ' ' + type : '');
+}
+
+function getApiErrorMessage(err, fallback) {
+    const data = err.response?.data;
+    if (!data) return fallback;
+    if (data.errors) {
+        const first = Object.values(data.errors).flat()[0];
+        if (first) return first;
+    }
+    return data.message || fallback;
+}
 
 function logout() {
     axios.post(`${apiBase}/logout`, {}, { headers })
@@ -82,9 +96,18 @@ function loadProfile() {
     axios.get(`${apiBase}/user`, { headers })
         .then(res => {
             const user = res.data.user;
-            document.getElementById('header-name').textContent = user.name;
+            document.getElementById('toolbar-title').textContent = user.name;
             document.getElementById('profile-name').textContent = user.name;
             document.getElementById('profile-email').textContent = user.email;
+            document.getElementById('profile-phone').value = user.phone ?? '';
+
+            if (Number(user.role) === 1) {
+                document.getElementById('nav-dashboard').style.display = 'inline';
+            } else {
+                document.getElementById('nav-orders').style.display = 'inline';
+                document.getElementById('orders-link-card').style.display = 'block';
+            }
+
             document.getElementById('loading').style.display = 'none';
             document.getElementById('profile-content').style.display = 'block';
         })
@@ -98,6 +121,31 @@ function loadProfile() {
         });
 }
 
+function updatePhone() {
+    const phone = document.getElementById('profile-phone').value.trim();
+    const msgEl = document.getElementById('phone-message');
+
+    if (!phone) {
+        setMessage(msgEl, 'Please enter your phone number.', 'error');
+        return;
+    }
+
+    if (phone.length !== 10) {
+        setMessage(msgEl, 'Phone number must be exactly 10 digits (e.g. 09XXXXXXXX).', 'error');
+        return;
+    }
+
+    setMessage(msgEl, '', '');
+
+    axios.put(`${apiBase}/profile`, { phone }, { headers })
+        .then(res => {
+            setMessage(msgEl, res.data.message || 'Phone number saved successfully.', 'success');
+        })
+        .catch(err => {
+            setMessage(msgEl, getApiErrorMessage(err, 'Failed to update phone number.'), 'error');
+        });
+}
+
 function changePassword() {
     const current = document.getElementById('current-password').value;
     const newPass = document.getElementById('new-password').value;
@@ -105,42 +153,37 @@ function changePassword() {
     const msgEl = document.getElementById('password-message');
 
     if (!current) {
-        msgEl.style.color = 'red';
-        msgEl.textContent = 'Please enter your current password.';
+        setMessage(msgEl, 'Please enter your current password.', 'error');
         return;
     }
     if (!newPass) {
-        msgEl.style.color = 'red';
-        msgEl.textContent = 'Please enter a new password.';
+        setMessage(msgEl, 'Please enter a new password.', 'error');
         return;
     }
     if (newPass.length < 6) {
-        msgEl.style.color = 'red';
-        msgEl.textContent = 'New password must be at least 6 characters.';
+        setMessage(msgEl, 'New password must be at least 6 characters.', 'error');
         return;
     }
     if (newPass !== confirmPass) {
-        msgEl.style.color = 'red';
-        msgEl.textContent = 'New password and confirmation do not match.';
+        setMessage(msgEl, 'New password and confirmation do not match.', 'error');
         return;
     }
 
-    msgEl.textContent = '';
+    setMessage(msgEl, '', '');
+
     axios.put(`${apiBase}/profile/password`, {
         current_password: current,
         password: newPass,
         password_confirmation: confirmPass
     }, { headers })
         .then(() => {
-            msgEl.style.color = 'green';
-            msgEl.textContent = 'Password updated successfully.';
+            setMessage(msgEl, 'Password updated successfully.', 'success');
             document.getElementById('current-password').value = '';
             document.getElementById('new-password').value = '';
             document.getElementById('new-password-confirm').value = '';
         })
         .catch(err => {
-            msgEl.style.color = 'red';
-            msgEl.textContent = err.response?.data?.message || 'Failed to update password.';
+            setMessage(msgEl, getApiErrorMessage(err, 'Failed to update password.'), 'error');
         });
 }
 

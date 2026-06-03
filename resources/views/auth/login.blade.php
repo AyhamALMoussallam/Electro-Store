@@ -1,68 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login</title>
+@include('partials.electro-head', ['title' => 'Electro - Sign In', 'accountPage' => true])
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<style>
-body { font-family: Arial, sans-serif; background:#f0f2f5; display:flex; justify-content:center; align-items:center; height:100vh; }
-.container { background:white; padding:30px; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.1); width:350px; }
-h2 { text-align:center; margin-bottom:20px; }
-input { width:100%; padding:10px; margin:8px 0; border-radius:5px; border:1px solid #ccc; }
-button { width:100%; padding:10px; margin-top:10px; border:none; border-radius:5px; background:#4CAF50; color:white; cursor:pointer; }
-button:hover { background:#45a049; }
-.google-btn { background:#db4437; }
-.google-btn:hover { background:#c1351d; }
-.message { margin-top:10px; text-align:center; }
-.link { text-align:center; margin-top:10px; }
-.link a { color:#007bff; text-decoration:none; }
-</style>
 </head>
-<body>
+<body data-active-nav="">
 
-<div class="container">
-    <h2>Sign In</h2>
+@include('partials.electro-header')
 
-    <input type="email" id="login-email" placeholder="Email">
-    <input type="password" id="login-password" placeholder="Password">
-    <button onclick="login()">Sign In</button>
+<div class="account-auth-section">
+	<div class="container">
+		<div class="auth-card">
+			<h2>Sign In</h2>
 
-    <div class="link">
-        <a href="/forgot-password">Forgot password?</a>
-    </div>
-    <div class="link">
-        <a href="/signup">Don't have an account? Sign Up</a>
-    </div>
+			<input type="email" class="input" id="login-email" placeholder="Email">
+			<input type="password" class="input" id="login-password" placeholder="Password">
+			<button type="button" class="primary-btn" onclick="login()">Sign In</button>
 
-    <button class="google-btn" onclick="googleLogin()">Sign In with Google</button>
+			<button type="button" class="primary-btn" id="resend-verification" onclick="resendVerificationEmail()" style="display:none; margin-top:10px;">
+				Resend verification email
+			</button>
 
-    <div class="message" id="message"></div>
+			<div class="auth-link">
+				<a href="/forgot-password">Forgot password?</a>
+			</div>
+			<div class="auth-link">
+				<a href="/signup">Don't have an account? Sign Up</a>
+			</div>
+
+			<button type="button" class="primary-btn google-btn" onclick="googleLogin()">Sign In with Google</button>
+
+			<div class="account-message" id="message"></div>
+		</div>
+	</div>
 </div>
 
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 <script>
+const apiBase = '/api';
 
+function getApiErrorMessage(err, fallback) {
+    const data = err.response?.data;
+    if (!data) return fallback;
+    if (data.errors) {
+        const first = Object.values(data.errors).flat()[0];
+        if (first) return first;
+    }
+    return data.message || fallback;
+}
+
+function showMessage(text, type) {
+    const msgEl = document.getElementById('message');
+    msgEl.textContent = text;
+    msgEl.className = 'account-message' + (type ? ' ' + type : '');
+}
+
+function redirectAfterLogin(token) {
+    localStorage.setItem('auth_token', token);
+
+    axios.get(`${apiBase}/user`, {
+        headers: { Authorization: 'Bearer ' + token }
+    })
+    .then(res => {
+        const role = Number(res.data.user.role);
+        window.location.href = role === 1 ? '/dashboard' : '/profile';
+    })
+    .catch(() => {
+        window.location.href = '/profile';
+    });
+}
 
 function login() {
-    const email = document.getElementById('login-email').value;
+    const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
+    const resendBtn = document.getElementById('resend-verification');
+
+    resendBtn.style.display = 'none';
+
+    if (!email) {
+        showMessage('Please enter your email.', 'error');
+        return;
+    }
+
+    if (!password) {
+        showMessage('Please enter your password.', 'error');
+        return;
+    }
+
+    showMessage('', '');
 
     axios.post(`${apiBase}/login`, { email, password })
         .then(res => {
-            localStorage.setItem('auth_token', res.data.token);
-            window.location.href = '/dashboard';
+            if (!res.data.token) {
+                showMessage('Login failed. No token received. Please try again.', 'error');
+                return;
+            }
+            redirectAfterLogin(res.data.token);
         })
         .catch(err => {
-            document.getElementById('message').style.color = 'red';
-            document.getElementById('message').textContent =
-                err.response?.data?.message || 'Login failed';
+            const msg = getApiErrorMessage(err, 'Sign in failed. Please try again.');
+            showMessage(msg, 'error');
+
+            if (err.response?.status === 403 &&
+                msg.toLowerCase().includes('not verified')) {
+                resendBtn.style.display = 'block';
+            }
+        });
+}
+
+function resendVerificationEmail() {
+    const email = document.getElementById('login-email').value.trim();
+
+    if (!email) {
+        showMessage('Enter your email above, then click resend.', 'error');
+        return;
+    }
+
+    axios.post(`${apiBase}/email/verification-notification`, { email })
+        .then(res => {
+            showMessage(res.data.message, 'success');
+        })
+        .catch(err => {
+            showMessage(getApiErrorMessage(err, 'Failed to resend verification email.'), 'error');
         });
 }
 
 function googleLogin() {
     window.location.href = '/auth/google/redirect';
 }
+
+['login-email', 'login-password'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') login();
+    });
+});
+
+const params = new URLSearchParams(window.location.search);
+
+if (params.get('verified') === '1') {
+    showMessage('Email verified successfully. You can sign in now.', 'success');
+}
+
+if (params.get('error') === 'google_auth_failed') {
+    showMessage('Google sign-in failed. Please try again.', 'error');
+}
 </script>
+
+@include('partials.electro-footer')
+@include('partials.electro-scripts')
 
 </body>
 </html>

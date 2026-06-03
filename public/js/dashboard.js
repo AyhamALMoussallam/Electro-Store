@@ -12,6 +12,37 @@ if (!token) window.location.href = "/login";
 
 
 // =========================
+// ADMIN GUARD
+// =========================
+async function guardAdmin() {
+    try {
+        const res = await fetch("/api/user", {
+            headers: {
+                Authorization: "Bearer " + token,
+                Accept: "application/json",
+            },
+        });
+
+        if (!res.ok) {
+            throw new Error("Unauthorized");
+        }
+
+        const data = await res.json();
+
+        if (Number(data.user.role) !== 1) {
+            window.location.href = "/profile";
+            return false;
+        }
+
+        return true;
+    } catch {
+        window.location.href = "/login";
+        return false;
+    }
+}
+
+
+// =========================
 // TAB SYSTEM
 // =========================
 function showTab(tabId) {
@@ -29,7 +60,11 @@ function showTab(tabId) {
     localStorage.setItem("activeTab", tabId);
 }
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
+    if (!(await guardAdmin())) {
+        return;
+    }
+
     showTab(localStorage.getItem("activeTab") || "categories");
 
     boot();

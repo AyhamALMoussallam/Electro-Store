@@ -50,6 +50,8 @@ class GoogleAuthController extends Controller
                     'avatar' => $googleUser->getAvatar(),
                     'email_verified_at' => now(),
                     'password' => Hash::make(Str::random(24)),
+                    'phone' => null,
+                    'role' => 0,
                 ]);
             }
 
@@ -58,6 +60,7 @@ class GoogleAuthController extends Controller
                 $user->update([
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
+                    'email_verified_at' => $user->email_verified_at ?? now(),
                 ]);
             }
 

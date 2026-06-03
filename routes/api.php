@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [UserController::class, 'getCurrentUser']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::put('/profile', [UserController::class, 'updateProfile']);
+    Route::put('/profile/password', [UserController::class, 'changePassword']);
     Route::delete('/profile', [UserController::class, 'deleteAccount']);
 });
 
@@ -68,6 +69,11 @@ Route::put('/categories/{id}', [CategoryController::class, 'update']);
 Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
 
+Route::get(
+    '/products/top-selling',
+    [ProductController::class, 'topSelling']
+);
+
 Route::apiResource('products', ProductController::class);
 
 Route::apiResource('cities', CityController::class);
@@ -92,13 +98,21 @@ Route::get('/cities/{city}/areas', [AreaController::class, 'byCity']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::apiResource('orders', OrderController::class);
+    Route::get('/orders/my', [OrderController::class, 'myOrders']);
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+});
+
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+
+    Route::get('/orders', [OrderController::class, 'index']);
 
     Route::put(
-        'orders/{id}/status',
+        '/orders/{id}/status',
         [OrderController::class, 'updateStatus']
     );
 
+    Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 });
 
 

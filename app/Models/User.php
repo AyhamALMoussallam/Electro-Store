@@ -25,6 +25,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'phone',
         'role',
+        'google_id',
+        'avatar',
+        'email_verified_at',
     ];
 
     protected $hidden = [
@@ -37,7 +40,28 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => 'integer',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return (int) $this->role === 1;
+    }
+
+    public function canSignInWithPassword(): bool
+    {
+        if ($this->hasVerifiedEmail()) {
+            return true;
+        }
+
+        if ($this->google_id) {
+            $this->forceFill(['email_verified_at' => $this->email_verified_at ?? now()])->save();
+
+            return true;
+        }
+
+        return false;
     }
 
 

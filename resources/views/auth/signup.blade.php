@@ -1,100 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign Up</title>
+@include('partials.electro-head', ['title' => 'Electro - Sign Up', 'accountPage' => true])
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<style>
-body { font-family: Arial, sans-serif; background:#f0f2f5; display:flex; justify-content:center; align-items:center; height:100vh; }
-.container { background:white; padding:30px; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.1); width:350px; }
-h2 { text-align:center; margin-bottom:20px; }
-input { width:100%; padding:10px; margin:8px 0; border-radius:5px; border:1px solid #ccc; }
-button { width:100%; padding:10px; margin-top:10px; border:none; border-radius:5px; background:#4CAF50; color:white; cursor:pointer; }
-button:hover { background:#45a049; }
-.message { margin-top:10px; text-align:center; }
-.link { text-align:center; margin-top:10px; }
-.link a { color:#007bff; text-decoration:none; }
-#resend-verification { display:none; background:#007bff; }
-</style>
 </head>
-<body>
+<body data-active-nav="">
 
-<div class="container">
-    <h2>Sign Up</h2>
+@include('partials.electro-header')
 
-    <input type="text" id="signup-name" placeholder="Name">
-    <input type="email" id="signup-email" placeholder="Email">
-    <input type="text" id="signup-phone" placeholder="09XXXXXXXX" maxlength="10" inputmode="numeric">
-    <input type="password" id="signup-password" placeholder="Password">
-    <input type="password" id="signup-password-confirm" placeholder="Confirm password">
-    <button onclick="signup()">Sign Up</button>
+<div class="account-auth-section">
+	<div class="container">
+		<div class="auth-card">
+			<h2>Sign Up</h2>
 
-    <button id="resend-verification" onclick="resendVerificationEmail()">
-        Resend Verification Email
-    </button>
+			<input type="text" class="input" id="signup-name" placeholder="Name">
+			<input type="email" class="input" id="signup-email" placeholder="Email">
+			<input type="text" class="input" id="signup-phone" placeholder="09XXXXXXXX" maxlength="10" inputmode="numeric">
+			<input type="password" class="input" id="signup-password" placeholder="Password (min. 6 characters)">
+			<input type="password" class="input" id="signup-password-confirm" placeholder="Confirm password">
+			<button type="button" class="primary-btn" onclick="signup()">Sign Up</button>
 
-    <div class="link">
-        <a href="/login">Already have an account? Sign In</a>
-    </div>
+			<button type="button" class="primary-btn" id="resend-verification" onclick="resendVerificationEmail()" style="display:none; margin-top:10px;">
+				Resend verification email
+			</button>
 
-    <div class="message" id="message"></div>
+			<div class="auth-link">
+				<a href="/login">Already have an account? Sign In</a>
+			</div>
+
+			<div class="account-message" id="message"></div>
+		</div>
+	</div>
 </div>
 
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 <script>
 const apiBase = '/api';
 
-document.getElementById("signup-phone").addEventListener("input", function(){ this.value = this.value.replace(/\D/g, "").slice(0,10); });
+document.getElementById('signup-phone').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 10);
+});
+
+function getApiErrorMessage(err, fallback) {
+    const data = err.response?.data;
+    if (!data) return fallback;
+    if (data.errors) {
+        const first = Object.values(data.errors).flat()[0];
+        if (first) return first;
+    }
+    return data.message || fallback;
+}
+
+function showMessage(text, type) {
+    const msgEl = document.getElementById('message');
+    msgEl.textContent = text;
+    msgEl.className = 'account-message' + (type ? ' ' + type : '');
+}
 
 function signup() {
-    const name = document.getElementById('signup-name').value;
-    const email = document.getElementById('signup-email').value;
-    const phone = document.getElementById('signup-phone').value;
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const phone = document.getElementById('signup-phone').value.trim();
     const password = document.getElementById('signup-password').value;
     const passwordConfirm = document.getElementById('signup-password-confirm').value;
 
-    if (password !== passwordConfirm) {
-        document.getElementById('message').style.color = 'red';
-        document.getElementById('message').textContent = 'Password and confirm password do not match.';
+    if (!name) {
+        showMessage('Please enter your name.', 'error');
         return;
     }
 
-    axios.post(`${apiBase}/signup`, { name, email, password, phone, password_confirmation: passwordConfirm })
-        .then(res => {
-            document.getElementById('message').style.color = 'green';
-            document.getElementById('message').textContent =
-                'Sign Up successful! Please verify your email.';
+    if (!email) {
+        showMessage('Please enter your email.', 'error');
+        return;
+    }
 
-            document.getElementById('resend-verification').style.display = 'block';
-        })
-        .catch(err => {
-            document.getElementById('message').style.color = 'red';
-            document.getElementById('message').textContent =
-                err.response?.data?.message || 'Sign Up failed';
-        });
+    if (!phone) {
+        showMessage('Please enter your phone number.', 'error');
+        return;
+    }
+
+    if (phone.length !== 10) {
+        showMessage('Phone number must be exactly 10 digits (e.g. 09XXXXXXXX).', 'error');
+        return;
+    }
+
+    if (!password) {
+        showMessage('Please enter a password.', 'error');
+        return;
+    }
+
+    if (password.length < 6) {
+        showMessage('Password must be at least 6 characters.', 'error');
+        return;
+    }
+
+    if (password !== passwordConfirm) {
+        showMessage('Password and confirmation do not match.', 'error');
+        return;
+    }
+
+    showMessage('', '');
+
+    axios.post(`${apiBase}/signup`, {
+        name,
+        email,
+        phone,
+        password,
+        password_confirmation: passwordConfirm,
+    })
+    .then(res => {
+        showMessage(
+            res.data.message || 'Registration successful! A verification email has been sent to your inbox.',
+            'success'
+        );
+        document.getElementById('resend-verification').style.display = 'block';
+    })
+    .catch(err => {
+        showMessage(getApiErrorMessage(err, 'Registration failed. Please check your details and try again.'), 'error');
+    });
 }
 
 function resendVerificationEmail() {
-    const email = document.getElementById('signup-email').value;
+    const email = document.getElementById('signup-email').value.trim();
 
     if (!email) {
-        document.getElementById('message').textContent =
-            'Please enter your email first';
+        showMessage('Please enter your email first.', 'error');
         return;
     }
 
     axios.post(`${apiBase}/email/verification-notification`, { email })
         .then(res => {
-            document.getElementById('message').style.color = 'green';
-            document.getElementById('message').textContent = res.data.message;
+            showMessage(res.data.message, 'success');
         })
         .catch(err => {
-            document.getElementById('message').style.color = 'red';
-            document.getElementById('message').textContent =
-                err.response?.data?.message || 'Failed to resend';
+            showMessage(getApiErrorMessage(err, 'Failed to resend verification email.'), 'error');
         });
 }
 </script>
+
+@include('partials.electro-footer')
+@include('partials.electro-scripts')
 
 </body>
 </html>

@@ -25,11 +25,13 @@ class Controller extends BaseController
         ], 403);
     }
     
-    protected function validationError($errors, $message = 'Validation failed')
+    protected function validationError($errors, $message = null)
     {
+        $messages = collect($errors)->flatten();
+
         return response()->json([
-            'message' => $message,
-            'errors' => $errors
+            'message' => $message ?? $messages->first() ?? 'Validation failed.',
+            'errors' => $errors,
         ], 422);
     }
     

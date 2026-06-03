@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\CartItem;
 use App\Models\OrderLog;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -32,9 +33,28 @@ class OrderController extends Controller
     }
 
     /**
+     * Get current user's orders
+     */
+    public function myOrders(Request $request)
+    {
+        $orders = Order::with([
+            'area.city',
+            'items.product',
+        ])
+            ->where('user_id', $request->user()->id)
+            ->latest()
+            ->get();
+
+        return $this->success(
+            $orders,
+            'Orders fetched successfully'
+        );
+    }
+
+    /**
      * Get single order
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $order = Order::with([
             'user',
@@ -44,6 +64,10 @@ class OrderController extends Controller
 
         if (!$order) {
             return $this->notFound('Order');
+        }
+
+        if (! $request->user()->isAdmin() && $order->user_id !== $request->user()->id) {
+            return $this->unauthorized('You can only view your own orders');
         }
 
         return $this->success(
@@ -242,18 +266,38 @@ public function updateStatus(Request $request, string $id)
         ], 400);
     }
 
-    // update status
-    $order->status = $newStatus;
-    $order->save();
+    DB::beginTransaction();
 
-    // create log
-    OrderLog::create([
-        'order_id'   => $order->id,
-        'admin_id'   => auth()->id(),
-        'action'     => 'Updated order status',
-        'old_status' => $oldStatus,
-        'new_status' => $newStatus
-    ]);
+    try {
+        if ($newStatus === 'paid' && $oldStatus !== 'paid') {
+            $order->load('items');
+
+            foreach ($order->items as $item) {
+                Product::where('id', $item->product_id)
+                    ->increment('sales', $item->quantity);
+            }
+        }
+
+        $order->status = $newStatus;
+        $order->save();
+
+        OrderLog::create([
+            'order_id'   => $order->id,
+            'admin_id'   => auth()->id(),
+            'action'     => 'Updated order status',
+            'old_status' => $oldStatus,
+            'new_status' => $newStatus
+        ]);
+
+        DB::commit();
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
 
     return $this->success(
         $order,

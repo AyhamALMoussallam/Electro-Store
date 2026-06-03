@@ -63,42 +63,70 @@
 
 	/////////////////////////////////////////
 
-	// Product Main img Slick
-	$('#product-main-img').slick({
-    infinite: true,
-    speed: 300,
-    dots: false,
-    arrows: true,
-    fade: true,
-    asNavFor: '#product-imgs',
-  });
+	window.initProductImageSliders = function () {
+		if (!$('#product-imgs').length || !$('#product-imgs .product-preview').length) {
+			return;
+		}
 
-	// Product imgs Slick
-  $('#product-imgs').slick({
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    arrows: true,
-    centerMode: true,
-    focusOnSelect: true,
-		centerPadding: 0,
-		vertical: true,
-    asNavFor: '#product-main-img',
-		responsive: [{
-        breakpoint: 991,
-        settings: {
+		var $main = $('#product-main-img');
+		var $thumbs = $('#product-imgs');
+
+		if ($main.hasClass('slick-initialized')) {
+			$main.find('.product-preview').trigger('zoom.destroy');
+			$main.slick('unslick');
+		}
+
+		if ($thumbs.hasClass('slick-initialized')) {
+			$thumbs.slick('unslick');
+		}
+
+		// Thumbnails first so asNavFor syncs the active slide on load
+		$thumbs.slick({
+			slidesToShow: 3,
+			slidesToScroll: 1,
+			arrows: true,
+			centerMode: true,
+			focusOnSelect: true,
+			centerPadding: 0,
+			vertical: true,
+			initialSlide: 0,
+			asNavFor: '#product-main-img',
+			responsive: [{
+				breakpoint: 991,
+				settings: {
 					vertical: false,
 					arrows: false,
 					dots: true,
-        }
-      },
-    ]
-  });
+				}
+			}],
+		});
 
-	// Product img zoom
-	var zoomMainProduct = document.getElementById('product-main-img');
-	if (zoomMainProduct) {
-		$('#product-main-img .product-preview').zoom();
-	}
+		$main.slick({
+			infinite: true,
+			speed: 300,
+			dots: false,
+			arrows: true,
+			fade: true,
+			initialSlide: 0,
+			asNavFor: '#product-imgs',
+		});
+
+		$main.slick('setPosition');
+		$thumbs.slick('setPosition');
+		$main.slick('slickGoTo', 0, true);
+		$thumbs.slick('slickGoTo', 0, true);
+
+		function initActiveZoom() {
+			$main.find('.product-preview').trigger('zoom.destroy');
+			$main.find('.slick-slide.slick-active .product-preview').zoom();
+		}
+
+		initActiveZoom();
+
+		$main.off('afterChange.productZoom').on('afterChange.productZoom', function () {
+			initActiveZoom();
+		});
+	};
 
 	/////////////////////////////////////////
 
