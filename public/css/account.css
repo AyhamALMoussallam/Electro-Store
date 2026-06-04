@@ -1,5 +1,14 @@
 /* Account & auth pages — matches Electro store theme */
 
+.header-logo--minimal {
+  float: none;
+  text-align: center;
+}
+
+.header-logo--minimal .logo img {
+  display: inline-block;
+}
+
 .account-page-section,
 .account-auth-section {
   background-color: #FBFBFC;

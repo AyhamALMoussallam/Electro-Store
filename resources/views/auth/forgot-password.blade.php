@@ -6,7 +6,7 @@
 </head>
 <body data-active-nav="">
 
-@include('partials.electro-header')
+@include('partials.electro-header', ['minimalHeader' => true])
 
 <div class="account-auth-section">
 	<div class="container">
