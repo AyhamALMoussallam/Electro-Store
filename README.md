@@ -11,7 +11,7 @@
 
 See **[docs/SETUP.md](docs/SETUP.md)** for database, `.env`, migrations, and fixing `Connection refused` on MySQL.
 
-**Diagrams:** `docs/Electro-V2-ERD-columns.xlsx` (database), `docs/Electro-V2-Class-Diagram.pdf` (UML classes). Regenerate class diagram: `python scripts/generate_class_diagram.py`
+**Diagrams:** `docs/Electro-V2-ERD-columns.xlsx` (database), `docs/Electro-V2-Class-Diagram.pdf` (UML classes), `docs/Electro-V2-Use-Case-Diagram.pdf` (UML use cases). Regenerate: `python scripts/generate_class_diagram.py` · `python scripts/generate_use_case_diagram.py`
 
 Quick checklist:
 
