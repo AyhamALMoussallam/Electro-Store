@@ -60,9 +60,22 @@ This project uses the database for **sessions**, **cache**, and **queues** (`SES
 
 ## 4. Migrate and seed
 
+**Required** — without seed data, the admin dashboard tables stay empty.
+
 ```bash
 php artisan migrate --seed
 php artisan storage:link
+```
+
+Admin login after seed:
+
+- Email: `admin@electro.com`
+- Password: `password`
+
+To refill an empty database later:
+
+```bash
+php artisan db:seed
 ```
 
 ---

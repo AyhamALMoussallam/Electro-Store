@@ -74,6 +74,55 @@ function sortByIdDesc(items) {
 	});
 }
 
+/** Normalize Laravel API payloads: { data: [...] } or bare array */
+function apiList(json) {
+	if (Array.isArray(json?.data)) {
+		return json.data;
+	}
+	if (Array.isArray(json)) {
+		return json;
+	}
+	return [];
+}
+
+function emptyTableRow(colspan, messageKey) {
+	const msg = t(messageKey || 'noItems');
+	return `<tr><td colspan="${colspan}" class="text-center" style="color:#8D99AE;padding:20px;">${msg}</td></tr>`;
+}
+
+function fillTableBody(tbodyId, html, colspan, emptyKey) {
+	const el = document.getElementById(tbodyId);
+	if (!el) {
+		return;
+	}
+	el.innerHTML = html && html.trim() ? html : emptyTableRow(colspan, emptyKey);
+}
+
+async function fetchApi(url, options = {}) {
+	const res = await fetch(url, {
+		...options,
+		headers: {
+			Accept: 'application/json',
+			Authorization: 'Bearer ' + token,
+			...(options.headers || {}),
+		},
+	});
+
+	let json = {};
+	try {
+		json = await res.json();
+	} catch (e) {
+		console.error('Invalid JSON from', url, e);
+	}
+
+	if (!res.ok) {
+		console.error('API error', url, res.status, json);
+		return { ok: false, data: [], json };
+	}
+
+	return { ok: true, data: apiList(json), json };
+}
+
 
 // =========================
 // ADMIN GUARD
@@ -140,13 +189,11 @@ window.addEventListener("load", async () => {
 
 async function loadBrands() {
 
-    let res = await fetch(API_BRANDS);
-
-    let data = await res.json();
+    const { data } = await fetchApi(API_BRANDS);
 
     let html = "";
 
-    sortByIdDesc(data.data).forEach(b => {
+    sortByIdDesc(data).forEach(b => {
 
         html += `
             <tr>
@@ -169,9 +216,7 @@ async function loadBrands() {
         `;
     });
 
-    document.getElementById(
-        "brands-table-body"
-    ).innerHTML = html;
+    fillTableBody('brands-table-body', html, 3, 'noItems');
 }
 
 
@@ -218,14 +263,12 @@ async function deleteBrand(id) {
 
 async function loadProductBrands() {
 
-    let res = await fetch(API_BRANDS);
-
-    let data = await res.json();
+    const { data } = await fetchApi(API_BRANDS);
 
     let html =
         '<option value="">' + t('selectBrand') + '</option>';
 
-    data.data.forEach(b => {
+    data.forEach(b => {
 
         html += `
             <option value="${b.id}">
@@ -339,12 +382,11 @@ let editState = {
 // CATEGORIES
 // =========================
 async function loadCategories() {
-    let res = await fetch(API_CATEGORIES);
-    let data = await res.json();
+    const { data } = await fetchApi(API_CATEGORIES);
 
     let html = "";
 
-    sortByIdDesc(data.data).forEach(c => {
+    sortByIdDesc(data).forEach(c => {
         html += `
         <tr>
             <td>${c.id}</td>
@@ -356,7 +398,7 @@ async function loadCategories() {
         </tr>`;
     });
 
-    document.getElementById("categories-table-body").innerHTML = html;
+    fillTableBody('categories-table-body', html, 3, 'noItems');
 }
 
 async function saveCategory() {
@@ -433,8 +475,7 @@ function renderProductsTable() {
     );
 
     if (!items.length) {
-        document.getElementById("products-table-body").innerHTML =
-            `<tr><td colspan="9" class="text-center">${t('noProducts')}</td></tr>`;
+        fillTableBody('products-table-body', '', 9, 'noProducts');
         return;
     }
 
@@ -483,12 +524,8 @@ function initProductsSearch() {
 }
 
 async function loadProducts() {
-    let res = await fetch(API_PRODUCTS, {
-        headers: { Authorization: "Bearer " + token },
-    });
-    let data = await res.json();
-
-    allProducts = sortByIdDesc(data.data ?? data);
+    const { data } = await fetchApi(API_PRODUCTS);
+    allProducts = sortByIdDesc(data);
     renderProductsTable();
 }
 
@@ -546,12 +583,11 @@ async function deleteProduct(id) {
 // PRODUCT CATEGORIES SELECT
 // =========================
 async function loadProductCategories() {
-    let res = await fetch(API_CATEGORIES);
-    let data = await res.json();
+    const { data } = await fetchApi(API_CATEGORIES);
 
     let html = '<option value="">' + t('selectCategory') + '</option>';
 
-    data.data.forEach(c => {
+    data.forEach(c => {
         html += `<option value="${c.id}">${c.name}</option>`;
     });
 
@@ -563,12 +599,11 @@ async function loadProductCategories() {
 // CITIES
 // =========================
 async function loadCities() {
-    let res = await fetch(API_CITIES);
-    let data = await res.json();
+    const { data } = await fetchApi(API_CITIES);
 
     let html = "";
 
-    sortByIdDesc(data.data).forEach(c => {
+    sortByIdDesc(data).forEach(c => {
         html += `
         <tr>
             <td>${c.id}</td>
@@ -580,7 +615,7 @@ async function loadCities() {
         </tr>`;
     });
 
-    document.getElementById("cities-table-body").innerHTML = html;
+    fillTableBody('cities-table-body', html, 3, 'noItems');
 }
 
 async function saveCity() {
@@ -620,12 +655,11 @@ async function saveCity() {
 }
 
 async function loadCitySelect() {
-    let res = await fetch(API_CITIES);
-    let data = await res.json();
+    const { data } = await fetchApi(API_CITIES);
 
     let html = '<option value="">' + t('selectCity') + '</option>';
 
-    data.data.forEach(c => {
+    data.forEach(c => {
         html += `<option value="${c.id}">${c.name}</option>`;
     });
 
@@ -648,12 +682,11 @@ async function deleteCity(id) {
 // AREAS
 // =========================
 async function loadAreas() {
-    let res = await fetch(API_AREAS);
-    let data = await res.json();
+    const { data } = await fetchApi(API_AREAS);
 
     let html = "";
 
-    sortByIdDesc(data.data).forEach(a => {
+    sortByIdDesc(data).forEach(a => {
         html += `
         <tr>
             <td>${a.id}</td>
@@ -669,7 +702,7 @@ async function loadAreas() {
         </tr>`;
     });
 
-    document.getElementById("areas-table-body").innerHTML = html;
+    fillTableBody('areas-table-body', html, 5, 'noItems');
 }
 
 async function saveArea() {
@@ -789,12 +822,11 @@ function closeAllModals() {
 
 
 async function loadCategoriesForEdit() {
-    let res = await fetch(API_CATEGORIES);
-    let data = await res.json();
+    const { data } = await fetchApi(API_CATEGORIES);
 
     let html = "";
 
-    data.data.forEach(c => {
+    data.forEach(c => {
         html += `<option value="${c.id}">${c.name}</option>`;
     });
 
@@ -804,13 +836,11 @@ async function loadCategoriesForEdit() {
 
 async function loadBrandsForEdit() {
 
-    let res = await fetch(API_BRANDS);
-
-    let data = await res.json();
+    const { data } = await fetchApi(API_BRANDS);
 
     let html = "";
 
-    data.data.forEach(b => {
+    data.forEach(b => {
 
         html += `
             <option value="${b.id}">
@@ -828,12 +858,11 @@ async function loadBrandsForEdit() {
 
 
 async function loadCitiesForEdit() {
-    let res = await fetch(API_CITIES);
-    let data = await res.json();
+    const { data } = await fetchApi(API_CITIES);
 
     let html = "";
 
-    data.data.forEach(c => {
+    data.forEach(c => {
         html += `<option value="${c.id}">${c.name}</option>`;
     });
 
@@ -953,12 +982,11 @@ document.addEventListener("change", async (e) => {
 
     if (e.target.id !== "city-select") return;
 
-    let res = await fetch(`/api/cities/${e.target.value}/areas`);
-    let data = await res.json();
+    const { data } = await fetchApi(`/api/cities/${e.target.value}/areas`);
 
     let html = '<option value="">' + t('selectArea') + '</option>';
 
-    data.data.forEach(a => {
+    data.forEach(a => {
         html += `<option value="${a.id}">${a.name}</option>`;
     });
 
@@ -1018,20 +1046,8 @@ async function confirmLogout() {
 let allOrders = [];
 
 async function loadOrders() {
-
-    const token = localStorage.getItem("auth_token");
-
-    const res = await fetch("/api/orders", {
-        headers: {
-            "Authorization": "Bearer " + token,
-            "Accept": "application/json"
-        }
-    });
-
-    const data = await res.json();
-
-    allOrders = sortByIdDesc(data.data ?? []);
-
+    const { data } = await fetchApi('/api/orders');
+    allOrders = sortByIdDesc(data);
     renderOrders();
 }
 
@@ -1044,11 +1060,16 @@ function renderOrders() {
             "orders-table-body"
         );
 
-    tbody.innerHTML = "";
+    if (!allOrders.length) {
+        fillTableBody('orders-table-body', '', 6, 'noItems');
+        return;
+    }
+
+    let html = '';
 
     allOrders.forEach(order => {
 
-        tbody.innerHTML += `
+        html += `
             <tr class="order-row-clickable" onclick="showOrderDetails(${order.id})">
 
                 <td>#${order.id}</td>
@@ -1134,9 +1155,9 @@ function renderOrders() {
 
         }, 0);
     });
+
+    fillTableBody('orders-table-body', html, 8, 'noItems');
 }
-
-
 
 
 async function updateOrderStatus(orderId) {

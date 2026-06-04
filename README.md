@@ -11,6 +11,8 @@
 
 See **[docs/SETUP.md](docs/SETUP.md)** for database, `.env`, migrations, and fixing `Connection refused` on MySQL.
 
+**Diagrams:** `docs/Electro-V2-ERD-columns.xlsx` (database), `docs/Electro-V2-Class-Diagram.pdf` (UML classes). Regenerate class diagram: `python scripts/generate_class_diagram.py`
+
 Quick checklist:
 
 1. Start **MySQL** (XAMPP / Laragon).
