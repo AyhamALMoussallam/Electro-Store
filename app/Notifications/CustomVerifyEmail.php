@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Support\BilingualMail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Carbon;
@@ -10,38 +10,39 @@ use Illuminate\Support\Facades\URL;
 
 class CustomVerifyEmail extends Notification
 {
-    /**
-     * Get the notification's delivery channels.
-     */
     public function via($notifiable): array
     {
         return ['mail'];
     }
 
-    /**
-     * Build the mail representation of the notification.
-     */
     public function toMail($notifiable)
     {
         $verificationUrl = $this->verificationUrl($notifiable);
+        $name = $notifiable->name ?? '';
 
-        return (new MailMessage)
-            ->subject('Verify Your Email for Electro Store')
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('Thank you for registering! Please verify your email by clicking the button below.')
-            ->action('Verify Email', $verificationUrl)
+        $mail = (new MailMessage)
+            ->subject('Verify your email | تأكيد بريدك الإلكتروني — '.BilingualMail::storeName());
+
+        BilingualMail::greeting($mail, $name);
+
+        BilingualMail::line(
+            $mail,
+            'شكراً لتسجيلك! يرجى تأكيد بريدك الإلكتروني بالضغط على الزر أدناه.',
+            'Thank you for registering! Please verify your email by clicking the button below.'
+        );
+
+        return $mail
+            ->action('تأكيد البريد | Verify email', $verificationUrl)
+            ->line('إذا لم تقم بإنشاء حساب، يمكنك تجاهل هذه الرسالة.')
             ->line('If you did not create an account, no further action is required.')
-            ->salutation('Regards, Electro Store Team');
+            ->salutation(BilingualMail::salutation());
     }
 
-    /**
-     * Generate the signed verification URL.
-     */
     protected function verificationUrl($notifiable)
     {
         return URL::temporarySignedRoute(
-            'verification.verify', // route name
-            Carbon::now()->addMinutes(10), // expires in 10 minutes
+            'verification.verify',
+            Carbon::now()->addMinutes(10),
             [
                 'id' => $notifiable->getKey(),
                 'hash' => sha1($notifiable->getEmailForVerification()),

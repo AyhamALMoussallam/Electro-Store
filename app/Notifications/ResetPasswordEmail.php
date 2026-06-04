@@ -2,53 +2,46 @@
 
 namespace App\Notifications;
 
+use App\Support\BilingualMail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class ResetPasswordEmail extends Notification
 {
-    /**
-     * The password reset token.
-     *
-     * @var string
-     */
-    public $token;
+    public function __construct(#[\SensitiveParameter] public string $token) {}
 
-    /**
-     * Create a notification instance.
-     */
-    public function __construct(#[\SensitiveParameter] string $token)
-    {
-        $this->token = $token;
-    }
-
-    /**
-     * Get the notification's delivery channels.
-     */
     public function via($notifiable): array
     {
         return ['mail'];
     }
 
-    /**
-     * Build the mail representation of the notification.
-     */
     public function toMail($notifiable)
     {
-        $resetUrl = url('/reset-password?' . http_build_query([
+        $resetUrl = url('/reset-password?'.http_build_query([
             'token' => $this->token,
             'email' => $notifiable->getEmailForPasswordReset(),
         ]));
 
         $expireMinutes = config('auth.passwords.users.expire', 2);
+        $name = $notifiable->name ?? '';
 
-        return (new MailMessage)
-            ->subject('Reset Your Password - Electro Store')
-            ->greeting('Hello ' . ($notifiable->name ?? 'there') . ',')
-            ->line('You requested a password reset. Click the button below to set a new password.')
-            ->action('Reset Password', $resetUrl)
-            ->line('This link will expire in ' . $expireMinutes . ' minutes.')
+        $mail = (new MailMessage)
+            ->subject('Reset your password | إعادة تعيين كلمة المرور — '.BilingualMail::storeName());
+
+        BilingualMail::greeting($mail, $name);
+
+        BilingualMail::line(
+            $mail,
+            'لقد طلبت إعادة تعيين كلمة المرور. اضغط الزر أدناه لتعيين كلمة مرور جديدة.',
+            'You requested a password reset. Click the button below to set a new password.'
+        );
+
+        return $mail
+            ->action('إعادة التعيين | Reset password', $resetUrl)
+            ->line("ينتهي صلاحية هذا الرابط خلال {$expireMinutes} دقيقة.")
+            ->line("This link will expire in {$expireMinutes} minutes.")
+            ->line('إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذه الرسالة.')
             ->line('If you did not request a password reset, you can ignore this email.')
-            ->salutation('Regards, Electro Store Team');
+            ->salutation(BilingualMail::salutation());
     }
 }

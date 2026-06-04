@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Order;
+use App\Support\BilingualMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -24,36 +25,65 @@ class OrderStatusChanged extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $order = $this->order;
-        $orderId = $order->id;
+        $order = $this->order->loadMissing(['items.Product']);
+        $orderNumber = $order->userOrderNumber();
         $total = format_price($order->total_price);
-        $name = $notifiable->name ?? 'عزيزي العميل';
+        $name = $notifiable->name ?? '';
 
         if ($this->status === 'paid') {
             $mail = (new MailMessage)
-                ->subject("الطلب #{$orderId} — تم تأكيد الدفع")
-                ->greeting("مرحباً {$name}،")
-                ->line("تم تحديث حالة طلبك رقم #{$orderId} إلى مدفوع.")
-                ->line("إجمالي الطلب: {$total}");
+                ->subject("Order #{$orderNumber} — Payment confirmed | الطلب رقم {$orderNumber} — تم تأكيد الدفع");
+
+            BilingualMail::greeting($mail, $name);
+
+            BilingualMail::line(
+                $mail,
+                "تم تحديث حالة طلبك رقم {$orderNumber} إلى مدفوع.",
+                "Your order #{$orderNumber} has been marked as paid."
+            );
+
+            BilingualMail::line(
+                $mail,
+                "إجمالي الطلب: {$total}",
+                "Order total: {$total}"
+            );
 
             foreach ($order->items as $item) {
-                $product = $item->Product ?? $item->product ?? null;
-                $productName = $product?->name ?? 'منتج';
+                $product = $item->Product ?? null;
+                $productName = $product?->name ?? 'Product';
                 $mail->line("• {$productName} × {$item->quantity}");
             }
 
+            BilingualMail::line(
+                $mail,
+                'سنقوم بتجهيز طلبك للشحن قريباً.',
+                'We will prepare your order for shipping soon.'
+            );
+
             return $mail
-                ->line('سنقوم بتجهيز طلبك للشحن قريباً.')
-                ->action('عرض طلباتي', url('/orders'))
-                ->salutation('مع التحية، فريق إلكترو');
+                ->action('عرض طلباتي | View my orders', url('/orders'))
+                ->salutation(BilingualMail::salutation());
         }
 
-        return (new MailMessage)
-            ->subject("الطلب #{$orderId} — تم الإلغاء")
-            ->greeting("مرحباً {$name}،")
-            ->line("تم إلغاء طلبك رقم #{$orderId}.")
-            ->line('إذا لم تطلب ذلك أو لديك استفسار، يرجى التواصل مع الدعم.')
-            ->action('عرض طلباتي', url('/orders'))
-            ->salutation('مع التحية، فريق إلكترو');
+        $mail = (new MailMessage)
+            ->subject("Order #{$orderNumber} — Canceled | الطلب رقم {$orderNumber} — تم الإلغاء");
+
+        BilingualMail::greeting($mail, $name);
+
+        BilingualMail::line(
+            $mail,
+            "تم إلغاء طلبك رقم {$orderNumber}.",
+            "Your order #{$orderNumber} has been canceled."
+        );
+
+        BilingualMail::line(
+            $mail,
+            'إذا لم تطلب ذلك أو لديك استفسار، يرجى التواصل مع الدعم.',
+            'If you did not request this or have questions, please contact support.'
+        );
+
+        return $mail
+            ->action('عرض طلباتي | View my orders', url('/orders'))
+            ->salutation(BilingualMail::salutation());
     }
 }

@@ -103,10 +103,18 @@ img {
 }
 
 .header a {
-    color: #18181b;
-    font-size: 19px;
-    font-weight: bold;
+    color: #D10024;
     text-decoration: none;
+}
+
+.header h1 {
+    color: #D10024;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+    text-align: center;
 }
 
 /* Logo */

@@ -36,5 +36,18 @@ class Order extends Model
     return $this->hasMany(OrderLog::class);
 }
 
-    
+    /**
+     * Customer-facing order number (1-based per user, by order date).
+     */
+    public function userOrderNumber(): int
+    {
+        $position = static::query()
+            ->where('user_id', $this->user_id)
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->pluck('id')
+            ->search($this->id);
+
+        return $position === false ? 1 : $position + 1;
+    }
 }
