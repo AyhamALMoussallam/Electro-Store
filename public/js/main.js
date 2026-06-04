@@ -80,8 +80,11 @@
 			$thumbs.slick('unslick');
 		}
 
+		// rtl:false — required when html[dir=rtl]; does not change English layout
+		var slickLtr = { rtl: false };
+
 		// Thumbnails first so asNavFor syncs the active slide on load
-		$thumbs.slick({
+		$thumbs.slick($.extend({
 			slidesToShow: 3,
 			slidesToScroll: 1,
 			arrows: true,
@@ -97,11 +100,12 @@
 					vertical: false,
 					arrows: false,
 					dots: true,
+					rtl: false,
 				}
 			}],
-		});
+		}, slickLtr));
 
-		$main.slick({
+		$main.slick($.extend({
 			infinite: true,
 			speed: 300,
 			dots: false,
@@ -109,7 +113,7 @@
 			fade: true,
 			initialSlide: 0,
 			asNavFor: '#product-imgs',
-		});
+		}, slickLtr));
 
 		$main.slick('setPosition');
 		$thumbs.slick('setPosition');

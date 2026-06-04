@@ -73,6 +73,29 @@
 	#product-imgs {
 		width: 100%;
 	}
+
+	/* Arabic page only: gallery behaves like English (no size/layout change) */
+	html[dir="rtl"] .product-gallery-ltr {
+		direction: ltr;
+	}
+
+	html[dir="rtl"] .product-gallery-ltr .slick-slide {
+		float: left;
+	}
+
+	html[dir="rtl"] .product-gallery-ltr .slick-prev,
+	html[dir="rtl"] .product-gallery-ltr .slick-next {
+		left: auto;
+		right: auto;
+	}
+
+	html[dir="rtl"] .product-gallery-ltr .product-thumbs-arrow-slot .slick-prev:before {
+		content: "\f106";
+	}
+
+	html[dir="rtl"] .product-gallery-ltr .product-thumbs-arrow-slot .slick-next:before {
+		content: "\f107";
+	}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
@@ -90,7 +113,7 @@
 				<div class="row">
 					<!-- Product main img -->
 					
-						<div class="col-md-5 col-md-push-2">
+						<div class="col-md-5 col-md-push-2 product-gallery-ltr" dir="ltr">
 							<div id="product-main-img">
 								<div class="product-preview">
 									<img class="product-main-image" src="" alt="">
@@ -113,7 +136,7 @@
 					<!-- /Product main img -->
 
 					<!-- Product thumb imgs -->
-					<div class="col-md-2  col-md-pull-5">
+					<div class="col-md-2 col-md-pull-5 product-gallery-ltr" dir="ltr">
 						<div class="product-thumbs-column">
 							<div id="product-thumbs-prev" class="product-thumbs-arrow-slot"></div>
 						<div id="product-imgs">

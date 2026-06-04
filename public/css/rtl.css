@@ -87,14 +87,6 @@ html[dir="rtl"] .input-number .qty-down {
 	border-radius: 0 4px 4px 0;
 }
 
-html[dir="rtl"] #product-imgs .slick-prev:before {
-	content: "\f107";
-}
-
-html[dir="rtl"] #product-imgs .slick-next:before {
-	content: "\f106";
-}
-
 html[dir="rtl"] .sidebar:not(.admin-dashboard .sidebar) {
 	border-left: none;
 	border-right: none;
