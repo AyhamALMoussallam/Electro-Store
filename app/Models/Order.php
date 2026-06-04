@@ -23,7 +23,8 @@ class Order extends Model
             return $this->hasMany(OrderItem::class);
         }
 
-            public function User() :BelongsTo {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
             public function Area() :BelongsTo {

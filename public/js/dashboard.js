@@ -597,6 +597,8 @@ function closeAllModals() {
     document.getElementById("cityModal").style.display = "none";
     document.getElementById("areaModal").style.display = "none";
     document.getElementById("productModal").style.display = "none";
+    closeOrderDetailsModal();
+    closeLogsModal();
 }
 
 
@@ -857,7 +859,7 @@ function renderOrders() {
     allOrders.forEach(order => {
 
         tbody.innerHTML += `
-            <tr>
+            <tr class="order-row-clickable" onclick="showOrderDetails(${order.id})">
 
                 <td>#${order.id}</td>
 
@@ -891,7 +893,11 @@ function renderOrders() {
                     ${formatDate(order.updated_at)}
                 </td>
 
-                <td>
+                <td onclick="event.stopPropagation()">
+
+                    
+
+                    <br><br>
 
                     <select
                         id="status-${order.id}"
@@ -913,12 +919,21 @@ function renderOrders() {
                         Update
                     </button>
 
+
+                    <button
+                        class="btn btn-info btn-sm"
+                        onclick="showOrderDetails(${order.id})"
+                    >
+                        View
+                    </button>
+
                     <button
                         class="btn btn-default btn-sm"
                         onclick="showOrderLogs(${order.id})"
                     >
                         Logs
                     </button>
+
 
                 </td>
 
@@ -977,6 +992,111 @@ async function updateOrderStatus(orderId) {
 
 
 
+async function showOrderDetails(orderId) {
+
+    let order = allOrders.find(o => o.id == orderId);
+
+    if (!order) {
+        return;
+    }
+
+    if (!order.items || !order.items.length) {
+        const token = localStorage.getItem("auth_token");
+
+        try {
+            const res = await fetch(`/api/orders/${orderId}`, {
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Accept": "application/json"
+                }
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.data) {
+                order = data.data;
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    renderOrderDetails(order);
+}
+
+function renderOrderDetails(order) {
+
+    const items = order.items || [];
+    let subtotal = 0;
+
+    const itemsRows = items.map(item => {
+        const lineTotal = item.quantity * parseFloat(item.price);
+        subtotal += lineTotal;
+
+        return `
+            <tr>
+                <td>${item.product?.name ?? 'Product #' + item.product_id}</td>
+                <td>${item.quantity}</td>
+                <td>$${parseFloat(item.price).toFixed(2)}</td>
+                <td>$${lineTotal.toFixed(2)}</td>
+            </tr>
+        `;
+    }).join('');
+
+    const shippingFee = order.area?.fee != null
+        ? parseFloat(order.area.fee)
+        : Math.max(0, parseFloat(order.total_price) - subtotal);
+
+    const noteHtml = order.note
+        ? `<p><strong>Note:</strong> ${order.note}</p>`
+        : '<p><strong>Note:</strong> —</p>';
+
+    document.getElementById("order-details-title").textContent =
+        "Order #" + order.id;
+
+    document.getElementById("order-details-content").innerHTML = `
+        <div class="order-details-meta">
+            <p><strong>Status:</strong> ${order.status}</p>
+            <p><strong>Customer:</strong> ${order.user?.name ?? '-'}</p>
+            <p><strong>Email:</strong> ${order.user?.email ?? '-'}</p>
+            <p><strong>Phone:</strong> ${order.user?.phone ?? '-'}</p>
+            <p><strong>City:</strong> ${order.area?.city?.name ?? '-'}</p>
+            <p><strong>Area:</strong> ${order.area?.name ?? '-'}</p>
+            <p><strong>Created:</strong> ${formatDate(order.created_at)}</p>
+            <p><strong>Updated:</strong> ${formatDate(order.updated_at)}</p>
+        </div>
+
+        ${noteHtml}
+
+        <table class="order-details-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Unit price</th>
+                    <th>Line total</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${itemsRows || '<tr><td colspan="4">No items</td></tr>'}
+            </tbody>
+        </table>
+
+        <div class="order-details-totals">
+            <p><strong>Subtotal:</strong> $${subtotal.toFixed(2)}</p>
+            <p><strong>Shipping:</strong> $${shippingFee.toFixed(2)}</p>
+            <p><strong>Total:</strong> $${parseFloat(order.total_price).toFixed(2)}</p>
+        </div>
+    `;
+
+    document.getElementById("orderDetailsModal").style.display = "flex";
+}
+
+function closeOrderDetailsModal() {
+
+    document.getElementById("orderDetailsModal").style.display = "none";
+}
+
 function showOrderLogs(orderId) {
 
     const order =
@@ -1033,6 +1153,8 @@ function showOrderLogs(orderId) {
     document.getElementById(
         "logs-content"
     ).innerHTML = html;
+
+    closeOrderDetailsModal();
 
     document.getElementById(
         "logsModal"

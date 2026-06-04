@@ -153,6 +153,60 @@ body {
 /* =========================
    ANIMATION
 ========================= */
+#orderDetailsModal > div {
+    width: 760px;
+    max-width: 95%;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.order-details-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 20px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.order-details-meta p {
+    margin: 0;
+}
+
+.order-details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.order-details-table th,
+.order-details-table td {
+    border: 1px solid #ddd;
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.order-details-table th {
+    background: #f5f5f5;
+}
+
+.order-details-totals {
+    text-align: right;
+    font-size: 14px;
+}
+
+.order-details-totals p {
+    margin: 4px 0;
+}
+
+.order-row-clickable {
+    cursor: pointer;
+}
+
+.order-row-clickable:hover {
+    background-color: #f9f9f9;
+}
+
 @keyframes pop {
     from {
         transform: scale(0.9);
@@ -174,8 +228,10 @@ body {
     <div class="sidebar">
     <h3>ADMIN</h3>
 
-    <a onclick="showTab('dashboard')">Dashboard</a>
     <a onclick="showTab('orders')">Orders</a>
+    
+        <hr style="border-color:#333;">
+
     <a onclick="showTab('categories')">Categories</a>
     <a onclick="showTab('brands')">Brands</a>
     <a onclick="showTab('products')">Products</a>
@@ -191,13 +247,7 @@ body {
     <!-- CONTENT -->
     <div class="content">
 
-        <!-- DASHBOARD -->
-        <div id="dashboard" class="tab-content active">
-            <div class="card-box">
-                <h3>Welcome Admin 🔥</h3>
-                <p>Manage your ecommerce system from here.</p>
-            </div>
-        </div>
+
 
         <!-- ORDERS -->
 <div id="orders" class="tab-content">
@@ -701,6 +751,14 @@ body {
             Close
         </button>
 
+    </div>
+</div>
+
+<div id="orderDetailsModal" class="modal">
+    <div>
+        <h3 id="order-details-title">Order Details</h3>
+        <div id="order-details-content"></div>
+        <button type="button" onclick="closeOrderDetailsModal()">Close</button>
     </div>
 </div>
 
