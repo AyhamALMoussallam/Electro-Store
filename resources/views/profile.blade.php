@@ -6,8 +6,8 @@
 </head>
 <body data-active-nav="">
 
-@include('partials.electro-header')
-@include('partials.electro-account-toolbar', ['toolbarTitle' => 'Profile', 'showLogout' => true])
+@include('partials.electro-header', ['hideMainNav' => true, 'showHeaderUserName' => true])
+@include('partials.electro-account-toolbar', ['showLogout' => true, 'hideToolbarTitle' => true])
 
 <div class="account-page-section">
 	<div class="container account-container">
@@ -24,14 +24,13 @@
 					<label>Email</label>
 					<div class="value" id="profile-email"></div>
 				</div>
-			</div>
-
-			<div class="account-card">
-				<h3>Phone number</h3>
-				<p>Add or update your phone number (10 digits, e.g. 09XXXXXXXX).</p>
-				<input type="text" class="input" id="profile-phone" placeholder="09XXXXXXXX" maxlength="10" inputmode="numeric">
-				<button type="button" class="primary-btn" onclick="updatePhone()">Save phone number</button>
-				<div class="account-message" id="phone-message"></div>
+				<div class="account-info-row">
+					<label for="profile-phone">Phone number</label>
+					<input type="text" class="input" id="profile-phone" placeholder="09XXXXXXXX" maxlength="10" inputmode="numeric">
+					<p>10 digits, e.g. 09XXXXXXXX</p>
+					<button type="button" class="primary-btn" onclick="updatePhone()">Save phone number</button>
+					<div class="account-message" id="phone-message"></div>
+				</div>
 			</div>
 
 			<div class="account-card" id="orders-link-card" style="display:none;">
@@ -96,7 +95,10 @@ function loadProfile() {
     axios.get(`${apiBase}/user`, { headers })
         .then(res => {
             const user = res.data.user;
-            document.getElementById('toolbar-title').textContent = user.name;
+            const headerUserName = document.getElementById('header-user-name');
+            if (headerUserName) {
+                headerUserName.textContent = user.name;
+            }
             document.getElementById('profile-name').textContent = user.name;
             document.getElementById('profile-email').textContent = user.email;
             document.getElementById('profile-phone').value = user.phone ?? '';

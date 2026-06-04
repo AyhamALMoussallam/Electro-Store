@@ -11,4 +11,5 @@
 @endif
 <script src="/js/main.js"></script>
 <script src="/js/layout.js"></script>
+<script src="/js/breadcrumb.js"></script>
 @stack('page-scripts')

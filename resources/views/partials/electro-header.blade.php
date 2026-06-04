@@ -28,15 +28,22 @@
 					</div>
 				</div>
 				<div class="col-md-6">
-					<div class="header-search">
-						<form id="header-search-form" action="/store" method="get">
-							<select class="input-select" id="header-category-select" name="category">
-								<option value="">All Categories</option>
-							</select>
-							<input class="input" id="header-search-input" name="q" placeholder="Search here">
-							<button type="submit" class="search-btn">Search</button>
-						</form>
-					</div>
+					@if(!empty($showHeaderUserName))
+						<div class="header-profile-center">
+							<div class="header-profile-label">Profile</div>
+							<div class="header-profile-name" id="header-user-name">Loading...</div>
+						</div>
+					@else
+						<div class="header-search">
+							<form id="header-search-form" action="/store" method="get">
+								<select class="input-select" id="header-category-select" name="category">
+									<option value="">All Categories</option>
+								</select>
+								<input class="input" id="header-search-input" name="q" placeholder="Search here">
+								<button type="submit" class="search-btn">Search</button>
+							</form>
+						</div>
+					@endif
 				</div>
 				<div class="col-md-3 clearfix">
 					<div class="header-ctn">
@@ -70,6 +77,7 @@
 	</div>
 </header>
 
+@empty($hideMainNav)
 <nav id="navigation">
 	<div class="container">
 		<div id="responsive-nav">
@@ -80,3 +88,4 @@
 		</div>
 	</div>
 </nav>
+@endempty

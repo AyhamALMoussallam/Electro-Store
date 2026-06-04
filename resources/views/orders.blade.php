@@ -6,7 +6,7 @@
 </head>
 <body data-active-nav="">
 
-@include('partials.electro-header')
+@include('partials.electro-header', ['hideMainNav' => true])
 @include('partials.electro-account-toolbar', ['toolbarTitle' => 'My Orders', 'showLogout' => true])
 
 <div class="account-page-section">

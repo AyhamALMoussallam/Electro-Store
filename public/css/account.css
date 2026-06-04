@@ -5,6 +5,28 @@
   background-color: #FBFBFC;
 }
 
+.header-profile-center {
+  padding: 10px 0;
+  text-align: center;
+}
+
+.header-profile-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #8D99AE;
+  letter-spacing: 0.6px;
+  margin-bottom: 4px;
+}
+
+.header-profile-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #FFF;
+  text-transform: capitalize;
+  line-height: 1.2;
+}
+
 .account-page-section {
   padding: 40px 0 60px;
   min-height: calc(100vh - 220px);

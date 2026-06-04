@@ -8,26 +8,7 @@
 
 @include('partials.electro-header', ['activeNav' => 'store'])
 
-		<!-- BREADCRUMB -->
-		<div id="breadcrumb" class="section">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-					<div class="col-md-12">
-						<ul class="breadcrumb-tree">
-							<li><a href="#">Home</a></li>
-							<li><a href="#">All Categories</a></li>
-							<li><a href="#">Accessories</a></li>
-							<li class="active">Headphones (227,490 Results)</li>
-						</ul>
-					</div>
-				</div>
-				<!-- /row -->
-			</div>
-			<!-- /container -->
-		</div>
-		<!-- /BREADCRUMB -->
+		@include('partials.electro-breadcrumb', ['breadcrumbItems' => []])
 
 		<!-- SECTION -->
 		<div class="section">
@@ -348,6 +329,7 @@
 
     renderPagination();
     renderProductsCount();
+    updateStoreBreadcrumb();
 }
 
 
@@ -722,6 +704,34 @@ function changePerPage() {
     currentPage = 1;
 
     renderProducts();
+}
+
+
+// =========================
+// BREADCRUMB
+// =========================
+function updateStoreBreadcrumb() {
+	if (typeof window.buildStoreBreadcrumb !== 'function') {
+		return;
+	}
+
+	const params = new URLSearchParams(window.location.search);
+	const checked = document.querySelectorAll(
+		'#categories-filter input:checked'
+	);
+	const selectedCategoryIds = [...checked].map(
+		c => Number(c.value)
+	);
+
+	const items = window.buildStoreBreadcrumb({
+		categories: allCategories,
+		filteredCount: filteredProducts.length,
+		selectedCategoryIds: selectedCategoryIds,
+		urlCategoryId: params.get('category'),
+		searchQuery: params.get('q') || '',
+	});
+
+	window.renderBreadcrumb(items);
 }
 
 

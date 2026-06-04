@@ -212,17 +212,26 @@
 			return;
 		}
 
-		await fetch(API + '/cart-items/' + id, {
+		const res = await fetch(API + '/cart-items/' + id, {
 			method: 'DELETE',
 			headers: authHeaders(),
 		});
+
+		if (!res.ok) {
+			const body = await res.json().catch(function () { return {}; });
+			alert(body.message || 'Could not remove item from cart');
+			return;
+		}
 
 		await loadHeaderCart();
 	}
 
 	function bindCartActions() {
-		$(document).on('click', '[data-remove-cart]', function (e) {
+		// Must bind on cart-list, not document: cart-dropdown stops propagation
+		$('#header-cart-list').on('click', '[data-remove-cart]', function (e) {
 			e.preventDefault();
+			e.stopPropagation();
+
 			const id = this.getAttribute('data-remove-cart');
 			if (id) {
 				removeCartItem(id);

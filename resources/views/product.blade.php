@@ -2,34 +2,93 @@
 <html lang="en">
 <head>
 @include('partials.electro-head', ['title' => 'Electro - Product'])
+<link type="text/css" rel="stylesheet" href="/css/slick.css"/>
+<link type="text/css" rel="stylesheet" href="/css/slick-theme.css"/>
 <link type="text/css" rel="stylesheet" href="/css/nouislider.min.css"/>
+<style>
+	/* Main image: keep theme arrows visible (store default hides until hover) */
+	#product-main-img .slick-prev,
+	#product-main-img .slick-next {
+		opacity: 1;
+		visibility: visible;
+		transform: translateX(0);
+	}
+
+	/* Thumbnail arrows sit above/below images, not on top of them */
+	.product-thumbs-column {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 5px;
+	}
+
+	.product-thumbs-arrow-slot {
+		display: flex;
+		justify-content: center;
+		width: 100%;
+		flex-shrink: 0;
+	}
+
+	.product-thumbs-arrow-slot .slick-prev,
+	.product-thumbs-arrow-slot .slick-next {
+		position: relative;
+		top: auto;
+		bottom: auto;
+		left: auto;
+		right: auto;
+		-webkit-transform: none;
+		-ms-transform: none;
+		transform: none;
+		width: 40px;
+		height: 40px;
+		border: 1px solid #D10024;
+		background-color: #D10024;
+		border-radius: 50%;
+		opacity: 1;
+		visibility: visible;
+		z-index: 1;
+	}
+
+	.product-thumbs-arrow-slot .slick-prev:before,
+	.product-thumbs-arrow-slot .slick-next:before {
+		font-family: FontAwesome;
+		color: #FFF;
+	}
+
+	.product-thumbs-arrow-slot .slick-prev:before {
+		content: "\f106";
+	}
+
+	.product-thumbs-arrow-slot .slick-next:before {
+		content: "\f107";
+	}
+
+	.product-thumbs-arrow-slot .slick-prev:hover,
+	.product-thumbs-arrow-slot .slick-prev:focus,
+	.product-thumbs-arrow-slot .slick-next:hover,
+	.product-thumbs-arrow-slot .slick-next:focus {
+		background-color: #D10024;
+		border-color: #D10024;
+	}
+
+	.product-thumbs-arrow-slot .slick-prev:hover:before,
+	.product-thumbs-arrow-slot .slick-prev:focus:before,
+	.product-thumbs-arrow-slot .slick-next:hover:before,
+	.product-thumbs-arrow-slot .slick-next:focus:before {
+		color: #FFF;
+	}
+
+	#product-imgs {
+		width: 100%;
+	}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body data-active-nav="store">
 
 @include('partials.electro-header', ['activeNav' => 'store'])
 
-		<!-- BREADCRUMB -->
-		<div id="breadcrumb" class="section">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-					<div class="col-md-12">
-						<ul class="breadcrumb-tree">
-							<li><a href="#">Home</a></li>
-							<li><a href="#">All Categories</a></li>
-							<li><a href="#">Accessories</a></li>
-							<li><a href="#">Headphones</a></li>
-							<li class="active">Product name goes here</li>
-						</ul>
-					</div>
-				</div>
-				<!-- /row -->
-			</div>
-			<!-- /container -->
-		</div>
-		<!-- /BREADCRUMB -->
+		@include('partials.electro-breadcrumb', ['breadcrumbItems' => []])
 
 		<!-- SECTION -->
 		<div class="section">
@@ -42,7 +101,19 @@
 						<div class="col-md-5 col-md-push-2">
 							<div id="product-main-img">
 								<div class="product-preview">
-									<img id="product-image-main" src="" alt="">
+									<img class="product-main-image" src="" alt="">
+								</div>
+
+								<div class="product-preview">
+									<img class="product-main-image" src="" alt="">
+								</div>
+
+								<div class="product-preview">
+									<img class="product-main-image" src="" alt="">
+								</div>
+
+								<div class="product-preview">
+									<img class="product-main-image" src="" alt="">
 								</div>
 							</div>
 						</div>
@@ -51,22 +122,26 @@
 
 					<!-- Product thumb imgs -->
 					<div class="col-md-2  col-md-pull-5">
+						<div class="product-thumbs-column">
+							<div id="product-thumbs-prev" class="product-thumbs-arrow-slot"></div>
 						<div id="product-imgs">
 							<div class="product-preview">
-								<img src="./img/product01.png" alt="">
+								<img class="product-thumb-image" src="" alt="">
 							</div>
 
 							<div class="product-preview">
-								<img src="./img/product03.png" alt="">
+								<img class="product-thumb-image" src="" alt="">
 							</div>
 
 							<div class="product-preview">
-								<img src="./img/product06.png" alt="">
+								<img class="product-thumb-image" src="" alt="">
 							</div>
 
 							<div class="product-preview">
-								<img src="./img/product08.png" alt="">
+								<img class="product-thumb-image" src="" alt="">
 							</div>
+						</div>
+							<div id="product-thumbs-next" class="product-thumbs-arrow-slot"></div>
 						</div>
 					</div>
 					<!-- /Product thumb imgs -->
@@ -292,7 +367,7 @@
 
 				@include('partials.electro-footer')
 
-		@include('partials.electro-scripts', ['withNouislider' => true, 'withZoom' => true])
+		@include('partials.electro-scripts', ['withSlick' => true, 'withNouislider' => true, 'withZoom' => true])
 
 
 
@@ -332,6 +407,12 @@
 		document.getElementById('product-name').textContent =
 			product.name;
 
+		if (typeof window.buildProductBreadcrumb === 'function') {
+			window.renderBreadcrumb(
+				window.buildProductBreadcrumb(product)
+			);
+		}
+
 		document.getElementById('product-category').textContent =
     		product.category?.name ?? 'No Category';
 
@@ -346,8 +427,54 @@
 				? `In Stock (${product.stock})`
 				: 'Out Of Stock';
 
-		document.getElementById('product-image-main').src =
-   			 '/storage/' + product.image;
+		const productImagePath = '/storage/' + product.image;
+
+		document.querySelectorAll('.product-main-image')
+			.forEach(image => {
+				image.src = productImagePath;
+			});
+
+		document.querySelectorAll('.product-thumb-image')
+			.forEach(image => {
+				image.src = productImagePath;
+			});
+
+		const firstProductImage =
+			document.querySelector('.product-main-image');
+
+		const relocateThumbArrows = () => {
+			const $thumbs = $('#product-imgs');
+
+			$thumbs.find('.slick-prev')
+				.appendTo('#product-thumbs-prev');
+			$thumbs.find('.slick-next')
+				.appendTo('#product-thumbs-next');
+		};
+
+		const initProductGallery = () => {
+			if (typeof window.initProductImageSliders !== 'function') {
+				return;
+			}
+
+			window.initProductImageSliders();
+			relocateThumbArrows();
+
+			requestAnimationFrame(() => {
+				$('#product-main-img').slick('setPosition');
+				$('#product-imgs').slick('setPosition');
+				relocateThumbArrows();
+			});
+		};
+
+		if (firstProductImage.complete) {
+			initProductGallery();
+		} else {
+			firstProductImage.addEventListener(
+				'load',
+				initProductGallery,
+				{ once: true }
+			);
+		}
 
 
 

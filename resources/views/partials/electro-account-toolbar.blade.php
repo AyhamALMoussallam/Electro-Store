@@ -12,7 +12,9 @@
 					<i class="fa fa-angle-left"></i> Profile
 				</a>
 			</div>
-			<div class="account-toolbar-title" id="toolbar-title">{{ $toolbarTitle ?? 'Account' }}</div>
+			@if(empty($hideToolbarTitle))
+				<div class="account-toolbar-title" id="toolbar-title">{{ $toolbarTitle ?? 'Account' }}</div>
+			@endif
 			<div class="account-toolbar-actions">
 				<a href="/store" class="primary-btn">Store</a>
 				@if(!empty($showLogout))
