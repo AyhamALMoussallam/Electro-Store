@@ -58,6 +58,7 @@
 					</div>
 					<div class="col-md-3 clearfix">
 						<div class="header-ctn">
+							@empty($hideCart)
 							<div class="dropdown">
 								<a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
 									<i class="fa fa-shopping-cart"></i>
@@ -78,6 +79,7 @@
 									</div>
 								</div>
 							</div>
+							@endempty
 							<div class="menu-toggle">
 								<a href="#"><i class="fa fa-bars"></i><span>Menu</span></a>
 							</div>

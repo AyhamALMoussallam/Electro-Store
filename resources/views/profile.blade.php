@@ -105,6 +105,7 @@ function loadProfile() {
 
             if (Number(user.role) === 1) {
                 document.getElementById('nav-dashboard').style.display = 'inline';
+                document.body.classList.add('admin-profile-page');
             } else {
                 document.getElementById('nav-orders').style.display = 'inline';
                 document.getElementById('orders-link-card').style.display = 'block';

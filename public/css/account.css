@@ -9,6 +9,11 @@
   display: inline-block;
 }
 
+/* Admin profile — no cart in header */
+body.admin-profile-page #header .header-ctn > .dropdown {
+  display: none;
+}
+
 .account-page-section,
 .account-auth-section {
   background-color: #FBFBFC;
@@ -305,6 +310,17 @@
   font-weight: 700;
   text-transform: uppercase;
   font-size: 11px;
+}
+
+.order-totals {
+  margin-top: 12px;
+  text-align: right;
+  font-size: 14px;
+  color: #2B2D42;
+}
+
+.order-totals p {
+  margin: 4px 0;
 }
 
 .order-note {

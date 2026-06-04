@@ -40,19 +40,45 @@ function formatDate(value) {
     return new Date(value).toLocaleString();
 }
 
+function buildUserOrderNumbers(orders) {
+    const sorted = [...orders].sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+    );
+    const numbers = {};
+
+    sorted.forEach((order, index) => {
+        numbers[order.id] = index + 1;
+    });
+
+    return numbers;
+}
+
 function renderOrders(orders) {
     const list = document.getElementById('orders-list');
     list.innerHTML = '';
 
+    const orderNumbers = buildUserOrderNumbers(orders);
+
     orders.forEach(order => {
-        const itemsHtml = (order.items || []).map(item => `
+        let subtotal = 0;
+
+        const itemsHtml = (order.items || []).map(item => {
+            const lineTotal = item.quantity * parseFloat(item.price);
+            subtotal += lineTotal;
+
+            return `
             <tr>
                 <td>${item.product?.name ?? 'Product #' + item.product_id}</td>
                 <td>${item.quantity}</td>
-                <td>$${item.price}</td>
-                <td>$${(item.quantity * item.price).toFixed(2)}</td>
+                <td>$${parseFloat(item.price).toFixed(2)}</td>
+                <td>$${lineTotal.toFixed(2)}</td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
+
+        const areaFee = order.area?.fee != null
+            ? parseFloat(order.area.fee)
+            : Math.max(0, parseFloat(order.total_price) - subtotal);
 
         const noteHtml = order.note
             ? `<p class="order-note"><strong>Note:</strong> ${order.note}</p>`
@@ -60,13 +86,12 @@ function renderOrders(orders) {
 
         list.innerHTML += `
             <div class="order-card">
-                <h3>Order #${order.id}</h3>
+                <h3>Order ${orderNumbers[order.id]}</h3>
                 <div class="order-meta">
                     <span><strong>Status:</strong>
                         <span class="order-status ${order.status}">${order.status}</span>
                     </span>
                     <span><strong>Placed:</strong> ${formatDate(order.created_at)}</span>
-                    <span><strong>Total:</strong> $${order.total_price}</span>
                     <span><strong>Delivery:</strong>
                         ${order.area?.name ?? '-'}, ${order.area?.city?.name ?? '-'}
                     </span>
@@ -82,6 +107,11 @@ function renderOrders(orders) {
                     </thead>
                     <tbody>${itemsHtml}</tbody>
                 </table>
+                <div class="order-totals">
+                    <p><strong>Subtotal:</strong> $${subtotal.toFixed(2)}</p>
+                    <p><strong>Area fee:</strong> $${areaFee.toFixed(2)}</p>
+                    <p><strong>Total:</strong> $${parseFloat(order.total_price).toFixed(2)}</p>
+                </div>
                 ${noteHtml}
             </div>
         `;
