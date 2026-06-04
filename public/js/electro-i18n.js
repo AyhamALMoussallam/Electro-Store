@@ -232,7 +232,6 @@
 			passwordMismatch: 'كلمة المرور الجديدة والتأكيد غير متطابقين',
 			passwordUpdated: 'تم تحديث كلمة المرور بنجاح',
 			passwordUpdateFailed: 'تعذّر تحديث كلمة المرور',
-			profilePageTitle: 'إلكترو - الملف الشخصي',
 			signUp: 'إنشاء حساب',
 			forgotPassword: 'نسيت كلمة المرور؟',
 			forgotPasswordTitle: 'استعادة كلمة المرور',
@@ -271,10 +270,6 @@
 			resetFailed: 'تعذّر إعادة تعيين كلمة المرور. قد يكون الرابط منتهياً.',
 			resetLinkSent: 'إذا وُجد حساب لهذا البريد، أرسلنا رابط استعادة كلمة المرور. راجع بريدك.',
 			somethingWrongTryAgain: 'حدث خطأ. حاول لاحقاً.',
-			loginPageTitle: 'إلكترو - تسجيل الدخول',
-			signupPageTitle: 'إلكترو - إنشاء حساب',
-			forgotPageTitle: 'إلكترو - استعادة كلمة المرور',
-			resetPageTitle: 'إلكترو - إعادة تعيين كلمة المرور',
 		},
 		en: {
 			home: 'Home',
@@ -501,7 +496,6 @@
 			passwordMismatch: 'New password and confirmation do not match',
 			passwordUpdated: 'Password updated successfully',
 			passwordUpdateFailed: 'Could not update password',
-			profilePageTitle: 'Electro - Profile',
 			signUp: 'Sign Up',
 			forgotPassword: 'Forgot password?',
 			forgotPasswordTitle: 'Forgot Password',
@@ -540,10 +534,6 @@
 			resetFailed: 'Failed to reset password. The link may have expired.',
 			resetLinkSent: 'If an account exists for that email, we have sent a password reset link. Check your inbox.',
 			somethingWrongTryAgain: 'Something went wrong. Try again later.',
-			loginPageTitle: 'Electro - Sign In',
-			signupPageTitle: 'Electro - Sign Up',
-			forgotPageTitle: 'Electro - Forgot Password',
-			resetPageTitle: 'Electro - Reset Password',
 		},
 	};
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-@include('partials.electro-head', ['title' => 'Electro', 'accountPage' => true])
+@include('partials.electro-head', ['title' => 'Electro - Profile', 'accountPage' => true])
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body class="page-profile account-ui-pending hide-main-nav-page" data-active-nav="" data-hide-header-cart="pending">
@@ -72,9 +72,6 @@ const headers = { Authorization: 'Bearer ' + token };
 	const headerUserName = document.getElementById('header-user-name');
 	if (headerUserName) {
 		headerUserName.textContent = t('loading');
-	}
-	if (document.title && window.ElectroI18n) {
-		document.title = t('profilePageTitle');
 	}
 })();
 

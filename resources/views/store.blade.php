@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-@include('partials.electro-head', ['title' => 'إلكترو - المتجر'])
+@include('partials.electro-head', ['title' => 'Electro - Store'])
 <link type="text/css" rel="stylesheet" href="/css/nouislider.min.css"/>
 </head>
 <body data-active-nav="store">

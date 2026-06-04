@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+@include('partials.electro-favicon')
 <script src="/js/electro-preferences-boot.js"></script>
 @include('partials.electro-exchange-rate')
 <link rel="stylesheet" href="/css/electro-preferences.css"/>
 <link rel="stylesheet" href="/css/admin-dashboard.css"/>
-<title>Dashboard</title>
+<title>Electro - Dashboard</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/bootstrap.min.css"/>

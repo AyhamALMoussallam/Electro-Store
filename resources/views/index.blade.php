@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-@include('partials.electro-head', ['title' => 'إلكترو - الرئيسية'])
+@include('partials.electro-head', ['title' => 'Electro - Home'])
 <link type="text/css" rel="stylesheet" href="/css/slick.css"/>
 <link type="text/css" rel="stylesheet" href="/css/slick-theme.css"/>
 <link type="text/css" rel="stylesheet" href="/css/nouislider.min.css"/>

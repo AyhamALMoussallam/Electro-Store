@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-@include('partials.electro-head', ['title' => 'إلكترو - طلباتي', 'accountPage' => true])
+@include('partials.electro-head', ['title' => 'Electro - My Orders', 'accountPage' => true])
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body class="page-orders hide-main-nav-page account-ui-ready" data-active-nav="">

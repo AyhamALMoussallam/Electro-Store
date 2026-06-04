@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-@include('partials.electro-head', ['title' => 'Electro', 'accountPage' => true])
+@include('partials.electro-head', ['title' => 'Electro - Reset Password', 'accountPage' => true])
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body class="minimal-header-page" data-active-nav="">
@@ -45,9 +45,6 @@ function t(key) {
 	return window.ElectroI18n ? window.ElectroI18n.t(key) : key;
 }
 
-if (window.ElectroI18n) {
-	document.title = t('resetPageTitle');
-}
 
 function showMessage(text, type) {
 	const msgEl = document.getElementById('message');

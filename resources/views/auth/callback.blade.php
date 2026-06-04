@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Google Callback</title>
+@include('partials.electro-favicon')
+<title>Electro - Sign In</title>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
     const token = new URLSearchParams(window.location.search).get('token');

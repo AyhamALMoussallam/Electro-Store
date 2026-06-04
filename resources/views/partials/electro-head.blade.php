@@ -1,10 +1,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+@include('partials.electro-favicon')
 <script src="/js/electro-preferences-boot.js"></script>
 @include('partials.electro-exchange-rate')
 <link type="text/css" rel="stylesheet" href="/css/electro-preferences.css"/>
-<title>{{ $title ?? 'إلكترو' }}</title>
+<title>{{ $title ?? 'Electro' }}</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
 <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css"/>
 <link type="text/css" rel="stylesheet" href="/css/rtl.css"/>

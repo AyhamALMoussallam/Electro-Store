@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-@include('partials.electro-head', ['title' => 'إلكترو - إتمام الشراء'])
+@include('partials.electro-head', ['title' => 'Electro - Checkout'])
 </head>
 <body data-active-nav="store">
 
