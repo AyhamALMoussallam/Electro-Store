@@ -1,50 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-@include('partials.electro-head', ['title' => 'Electro - Profile', 'accountPage' => true])
+@include('partials.electro-head', ['title' => 'إلكترو - الملف الشخصي', 'accountPage' => true])
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
-<body data-active-nav="">
+<body class="page-profile account-ui-pending hide-main-nav-page" data-active-nav="" data-hide-header-cart="pending">
 
 @include('partials.electro-header', ['hideMainNav' => true, 'showHeaderUserName' => true])
 @include('partials.electro-account-toolbar', ['showLogout' => true, 'hideToolbarTitle' => true])
 
 <div class="account-page-section">
 	<div class="container account-container">
-		<div id="loading" class="account-card account-loading">Loading profile...</div>
+		<div id="loading" class="account-card account-loading">جاري تحميل الملف الشخصي...</div>
 
 		<div id="profile-content" style="display:none;">
 			<div class="account-card">
-				<h3>Account info</h3>
+				<h3>معلومات الحساب</h3>
 				<div class="account-info-row">
-					<label>Name</label>
+					<label>الاسم</label>
 					<div class="value" id="profile-name"></div>
 				</div>
 				<div class="account-info-row">
-					<label>Email</label>
+					<label>البريد الإلكتروني</label>
 					<div class="value" id="profile-email"></div>
 				</div>
 				<div class="account-info-row">
-					<label for="profile-phone">Phone number</label>
+					<label for="profile-phone">رقم الهاتف</label>
 					<input type="text" class="input" id="profile-phone" placeholder="09XXXXXXXX" maxlength="10" inputmode="numeric">
-					<p>10 digits, e.g. 09XXXXXXXX</p>
-					<button type="button" class="primary-btn" onclick="updatePhone()">Save phone number</button>
+					<p>10 أرقام، مثال: 09XXXXXXXX</p>
+					<button type="button" class="primary-btn" onclick="updatePhone()">حفظ رقم الهاتف</button>
 					<div class="account-message" id="phone-message"></div>
 				</div>
 			</div>
 
 			<div class="account-card" id="orders-link-card" style="display:none;">
-				<h3>Orders</h3>
-				<p>View your order history and current status.</p>
-				<a href="/orders" class="primary-btn" style="display:inline-block; width:auto;">My Orders</a>
+				<h3>الطلبات</h3>
+				<p>عرض سجل الطلبات والحالة الحالية.</p>
+				<a href="/orders" class="primary-btn" style="display:inline-block; width:auto;">طلباتي</a>
 			</div>
 
 			<div class="account-card">
-				<h3>Change password</h3>
-				<input type="password" class="input" id="current-password" placeholder="Current password" autocomplete="current-password">
-				<input type="password" class="input" id="new-password" placeholder="New password" autocomplete="new-password">
-				<input type="password" class="input" id="new-password-confirm" placeholder="Confirm new password" autocomplete="new-password">
-				<button type="button" class="primary-btn" onclick="changePassword()">Update password</button>
+				<h3>تغيير كلمة المرور</h3>
+				<input type="password" class="input" id="current-password" placeholder="كلمة المرور الحالية" autocomplete="current-password">
+				<input type="password" class="input" id="new-password" placeholder="كلمة المرور الجديدة" autocomplete="new-password">
+				<input type="password" class="input" id="new-password-confirm" placeholder="تأكيد كلمة المرور" autocomplete="new-password">
+				<button type="button" class="primary-btn" onclick="changePassword()">تحديث كلمة المرور</button>
 				<div class="account-message" id="password-message"></div>
 			</div>
 		</div>
@@ -103,12 +103,28 @@ function loadProfile() {
             document.getElementById('profile-email').textContent = user.email;
             document.getElementById('profile-phone').value = user.phone ?? '';
 
+            document.body.classList.remove('account-ui-pending');
+            document.body.classList.add('profile-layout-ready');
+            document.body.removeAttribute('data-hide-header-cart');
+
             if (Number(user.role) === 1) {
-                document.getElementById('nav-dashboard').style.display = 'inline';
+                const navDashboard = document.getElementById('nav-dashboard');
+                if (navDashboard) {
+                    navDashboard.style.display = 'inline';
+                    navDashboard.classList.add('nav-visible');
+                }
                 document.body.classList.add('admin-profile-page');
             } else {
-                document.getElementById('nav-orders').style.display = 'inline';
+                document.body.classList.add('customer-profile');
+                const navOrders = document.getElementById('nav-orders');
+                if (navOrders) {
+                    navOrders.style.display = 'inline';
+                    navOrders.classList.add('nav-visible');
+                }
                 document.getElementById('orders-link-card').style.display = 'block';
+                if (typeof window.reloadSiteLayout === 'function') {
+                    window.reloadSiteLayout();
+                }
             }
 
             document.getElementById('loading').style.display = 'none';

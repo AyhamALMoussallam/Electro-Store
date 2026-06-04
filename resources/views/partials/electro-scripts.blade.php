@@ -1,3 +1,8 @@
+@include('partials.electro-dialog')
+<script src="/js/electro-i18n.js"></script>
+<script src="/js/electro-currency.js"></script>
+<script src="/js/electro-preferences.js"></script>
+<script src="/js/electro-dialog.js"></script>
 <script src="/js/jquery.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 @if(!empty($withSlick))

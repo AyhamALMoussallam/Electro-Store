@@ -1,15 +1,22 @@
 (function () {
 	'use strict';
 
+	const t = window.ElectroI18n ? window.ElectroI18n.t.bind(window.ElectroI18n) : function (k, r) {
+		let text = k;
+		if (r) {
+			Object.keys(r).forEach(function (key) {
+				text = text.replace('{' + key + '}', r[key]);
+			});
+		}
+		return text;
+	};
+
 	function escapeHtml(text) {
 		const div = document.createElement('div');
 		div.textContent = text == null ? '' : String(text);
 		return div.innerHTML;
 	}
 
-	/**
-	 * @param {Array<{label: string, url?: string, active?: boolean}>} items
-	 */
 	window.renderBreadcrumb = function (items) {
 		const ul = document.getElementById('breadcrumb-tree');
 
@@ -36,8 +43,8 @@
 		const searchQuery = (options.searchQuery || '').trim();
 
 		const items = [
-			{ label: 'Home', url: '/home/' },
-			{ label: 'Store', url: '/store/' },
+			{ label: t('home'), url: '/home/' },
+			{ label: t('store'), url: '/store/' },
 		];
 
 		let categoryId = null;
@@ -52,11 +59,11 @@
 			? categories.find(function (c) { return c.id === categoryId; })
 			: null;
 
-		const countLabel = filteredCount.toLocaleString() + ' Results';
+		const countLabel = filteredCount.toLocaleString('ar') + ' ' + t('results');
 
 		if (searchQuery) {
 			items.push({
-				label: 'Search: "' + searchQuery + '" (' + countLabel + ')',
+				label: t('searchLabel') + ': "' + searchQuery + '" (' + countLabel + ')',
 				active: true,
 			});
 		} else if (category) {
@@ -66,7 +73,7 @@
 			});
 		} else {
 			items.push({
-				label: 'All Products (' + countLabel + ')',
+				label: t('allProducts') + ' (' + countLabel + ')',
 				active: true,
 			});
 		}
@@ -76,8 +83,8 @@
 
 	window.buildProductBreadcrumb = function (product) {
 		const items = [
-			{ label: 'Home', url: '/home/' },
-			{ label: 'Store', url: '/store/' },
+			{ label: t('home'), url: '/home/' },
+			{ label: t('store'), url: '/store/' },
 		];
 
 		if (product.category) {

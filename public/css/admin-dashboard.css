@@ -1,0 +1,84 @@
+/**
+ * Admin dashboard: stable layout (sidebar left) in Arabic and English.
+ */
+.admin-dashboard .admin-wrapper {
+	flex-direction: row !important;
+	align-items: flex-start;
+	direction: ltr;
+}
+
+.admin-dashboard .sidebar {
+	position: sticky;
+	top: 0;
+	align-self: flex-start;
+	flex-shrink: 0;
+	width: 220px;
+	max-height: 100vh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	text-align: left;
+	z-index: 100;
+	-webkit-overflow-scrolling: touch;
+}
+
+html[dir="rtl"].admin-dashboard {
+	font-family: 'Cairo', 'Montserrat', sans-serif;
+}
+
+html[dir="rtl"].admin-dashboard .content,
+html[dir="rtl"].admin-dashboard .modal > div {
+	direction: rtl;
+	text-align: right;
+}
+
+html[dir="rtl"].admin-dashboard .content .table th,
+html[dir="rtl"].admin-dashboard .content .table td,
+html[dir="rtl"].admin-dashboard .order-details-table th,
+html[dir="rtl"].admin-dashboard .order-details-table td {
+	text-align: right;
+}
+
+html[dir="rtl"].admin-dashboard .order-details-totals {
+	text-align: left;
+}
+
+html[dir="ltr"].admin-dashboard .content {
+	direction: ltr;
+	text-align: left;
+}
+
+.admin-dashboard .sidebar a {
+	text-align: inherit;
+}
+
+.sidebar-exchange-rate {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 10px;
+	flex-wrap: wrap;
+}
+
+.sidebar-exchange-rate .form-control {
+	flex: 1;
+	min-width: 70px;
+	padding: 6px 8px;
+	height: 34px;
+}
+
+.sidebar-exchange-prefix,
+.sidebar-exchange-suffix {
+	color: #8D99AE;
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+.sidebar-save-rate {
+	width: 100%;
+	margin-bottom: 12px;
+	font-size: 12px;
+}
+
+.admin-dashboard .products-search {
+	direction: inherit;
+}

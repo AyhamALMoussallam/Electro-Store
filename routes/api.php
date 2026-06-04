@@ -14,6 +14,7 @@ use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SettingController;
 
 
 
@@ -62,6 +63,8 @@ Route::post('/email/verification-notification',
 
 
 
+Route::get('/settings/currency', [SettingController::class, 'currency']);
+
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
 Route::post('/categories', [CategoryController::class, 'store']);
@@ -104,6 +107,8 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+
+    Route::put('/settings/currency', [SettingController::class, 'updateCurrency']);
 
     Route::get('/orders', [OrderController::class, 'index']);
 

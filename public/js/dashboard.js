@@ -10,6 +10,70 @@ const API_AREAS      = "/api/areas";
 const token = localStorage.getItem("auth_token");
 if (!token) window.location.href = "/login";
 
+function t(key, replacements) {
+	if (window.ElectroI18n && typeof window.ElectroI18n.t === 'function') {
+		return window.ElectroI18n.t(key, replacements);
+	}
+	return key;
+}
+
+function displayPrice(usd) {
+	if (typeof window.formatPrice === 'function') {
+		return window.formatPrice(usd);
+	}
+	return usd;
+}
+
+function priceToInput(usd) {
+	if (window.ElectroCurrency && typeof window.ElectroCurrency.toDisplay === 'function') {
+		const amount = window.ElectroCurrency.toDisplay(usd);
+		return Math.round(amount * 100) / 100;
+	}
+	return usd;
+}
+
+function priceFromInput(value) {
+	if (window.ElectroCurrency && typeof window.ElectroCurrency.displayToUsd === 'function') {
+		const usd = window.ElectroCurrency.displayToUsd(value);
+		return usd != null ? usd : value;
+	}
+	return value;
+}
+
+function updateAdminCurrencyHints() {
+	const isSp = window.ElectroCurrency && window.ElectroCurrency.get() === 'sp';
+	const pricePh = isSp ? t('pricePlaceholderSp') : t('pricePlaceholderUsd');
+	const feePh = isSp ? t('feePlaceholderSp') : t('feePlaceholderUsd');
+
+	['product-price', 'edit-product-price'].forEach(function (id) {
+		const el = document.getElementById(id);
+		if (el) {
+			el.placeholder = pricePh;
+		}
+	});
+
+	['area-fee', 'edit-area-fee'].forEach(function (id) {
+		const el = document.getElementById(id);
+		if (el) {
+			el.placeholder = feePh;
+		}
+	});
+}
+
+function orderStatusOptions(selected) {
+	const statuses = ['pending', 'paid', 'shipped', 'delivered', 'canceled'];
+	return statuses.map(function (status) {
+		const sel = selected === status ? ' selected' : '';
+		return '<option value="' + status + '"' + sel + '>' + t(status) + '</option>';
+	}).join('');
+}
+
+function sortByIdDesc(items) {
+	return [...(items || [])].sort(function (a, b) {
+		return Number(b.id) - Number(a.id);
+	});
+}
+
 
 // =========================
 // ADMIN GUARD
@@ -82,7 +146,7 @@ async function loadBrands() {
 
     let html = "";
 
-    data.data.forEach(b => {
+    sortByIdDesc(data.data).forEach(b => {
 
         html += `
             <tr>
@@ -92,13 +156,13 @@ async function loadBrands() {
 
                 <td>
                     <button onclick='startEdit("brand", ${JSON.stringify(b).replace(/'/g, "&apos;")})'>
-                        Edit
+                        ${t('edit')}
                     </button>
 
                     <button
                         onclick="deleteBrand(${b.id})"
                     >
-                        Delete
+                        ${t('delete')}
                     </button>
                 </td>
             </tr>
@@ -114,40 +178,22 @@ async function loadBrands() {
 
 
 async function saveBrand() {
+    const name = document.getElementById("brand-name").value.trim();
 
-    let name =
-        document.getElementById(
-            "brand-name"
-        ).value;
-
-    let url = API_BRANDS;
-
-    let method = "POST";
-
-    if (editState.type === "brand") {
-
-        url =
-            `${API_BRANDS}/${editState.id}`;
-
-        method = "PUT";
+    if (!name) {
+        return;
     }
 
-    await fetch(url, {
-        method,
+    await fetch(API_BRANDS, {
+        method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
+            "Authorization": "Bearer " + token,
         },
-        body: JSON.stringify({
-            name
-        })
+        body: JSON.stringify({ name }),
     });
 
-    document.getElementById(
-        "brand-name"
-    ).value = "";
-
-    resetEdit();
+    document.getElementById("brand-name").value = "";
 
     await loadBrands();
     await loadProductBrands();
@@ -177,7 +223,7 @@ async function loadProductBrands() {
     let data = await res.json();
 
     let html =
-        `<option value="">Select Brand</option>`;
+        '<option value="">' + t('selectBrand') + '</option>';
 
     data.data.forEach(b => {
 
@@ -193,8 +239,81 @@ async function loadProductBrands() {
     ).innerHTML = html;
 }
 
+async function loadExchangeRateSetting() {
+    const input = document.getElementById('usd-to-sp-rate');
+
+    try {
+        const res = await fetch('/api/settings/currency', {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!res.ok) {
+            throw new Error('Failed to load rate');
+        }
+
+        const data = await res.json();
+
+        if (window.ElectroCurrency) {
+            window.ElectroCurrency.setRate(data.usd_to_sp_rate);
+        }
+
+        if (input) {
+            input.value = data.usd_to_sp_rate;
+        }
+    } catch (e) {
+        if (input && window.ElectroCurrency) {
+            input.value = window.ElectroCurrency.getRate();
+        }
+    }
+}
+
+async function saveExchangeRate() {
+    const input = document.getElementById('usd-to-sp-rate');
+    const rate = Number(input?.value);
+
+    if (!rate || rate < 1) {
+        alert(t('required'));
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/settings/currency', {
+            method: 'PUT',
+            headers: {
+                Authorization: 'Bearer ' + token,
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ usd_to_sp_rate: rate }),
+        });
+
+        const data = await res.json().catch(function () { return {}; });
+
+        if (!res.ok) {
+            alert(data.message || t('exchangeRateFailed'));
+            return;
+        }
+
+        if (window.ElectroCurrency) {
+            window.ElectroCurrency.setRate(data.usd_to_sp_rate);
+        }
+
+        if (input) {
+            input.value = data.usd_to_sp_rate;
+        }
+
+        alert(t('exchangeRateSaved'));
+        await boot();
+    } catch (e) {
+        alert(t('exchangeRateFailed'));
+    }
+}
+
 function boot() {
+    updateAdminCurrencyHints();
+    loadExchangeRateSetting();
     loadCategories();
+    initProductsSearch();
     loadProducts();
     loadCities();
     loadAreas();
@@ -225,14 +344,14 @@ async function loadCategories() {
 
     let html = "";
 
-    data.data.forEach(c => {
+    sortByIdDesc(data.data).forEach(c => {
         html += `
         <tr>
             <td>${c.id}</td>
             <td>${c.name}</td>
             <td>
-                <button onclick='startEdit("category", ${JSON.stringify(c)})'>Edit</button>
-                <button onclick="deleteCategory(${c.id})">Delete</button>
+                <button onclick='startEdit("category", ${JSON.stringify(c)})'>${t('edit')}</button>
+                <button onclick="deleteCategory(${c.id})">${t('delete')}</button>
             </td>
         </tr>`;
     });
@@ -242,7 +361,7 @@ async function loadCategories() {
 
 async function saveCategory() {
     let name = document.getElementById("category-name").value;
-    if (!name.trim()) return alert("Required");
+    if (!name.trim()) return alert(t('required'));
 
     let url = API_CATEGORIES;
     let method = "POST";
@@ -282,35 +401,95 @@ async function deleteCategory(id) {
 // =========================
 // PRODUCTS
 // =========================
-async function loadProducts() {
+let allProducts = [];
 
-    let res = await fetch(API_PRODUCTS);
-    let data = await res.json();
+function escapeHtml(text) {
+    if (text == null) return "";
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
 
-    let items = data.data ?? data;
+function productMatchesSearch(product, query) {
+    if (!query) return true;
+
+    const q = query.toLowerCase();
+
+    return (
+        String(product.id).includes(q) ||
+        (product.name || "").toLowerCase().includes(q) ||
+        (product.category?.name || "").toLowerCase().includes(q) ||
+        (product.brand?.name || "").toLowerCase().includes(q)
+    );
+}
+
+function renderProductsTable() {
+    const searchInput = document.getElementById("products-search");
+    const query = searchInput ? searchInput.value.trim() : "";
+    const items = sortByIdDesc(
+        allProducts.filter(p => productMatchesSearch(p, query))
+    );
+
+    if (!items.length) {
+        document.getElementById("products-table-body").innerHTML =
+            `<tr><td colspan="9" class="text-center">${t('noProducts')}</td></tr>`;
+        return;
+    }
 
     let html = "";
 
     items.forEach(p => {
+        const productJson = JSON.stringify(p).replace(/'/g, "&apos;");
+        const imageSrc = `/storage/${p.image}`;
+        const sales = p.sales ?? 0;
+
         html += `
         <tr>
             <td>${p.id}</td>
-            <td><img src="/storage/${p.image}" width="50"></td>
-            <td>${p.name}</td>
-            <td>${p.category?.name ?? '-'}</td>
-            <td>${p.brand?.name ?? '-'}</td>
-            <td>${p.price}</td>
-            <td>${p.stock}</td>
+            <td><img src="${imageSrc}" width="50" alt=""></td>
             <td>
-                <button onclick='startEdit("product", ${JSON.stringify(p).replace(/'/g, "&apos;")})'>
-                    Edit
+                <a class="products-table-link" href="/product/?id=${p.id}">
+                    ${escapeHtml(p.name)}
+                </a>
+            </td>
+            <td>${escapeHtml(p.category?.name ?? "-")}</td>
+            <td>${escapeHtml(p.brand?.name ?? "-")}</td>
+            <td>${displayPrice(p.price)}</td>
+            <td>${p.stock}</td>
+            <td>${sales}</td>
+            <td>
+                <button onclick='startEdit("product", ${productJson})'>
+                    ${t('edit')}
                 </button>
-                <button onclick="deleteProduct(${p.id})">Delete</button>
+                <button onclick="deleteProduct(${p.id})">${t('delete')}</button>
             </td>
         </tr>`;
     });
 
     document.getElementById("products-table-body").innerHTML = html;
+}
+
+function initProductsSearch() {
+    const searchInput = document.getElementById("products-search");
+
+    if (!searchInput || searchInput.dataset.bound) {
+        return;
+    }
+
+    searchInput.dataset.bound = "1";
+    searchInput.addEventListener("input", renderProductsTable);
+}
+
+async function loadProducts() {
+    let res = await fetch(API_PRODUCTS, {
+        headers: { Authorization: "Bearer " + token },
+    });
+    let data = await res.json();
+
+    allProducts = sortByIdDesc(data.data ?? data);
+    renderProductsTable();
 }
 
 async function saveProduct() {
@@ -321,7 +500,10 @@ async function saveProduct() {
     formData.append("brand_id", document.getElementById("product-brand").value);
     formData.append("name", document.getElementById("product-name").value);
     formData.append("description", document.getElementById("product-description").value);
-    formData.append("price", document.getElementById("product-price").value);
+    formData.append(
+        "price",
+        priceFromInput(document.getElementById("product-price").value)
+    );
     formData.append("stock", document.getElementById("product-stock").value);
     formData.append("image", document.getElementById("product-image").files[0]);
 
@@ -366,7 +548,7 @@ async function loadProductCategories() {
     let res = await fetch(API_CATEGORIES);
     let data = await res.json();
 
-    let html = `<option value="">Select Category</option>`;
+    let html = '<option value="">' + t('selectCategory') + '</option>';
 
     data.data.forEach(c => {
         html += `<option value="${c.id}">${c.name}</option>`;
@@ -385,14 +567,14 @@ async function loadCities() {
 
     let html = "";
 
-    data.data.forEach(c => {
+    sortByIdDesc(data.data).forEach(c => {
         html += `
         <tr>
             <td>${c.id}</td>
             <td>${c.name}</td>
             <td>
-                <button onclick='startEdit("city", ${JSON.stringify(c)})'>Edit</button>
-                <button onclick="deleteCity(${c.id})">Delete</button>
+                <button onclick='startEdit("city", ${JSON.stringify(c)})'>${t('edit')}</button>
+                <button onclick="deleteCity(${c.id})">${t('delete')}</button>
             </td>
         </tr>`;
     });
@@ -405,7 +587,7 @@ async function saveCity() {
     let name = document.getElementById("city-name").value;
 
     if (!name.trim()) {
-        return alert("Required");
+        return alert(t('required'));
     }
 
     let url = API_CITIES;
@@ -440,7 +622,7 @@ async function loadCitySelect() {
     let res = await fetch(API_CITIES);
     let data = await res.json();
 
-    let html = `<option value="">Select City</option>`;
+    let html = '<option value="">' + t('selectCity') + '</option>';
 
     data.data.forEach(c => {
         html += `<option value="${c.id}">${c.name}</option>`;
@@ -470,18 +652,18 @@ async function loadAreas() {
 
     let html = "";
 
-    data.data.forEach(a => {
+    sortByIdDesc(data.data).forEach(a => {
         html += `
         <tr>
             <td>${a.id}</td>
             <td>${a.name}</td>
             <td>${a.city?.name ?? '-'}</td>
-            <td>${a.fee ?? 0}</td>
+            <td>${displayPrice(a.fee ?? 0)}</td>
             <td>
                 <button onclick='startEdit("area", ${JSON.stringify(a).replace(/'/g, "&apos;")})'>
-                    Edit
+                    ${t('edit')}
                 </button>
-                <button onclick="deleteArea(${a.id})">Delete</button>
+                <button onclick="deleteArea(${a.id})">${t('delete')}</button>
             </td>
         </tr>`;
     });
@@ -512,7 +694,7 @@ async function saveArea() {
         body: JSON.stringify({
             city_id: cityId,
             name,
-            fee
+            fee: priceFromInput(fee)
         })
     });
 
@@ -545,10 +727,8 @@ function startEdit(type, item) {
     }
 
     if (type === "brand") {
-
-    document.getElementById(
-        "brand-name"
-    ).value = item.name;
+        document.getElementById("edit-brand-name").value = item.name;
+        document.getElementById("brandModal").style.display = "flex";
     }
 
     if (type === "city") {
@@ -561,7 +741,7 @@ function startEdit(type, item) {
     document.getElementById("edit-area-name").value = item.name;
 
     document.getElementById("edit-area-fee").value =
-        item.fee ?? 0;
+        priceToInput(item.fee ?? 0);
 
     loadCitiesForEdit().then(() => {
         document.getElementById("edit-area-city").value =
@@ -569,12 +749,13 @@ function startEdit(type, item) {
     });
 
     document.getElementById("areaModal").style.display = "flex";
-}
+    updateAdminCurrencyHints();
+    }
 
     if (type === "product") {
 
         document.getElementById("edit-product-name").value = item.name;
-        document.getElementById("edit-product-price").value = item.price;
+        document.getElementById("edit-product-price").value = priceToInput(item.price);
         document.getElementById("edit-product-stock").value = item.stock;
         document.getElementById("edit-product-desc").value = item.description || "";
 
@@ -589,11 +770,13 @@ function startEdit(type, item) {
         });
 
         document.getElementById("productModal").style.display = "flex";
+        updateAdminCurrencyHints();
     }
 }
 
 function closeAllModals() {
     document.getElementById("categoryModal").style.display = "none";
+    document.getElementById("brandModal").style.display = "none";
     document.getElementById("cityModal").style.display = "none";
     document.getElementById("areaModal").style.display = "none";
     document.getElementById("productModal").style.display = "none";
@@ -678,9 +861,7 @@ async function saveEdit() {
     if (editState.type === "brand") {
 
         body = {
-            name: document.getElementById(
-                "brand-name"
-            ).value
+            name: document.getElementById("edit-brand-name").value,
         };
 
         url = `${API_BRANDS}/${editState.id}`;
@@ -702,7 +883,7 @@ async function saveEdit() {
         body = {
             name: document.getElementById("edit-area-name").value,
             city_id: document.getElementById("edit-area-city").value,
-            fee: document.getElementById("edit-area-fee").value
+            fee: priceFromInput(document.getElementById("edit-area-fee").value)
         };
 
         url = `${API_AREAS}/${editState.id}`;
@@ -713,7 +894,7 @@ async function saveEdit() {
 
         body = {
             name: document.getElementById("edit-product-name").value,
-            price: document.getElementById("edit-product-price").value,
+            price: priceFromInput(document.getElementById("edit-product-price").value),
             stock: document.getElementById("edit-product-stock").value,
             description: document.getElementById("edit-product-desc").value,
             category_id: document.getElementById("edit-product-category").value,
@@ -738,8 +919,11 @@ async function saveEdit() {
     }
 
     closeAllModals();
+    resetEdit();
 
     await loadCategories();
+    await loadBrands();
+    await loadProductBrands();
     await loadCities();
     await loadAreas();
     await loadProducts();
@@ -769,7 +953,7 @@ document.addEventListener("change", async (e) => {
     let res = await fetch(`/api/cities/${e.target.value}/areas`);
     let data = await res.json();
 
-    let html = `<option value="">Select Area</option>`;
+    let html = '<option value="">' + t('selectArea') + '</option>';
 
     data.data.forEach(a => {
         html += `<option value="${a.id}">${a.name}</option>`;
@@ -799,7 +983,10 @@ function goProfile() {
 // =========================
 async function confirmLogout() {
 
-    let ok = confirm("Are you sure you want to logout?");
+    const ok = await ElectroDialog.confirm(
+        t('logoutConfirm'),
+        { title: t('logout'), confirmText: t('logout') }
+    );
 
     if (!ok) return;
 
@@ -840,7 +1027,7 @@ async function loadOrders() {
 
     const data = await res.json();
 
-    allOrders = data.data;
+    allOrders = sortByIdDesc(data.data ?? []);
 
     renderOrders();
 }
@@ -876,12 +1063,12 @@ function renderOrders() {
                 </td>
 
                 <td>
-                    $${order.total_price}
+                    ${displayPrice(order.total_price)}
                 </td>
 
                 <td>
                     <span class="label label-info">
-                        ${order.status}
+                        ${t(order.status) || order.status}
                     </span>
                 </td>
 
@@ -903,11 +1090,7 @@ function renderOrders() {
                         id="status-${order.id}"
                         class="form-control"
                     >
-                        <option value="pending">pending</option>
-                        <option value="paid">paid</option>
-                        <option value="shipped">shipped</option>
-                        <option value="delivered">delivered</option>
-                        <option value="canceled">canceled</option>
+                        ${orderStatusOptions(order.status)}
                     </select>
 
                     <br>
@@ -916,7 +1099,7 @@ function renderOrders() {
                         class="btn btn-primary btn-sm"
                         onclick="updateOrderStatus(${order.id})"
                     >
-                        Update
+                        ${t('update')}
                     </button>
 
 
@@ -924,14 +1107,14 @@ function renderOrders() {
                         class="btn btn-info btn-sm"
                         onclick="showOrderDetails(${order.id})"
                     >
-                        View
+                        ${t('view')}
                     </button>
 
                     <button
                         class="btn btn-default btn-sm"
                         onclick="showOrderLogs(${order.id})"
                     >
-                        Logs
+                        ${t('logs')}
                     </button>
 
 
@@ -981,11 +1164,11 @@ async function updateOrderStatus(orderId) {
     const data = await res.json();
 
     if (!res.ok) {
-        alert(data.message || "Update failed");
+        alert(data.message || t('updateFailed'));
         return;
     }
 
-    alert("Status updated");
+    alert(t('statusUpdated'));
 
     loadOrders();
 }
@@ -1035,10 +1218,10 @@ function renderOrderDetails(order) {
 
         return `
             <tr>
-                <td>${item.product?.name ?? 'Product #' + item.product_id}</td>
+                <td>${item.product?.name ?? t('product') + ' #' + item.product_id}</td>
                 <td>${item.quantity}</td>
-                <td>$${parseFloat(item.price).toFixed(2)}</td>
-                <td>$${lineTotal.toFixed(2)}</td>
+                <td>${displayPrice(item.price)}</td>
+                <td>${displayPrice(lineTotal)}</td>
             </tr>
         `;
     }).join('');
@@ -1048,22 +1231,22 @@ function renderOrderDetails(order) {
         : Math.max(0, parseFloat(order.total_price) - subtotal);
 
     const noteHtml = order.note
-        ? `<p><strong>Note:</strong> ${order.note}</p>`
-        : '<p><strong>Note:</strong> —</p>';
+        ? '<p><strong>' + t('note') + ':</strong> ' + order.note + '</p>'
+        : '<p><strong>' + t('note') + ':</strong> —</p>';
 
     document.getElementById("order-details-title").textContent =
-        "Order #" + order.id;
+        t('orderNumber', { id: order.id });
 
     document.getElementById("order-details-content").innerHTML = `
         <div class="order-details-meta">
-            <p><strong>Status:</strong> ${order.status}</p>
-            <p><strong>Customer:</strong> ${order.user?.name ?? '-'}</p>
-            <p><strong>Email:</strong> ${order.user?.email ?? '-'}</p>
-            <p><strong>Phone:</strong> ${order.user?.phone ?? '-'}</p>
-            <p><strong>City:</strong> ${order.area?.city?.name ?? '-'}</p>
-            <p><strong>Area:</strong> ${order.area?.name ?? '-'}</p>
-            <p><strong>Created:</strong> ${formatDate(order.created_at)}</p>
-            <p><strong>Updated:</strong> ${formatDate(order.updated_at)}</p>
+            <p><strong>${t('status')}:</strong> ${t(order.status) || order.status}</p>
+            <p><strong>${t('customer')}:</strong> ${order.user?.name ?? '-'}</p>
+            <p><strong>${t('email')}:</strong> ${order.user?.email ?? '-'}</p>
+            <p><strong>${t('phone')}:</strong> ${order.user?.phone ?? '-'}</p>
+            <p><strong>${t('city')}:</strong> ${order.area?.city?.name ?? '-'}</p>
+            <p><strong>${t('area')}:</strong> ${order.area?.name ?? '-'}</p>
+            <p><strong>${t('createdAt')}:</strong> ${formatDate(order.created_at)}</p>
+            <p><strong>${t('updatedAt')}:</strong> ${formatDate(order.updated_at)}</p>
         </div>
 
         ${noteHtml}
@@ -1071,21 +1254,21 @@ function renderOrderDetails(order) {
         <table class="order-details-table">
             <thead>
                 <tr>
-                    <th>Product</th>
-                    <th>Qty</th>
-                    <th>Unit price</th>
-                    <th>Line total</th>
+                    <th>${t('product')}</th>
+                    <th>${t('qty')}</th>
+                    <th>${t('unitPrice')}</th>
+                    <th>${t('lineTotal')}</th>
                 </tr>
             </thead>
             <tbody>
-                ${itemsRows || '<tr><td colspan="4">No items</td></tr>'}
+                ${itemsRows || '<tr><td colspan="4">' + t('noItems') + '</td></tr>'}
             </tbody>
         </table>
 
         <div class="order-details-totals">
-            <p><strong>Subtotal:</strong> $${subtotal.toFixed(2)}</p>
-            <p><strong>Shipping:</strong> $${shippingFee.toFixed(2)}</p>
-            <p><strong>Total:</strong> $${parseFloat(order.total_price).toFixed(2)}</p>
+            <p><strong>${t('subtotal')}:</strong> ${displayPrice(subtotal)}</p>
+            <p><strong>${t('shipping')}:</strong> ${displayPrice(shippingFee)}</p>
+            <p><strong>${t('total')}:</strong> ${displayPrice(order.total_price)}</p>
         </div>
     `;
 
@@ -1118,27 +1301,27 @@ function showOrderLogs(orderId) {
             ">
 
                 <p>
-                    <strong>Admin:</strong>
+                    <strong>${t('admin')}:</strong>
                     ${log.admin?.name ?? '-'}
                 </p>
 
                 <p>
-                    <strong>Action:</strong>
+                    <strong>${t('action')}:</strong>
                     ${log.action}
                 </p>
 
                 <p>
-                    <strong>From:</strong>
-                    ${log.old_status}
+                    <strong>${t('from')}:</strong>
+                    ${t(log.old_status) || log.old_status}
                 </p>
 
                 <p>
-                    <strong>To:</strong>
-                    ${log.new_status}
+                    <strong>${t('to')}:</strong>
+                    ${t(log.new_status) || log.new_status}
                 </p>
 
                 <p>
-                    <strong>At:</strong>
+                    <strong>${t('at')}:</strong>
                     ${formatDate(log.created_at)}
                 </p>
 
@@ -1147,7 +1330,7 @@ function showOrderLogs(orderId) {
     });
 
     if (!html) {
-        html = "<p>No logs yet</p>";
+        html = '<p>' + t('noLogs') + '</p>';
     }
 
     document.getElementById(

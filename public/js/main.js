@@ -105,7 +105,7 @@
 			infinite: true,
 			speed: 300,
 			dots: false,
-			arrows: true,
+			arrows: false,
 			fade: true,
 			initialSlide: 0,
 			asNavFor: '#product-imgs',

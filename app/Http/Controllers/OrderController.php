@@ -8,8 +8,10 @@ use App\Models\OrderItem;
 use App\Models\CartItem;
 use App\Models\OrderLog;
 use App\Models\Product;
+use App\Notifications\OrderStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
@@ -290,6 +292,8 @@ public function updateStatus(Request $request, string $id)
         ]);
 
         DB::commit();
+
+        $this->sendOrderStatusEmail($order, $oldStatus, $newStatus);
     } catch (\Exception $e) {
         DB::rollBack();
 
@@ -304,6 +308,38 @@ public function updateStatus(Request $request, string $id)
         'Order status updated successfully'
     );
 }
+
+    /**
+     * Email customer when pending → paid or pending → canceled.
+     */
+    private function sendOrderStatusEmail(Order $order, string $oldStatus, string $newStatus): void
+    {
+        if ($oldStatus !== 'pending') {
+            return;
+        }
+
+        if (! in_array($newStatus, ['paid', 'canceled'], true)) {
+            return;
+        }
+
+        $order->load(['user', 'items.Product']);
+
+        $user = $order->user;
+
+        if (! $user || ! $user->email) {
+            return;
+        }
+
+        try {
+            $user->notify(new OrderStatusChanged($order, $newStatus));
+        } catch (\Throwable $e) {
+            Log::error('Order status email failed', [
+                'order_id' => $order->id,
+                'status' => $newStatus,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
 
     /**
      * Delete order

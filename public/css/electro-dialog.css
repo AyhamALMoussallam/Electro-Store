@@ -1,0 +1,134 @@
+/* Electro themed alert / confirm dialogs */
+
+.electro-dialog {
+	position: fixed;
+	inset: 0;
+	z-index: 10050;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	font-family: 'Montserrat', sans-serif;
+}
+
+.electro-dialog.is-open {
+	display: flex;
+}
+
+.electro-dialog__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(21, 22, 29, 0.65);
+	animation: electro-dialog-fade-in 0.2s ease;
+}
+
+.electro-dialog__box {
+	position: relative;
+	width: 100%;
+	max-width: 420px;
+	background: #fff;
+	border-radius: 8px;
+	padding: 28px 28px 22px;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+	text-align: center;
+	animation: electro-dialog-pop 0.22s ease;
+}
+
+.electro-dialog__icon {
+	font-size: 42px;
+	line-height: 1;
+	margin-bottom: 14px;
+	color: #D10024;
+}
+
+.electro-dialog__icon--success {
+	color: #2ecc71;
+}
+
+.electro-dialog__icon--error {
+	color: #D10024;
+}
+
+.electro-dialog__icon--confirm {
+	color: #D10024;
+}
+
+.electro-dialog__title {
+	margin: 0 0 10px;
+	font-size: 20px;
+	font-weight: 700;
+	color: #2B2D42;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.electro-dialog__message {
+	margin: 0 0 22px;
+	font-size: 15px;
+	line-height: 1.55;
+	color: #8D99AE;
+	font-weight: 500;
+}
+
+.electro-dialog__actions {
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.electro-dialog__btn {
+	min-width: 110px;
+	height: 40px;
+	padding: 0 20px;
+	border-radius: 40px;
+	font-size: 13px;
+	font-weight: 700;
+	text-transform: uppercase;
+	cursor: pointer;
+	border: none;
+	transition: 0.2s all;
+}
+
+.electro-dialog__btn--primary {
+	background: #D10024;
+	color: #fff;
+}
+
+.electro-dialog__btn--primary:hover,
+.electro-dialog__btn--primary:focus {
+	background: #a8001c;
+	color: #fff;
+}
+
+.electro-dialog__btn--secondary {
+	background: #fff;
+	color: #2B2D42;
+	border: 1px solid #E4E7ED;
+}
+
+.electro-dialog__btn--secondary:hover,
+.electro-dialog__btn--secondary:focus {
+	border-color: #D10024;
+	color: #D10024;
+}
+
+@keyframes electro-dialog-fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+body.electro-dialog-open {
+	overflow: hidden;
+}
+
+@keyframes electro-dialog-pop {
+	from {
+		opacity: 0;
+		transform: scale(0.92) translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+}

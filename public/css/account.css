@@ -14,6 +14,15 @@ body.admin-profile-page #header .header-ctn > .dropdown {
   display: none;
 }
 
+/* Customer profile — cart visible after role is known */
+body.page-profile.customer-profile #header .header-ctn > .dropdown {
+  display: block;
+}
+
+.account-toolbar-left a.nav-visible {
+  visibility: visible;
+}
+
 .account-page-section,
 .account-auth-section {
   background-color: #FBFBFC;

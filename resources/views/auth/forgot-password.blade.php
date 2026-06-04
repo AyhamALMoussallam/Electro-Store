@@ -4,7 +4,7 @@
 @include('partials.electro-head', ['title' => 'Electro - Forgot Password', 'accountPage' => true])
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
-<body data-active-nav="">
+<body class="minimal-header-page" data-active-nav="">
 
 @include('partials.electro-header', ['minimalHeader' => true])
 

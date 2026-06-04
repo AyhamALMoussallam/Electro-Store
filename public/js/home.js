@@ -3,6 +3,7 @@
 
 	const API = '/api';
 	const SHOP_IMAGES = ['/img/shop01.png', '/img/shop03.png', '/img/shop02.png'];
+	const t = window.ElectroI18n ? window.ElectroI18n.t.bind(window.ElectroI18n) : function (k) { return k; };
 
 	let allProducts = [];
 	let allCategories = [];
@@ -45,12 +46,12 @@
 							escapeHtml(product.name) +
 						'</a>' +
 					'</h3>' +
-					'<h4 class="product-price">$' + product.price + '</h4>' +
+					'<h4 class="product-price">' + formatPrice(product.price) + '</h4>' +
 				'</div>' +
 				'<div class="add-to-cart">' +
 					'<button type="button" class="add-to-cart-btn home-add-to-cart" ' +
 						'data-product-id="' + product.id + '">' +
-						'<i class="fa fa-shopping-cart"></i> add to cart' +
+						'<i class="fa fa-shopping-cart"></i> ' + t('addToCart') +
 					'</button>' +
 				'</div>' +
 			'</div>'
@@ -75,7 +76,7 @@
 							escapeHtml(product.name) +
 						'</a>' +
 					'</h3>' +
-					'<h4 class="product-price">$' + product.price + '</h4>' +
+					'<h4 class="product-price">' + formatPrice(product.price) + '</h4>' +
 				'</div>' +
 			'</div>'
 		);
@@ -94,6 +95,10 @@
 		return slides.join('');
 	}
 
+	function isRtl() {
+		return document.documentElement.getAttribute('dir') === 'rtl';
+	}
+
 	function initProductSlick($el, navSelector) {
 		if (!$el.length) {
 			return;
@@ -104,6 +109,7 @@
 		}
 
 		$el.slick({
+			rtl: isRtl(),
 			slidesToShow: 4,
 			slidesToScroll: 1,
 			autoplay: true,
@@ -135,6 +141,7 @@
 		}
 
 		$el.slick({
+			rtl: isRtl(),
 			infinite: true,
 			autoplay: true,
 			speed: 300,
@@ -160,7 +167,7 @@
 
 		row.innerHTML = items.map(function (category, index) {
 			const img = SHOP_IMAGES[index % SHOP_IMAGES.length];
-			const title = escapeHtml(category.name) + '<br>Collection';
+			const title = escapeHtml(category.name) + '<br>' + t('collection');
 
 			return (
 				'<div class="col-md-4 col-xs-6">' +
@@ -171,8 +178,9 @@
 						'<div class="shop-body">' +
 							'<h3>' + title + '</h3>' +
 							'<a href="/store?category=' + category.id + '" ' +
-								'class="cta-btn">Shop now ' +
-								'<i class="fa fa-arrow-circle-right"></i></a>' +
+								'class="cta-btn">' + t('shopNow') + ' ' +
+								'<i class="fa fa-arrow-circle-' +
+								(isRtl() ? 'left' : 'right') + '"></i></a>' +
 						'</div>' +
 					'</div>' +
 				'</div>'
@@ -187,7 +195,7 @@
 		}
 
 		let html = '<li class="active">' +
-			'<a href="#" data-category-id="">All</a></li>';
+			'<a href="#" data-category-id="">' + t('all') + '</a></li>';
 
 		categories.slice(0, 4).forEach(function (category) {
 			html += '<li><a href="#" data-category-id="' +
@@ -234,7 +242,7 @@
 		$slick.html(
 			products.length
 				? products.map(renderProductSlickCard).join('')
-				: '<div class="col-md-12"><p>No products found.</p></div>'
+				: '<div class="col-md-12"><p>' + t('noProducts') + '</p></div>'
 		);
 
 		initProductSlick($slick, '#slick-nav-1');
@@ -246,7 +254,7 @@
 		$slick.html(
 			products.length
 				? products.map(renderProductSlickCard).join('')
-				: '<div class="col-md-12"><p>No top selling products yet.</p></div>'
+				: '<div class="col-md-12"><p>' + t('noTopSelling') + '</p></div>'
 		);
 
 		initProductSlick($slick, '#slick-nav-2');
@@ -307,11 +315,11 @@
 		const body = await res.json().catch(function () { return {}; });
 
 		if (!res.ok) {
-			alert(body.message || 'Could not add to cart');
+			alert(body.message || t('cartAddError'));
 			return;
 		}
 
-		alert('Product added to cart');
+		alert(t('addedToCart'));
 
 		if (typeof window.reloadSiteLayout === 'function') {
 			window.reloadSiteLayout();

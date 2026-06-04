@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-@include('partials.electro-head', ['title' => 'Electro - My Orders', 'accountPage' => true])
+@include('partials.electro-head', ['title' => 'إلكترو - طلباتي', 'accountPage' => true])
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
-<body data-active-nav="">
+<body class="page-orders hide-main-nav-page account-ui-ready" data-active-nav="">
 
 @include('partials.electro-header', ['hideMainNav' => true])
-@include('partials.electro-account-toolbar', ['toolbarTitle' => 'My Orders', 'showLogout' => true])
+@include('partials.electro-account-toolbar', ['toolbarTitle' => 'طلباتي', 'showLogout' => true, 'showNavProfile' => true])
 
 <div class="account-page-section">
 	<div class="container account-container-wide">
-		<div id="loading" class="account-card account-loading">Loading orders...</div>
+		<div id="loading" class="account-card account-loading">جاري تحميل الطلبات...</div>
 		<div id="orders-list"></div>
-		<div id="empty" class="account-card account-empty" style="display:none;">You have no orders yet. <a href="/store">Browse the store</a></div>
+		<div id="empty" class="account-card account-empty" style="display:none;">لا توجد طلبات بعد. <a href="/store">تصفّح المتجر</a></div>
 	</div>
 </div>
 
@@ -24,8 +24,6 @@ if (!token) {
     window.location.href = '/login';
 }
 const headers = { Authorization: 'Bearer ' + token };
-
-document.getElementById('nav-profile').style.display = 'inline';
 
 function logout() {
     axios.post(`${apiBase}/logout`, {}, { headers })
@@ -53,6 +51,14 @@ function buildUserOrderNumbers(orders) {
     return numbers;
 }
 
+const statusLabels = {
+    pending: 'قيد الانتظار',
+    paid: 'مدفوع',
+    shipped: 'تم الشحن',
+    delivered: 'تم التسليم',
+    canceled: 'ملغى',
+};
+
 function renderOrders(orders) {
     const list = document.getElementById('orders-list');
     list.innerHTML = '';
@@ -68,10 +74,10 @@ function renderOrders(orders) {
 
             return `
             <tr>
-                <td>${item.product?.name ?? 'Product #' + item.product_id}</td>
+                <td>${item.product?.name ?? 'منتج #' + item.product_id}</td>
                 <td>${item.quantity}</td>
-                <td>$${parseFloat(item.price).toFixed(2)}</td>
-                <td>$${lineTotal.toFixed(2)}</td>
+                <td>${formatPrice(item.price)}</td>
+                <td>${formatPrice(lineTotal)}</td>
             </tr>
         `;
         }).join('');
@@ -81,36 +87,36 @@ function renderOrders(orders) {
             : Math.max(0, parseFloat(order.total_price) - subtotal);
 
         const noteHtml = order.note
-            ? `<p class="order-note"><strong>Note:</strong> ${order.note}</p>`
+            ? `<p class="order-note"><strong>ملاحظة:</strong> ${order.note}</p>`
             : '';
 
         list.innerHTML += `
             <div class="order-card">
-                <h3>Order ${orderNumbers[order.id]}</h3>
+                <h3>طلب ${orderNumbers[order.id]}</h3>
                 <div class="order-meta">
-                    <span><strong>Status:</strong>
-                        <span class="order-status ${order.status}">${order.status}</span>
+                    <span><strong>الحالة:</strong>
+                        <span class="order-status ${order.status}">${statusLabels[order.status] ?? order.status}</span>
                     </span>
-                    <span><strong>Placed:</strong> ${formatDate(order.created_at)}</span>
-                    <span><strong>Delivery:</strong>
+                    <span><strong>تاريخ الطلب:</strong> ${formatDate(order.created_at)}</span>
+                    <span><strong>التوصيل:</strong>
                         ${order.area?.name ?? '-'}, ${order.area?.city?.name ?? '-'}
                     </span>
                 </div>
                 <table class="order-items-table">
                     <thead>
                         <tr>
-                            <th>Product</th>
-                            <th>Qty</th>
-                            <th>Price</th>
-                            <th>Subtotal</th>
+                            <th>المنتج</th>
+                            <th>الكمية</th>
+                            <th>السعر</th>
+                            <th>المجموع</th>
                         </tr>
                     </thead>
                     <tbody>${itemsHtml}</tbody>
                 </table>
                 <div class="order-totals">
-                    <p><strong>Subtotal:</strong> $${subtotal.toFixed(2)}</p>
-                    <p><strong>Area fee:</strong> $${areaFee.toFixed(2)}</p>
-                    <p><strong>Total:</strong> $${parseFloat(order.total_price).toFixed(2)}</p>
+                    <p><strong>المجموع الفرعي:</strong> ${formatPrice(subtotal)}</p>
+                    <p><strong>رسوم المنطقة:</strong> ${formatPrice(areaFee)}</p>
+                    <p><strong>الإجمالي:</strong> ${formatPrice(order.total_price)}</p>
                 </div>
                 ${noteHtml}
             </div>

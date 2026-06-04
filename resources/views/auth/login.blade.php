@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-@include('partials.electro-head', ['title' => 'Electro - Sign In', 'accountPage' => true])
+@include('partials.electro-head', ['title' => 'إلكترو - تسجيل الدخول', 'accountPage' => true])
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
-<body data-active-nav="">
+<body class="minimal-header-page" data-active-nav="">
 
 @include('partials.electro-header', ['minimalHeader' => true])
 

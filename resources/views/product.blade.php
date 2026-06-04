@@ -1,19 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-@include('partials.electro-head', ['title' => 'Electro - Product'])
+@include('partials.electro-head', ['title' => 'إلكترو - المنتج'])
 <link type="text/css" rel="stylesheet" href="/css/slick.css"/>
 <link type="text/css" rel="stylesheet" href="/css/slick-theme.css"/>
 <link type="text/css" rel="stylesheet" href="/css/nouislider.min.css"/>
 <style>
-	/* Main image: keep theme arrows visible (store default hides until hover) */
-	#product-main-img .slick-prev,
-	#product-main-img .slick-next {
-		opacity: 1;
-		visibility: visible;
-		transform: translateX(0);
-	}
-
 	/* Thumbnail arrows sit above/below images, not on top of them */
 	.product-thumbs-column {
 		display: flex;
@@ -162,7 +154,7 @@
 
 							<div class="add-to-cart">
 								<div class="qty-label">
-									Qty
+									<span data-i18n="qty"></span>
 									<div class="input-number">
 										<input
 											type="number"
@@ -180,22 +172,22 @@
 									id="add-to-cart-btn"
 								>
 									<i class="fa fa-shopping-cart"></i>
-									add to cart
+									<span data-i18n="addToCart"></span>
 								</button>
 							</div>
 
 							
 
 							<ul class="product-links">
-								<li>Category:</li>
+								<li data-i18n="categoryColon"></li>
 								<li><a href="#" id="product-category"></a></li>
 							</ul>
 
 							<ul class="product-links">
-								<li>Share:</li>
+								<li data-i18n="shareColon"></li>
 								<li>
 									<a href="#" id="copy-link-btn">
-										<i class="fa fa-link"></i> Copy Link
+										<i class="fa fa-link"></i> <span data-i18n="copyLink"></span>
 									</a>
 								</li>
 							</ul>
@@ -209,7 +201,7 @@
 						<div id="product-tab">
 							<!-- product tab nav -->
 							<ul class="tab-nav">
-								<li class="active"><a data-toggle="tab" href="#tab3">Reviews</a></li>
+								<li class="active"><a data-toggle="tab" href="#tab3" data-i18n="reviews"></a></li>
 							</ul>
 							<!-- /product tab nav -->
 
@@ -310,10 +302,10 @@
 										<div class="col-md-3">
 											<div id="review-form">
 												<form class="review-form">
-													<textarea class="input" id="review-comment" placeholder="Your Review"></textarea>
+													<textarea class="input" id="review-comment" data-i18n-placeholder="yourReview"></textarea>
 													
 													<div class="input-rating">
-														<span>Your Rating: </span>
+														<span data-i18n="yourRating"></span>
 														<div class="stars">
 															<input id="star5" name="rating" value="5" type="radio"><label for="star5"></label>
 															<input id="star4" name="rating" value="4" type="radio"><label for="star4"></label>
@@ -322,7 +314,7 @@
 															<input id="star1" name="rating" value="1" type="radio"><label for="star1"></label>
 														</div>
 													</div>
-													<button class="primary-btn">Submit</button>
+													<button class="primary-btn" data-i18n="submit"></button>
 												</form>
 											</div>
 										</div>
@@ -351,7 +343,7 @@
 
 					<div class="col-md-12">
 						<div class="section-title text-center">
-							<h3 class="title">Related Products</h3>
+							<h3 class="title" data-i18n="relatedProducts"></h3>
 						</div>
 					</div>
 
@@ -374,6 +366,9 @@
 
 		<script>
 
+			const t = window.ElectroI18n
+				? window.ElectroI18n.t.bind(window.ElectroI18n)
+				: function (k, r) { return k; };
 
 			axios.defaults.headers.common['Authorization'] =
    			 'Bearer ' + localStorage.getItem('auth_token');
@@ -414,33 +409,46 @@
 		}
 
 		document.getElementById('product-category').textContent =
-    		product.category?.name ?? 'No Category';
+    		product.category?.name ?? t('noCategory');
 
 		document.getElementById('product-price').textContent =
-			'$' + product.price;
+			formatPrice(product.price);
 
 		document.getElementById('product-description').innerHTML =
     		product.description.replace(/\n/g, '<br>');
 
 		document.getElementById('product-stock').textContent =
 			product.stock > 0
-				? `In Stock (${product.stock})`
-				: 'Out Of Stock';
+				? t('inStock', { n: product.stock })
+				: t('outOfStock');
 
-		const productImagePath = '/storage/' + product.image;
+		const categoryPaths = product.gallery_images?.length
+			? product.gallery_images.slice(0, 2)
+			: [product.image, product.image];
+
+		const basePaths = categoryPaths.length >= 2
+			? categoryPaths
+			: [categoryPaths[0], categoryPaths[0]];
+
+		const galleryUrls = [...basePaths, ...basePaths].map(
+			path => '/storage/' + path
+		);
 
 		document.querySelectorAll('.product-main-image')
-			.forEach(image => {
-				image.src = productImagePath;
+			.forEach((image, index) => {
+				if (galleryUrls[index]) {
+					image.src = galleryUrls[index];
+					image.alt = product.name;
+				}
 			});
 
 		document.querySelectorAll('.product-thumb-image')
-			.forEach(image => {
-				image.src = productImagePath;
+			.forEach((image, index) => {
+				if (galleryUrls[index]) {
+					image.src = galleryUrls[index];
+					image.alt = product.name;
+				}
 			});
-
-		const firstProductImage =
-			document.querySelector('.product-main-image');
 
 		const relocateThumbArrows = () => {
 			const $thumbs = $('#product-imgs');
@@ -466,15 +474,23 @@
 			});
 		};
 
-		if (firstProductImage.complete) {
-			initProductGallery();
-		} else {
-			firstProductImage.addEventListener(
-				'load',
-				initProductGallery,
-				{ once: true }
-			);
-		}
+		const galleryImageElements = [
+			...document.querySelectorAll('.product-main-image'),
+		].filter((_, index) => galleryUrls[index]);
+
+		const waitForGalleryImages = galleryImageElements.map(
+			image => new Promise(resolve => {
+				if (image.complete) {
+					resolve();
+					return;
+				}
+
+				image.addEventListener('load', resolve, { once: true });
+				image.addEventListener('error', resolve, { once: true });
+			})
+		);
+
+		Promise.all(waitForGalleryImages).then(initProductGallery);
 
 
 
@@ -485,10 +501,10 @@
 
 			navigator.clipboard.writeText(url)
 				.then(() => {
-					alert('Link copied!');
+					alert(t('linkCopied'));
 				})
 				.catch(() => {
-					alert('Failed to copy link');
+					alert(t('linkCopyFailed'));
 				});
 		});	 
 
@@ -502,7 +518,7 @@
 
 			console.log(error);
 
-			alert('Product not found');
+			alert(t('productNotFound'));
 
 		});
 
@@ -579,7 +595,7 @@
 							</h3>
 
 							<h4 class="product-price">
-								$${product.price}
+								${formatPrice(product.price)}
 							</h4>
 
 						</div>
@@ -766,7 +782,7 @@ function setDistribution(counts, total) {
 				loadReviews(productId);
 			})
 			.catch(err => {
-				alert(err.response?.data?.message || 'Error');
+				alert(err.response?.data?.message || t('error'));
 			});
 		});
 
@@ -783,16 +799,14 @@ function setDistribution(counts, total) {
 
 			if (qty > currentProduct.stock) {
 
-				alert(
-					`Only ${currentProduct.stock} item(s) available in stock`
-				);
+				alert(t('stockLimit', { n: currentProduct.stock }));
 
 				return;
 			}
 
 			if (qty < 1) {
 
-				alert('Quantity must be at least 1');
+				alert(t('qtyMin'));
 
 				return;
 			}
@@ -803,7 +817,7 @@ function setDistribution(counts, total) {
 			})
 			.then(res => {
 
-				alert('Product added to cart');
+				alert(t('addedToCart'));
 
 				if (typeof window.reloadSiteLayout === 'function') {
 					window.reloadSiteLayout();
@@ -814,7 +828,7 @@ function setDistribution(counts, total) {
 
 				alert(
 					err.response?.data?.message ||
-					'Error adding product'
+					t('cartAddError')
 				);
 
 			});

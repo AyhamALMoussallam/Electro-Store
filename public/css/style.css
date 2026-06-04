@@ -467,19 +467,30 @@ textarea.input {
 
 .header-search form {
   position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
 }
 
 .header-search form .input-select {
-  margin-right: -4px;
+  margin-right: 0;
   border-radius: 40px 0px 0px 40px;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 150px;
+  max-width: 200px;
 }
 
 .header-search form .input {
-  width: calc(100% - 260px);
-  margin-right: -4px;
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-right: 0;
+  border-radius: 0;
 }
 
 .header-search form .search-btn {
+  flex: 0 0 100px;
   height: 40px;
   width: 100px;
   background: #D10024;
@@ -1391,6 +1402,28 @@ textarea.input {
   font-weight: 500;
   text-transform: uppercase;
   font-size: 12px;
+}
+
+.store-filter--bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.store-filter--bottom .store-qty {
+  float: none;
+  margin-right: 0;
+  text-transform: none;
+  font-size: 14px;
+  flex: 1 1 auto;
+  min-width: 200px;
+}
+
+.store-filter--bottom .store-pagination {
+  float: none;
+  flex: 0 0 auto;
 }
 
 /*=========================================================

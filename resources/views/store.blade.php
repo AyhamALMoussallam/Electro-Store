@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-@include('partials.electro-head', ['title' => 'Electro - Store'])
+@include('partials.electro-head', ['title' => 'إلكترو - المتجر'])
 <link type="text/css" rel="stylesheet" href="/css/nouislider.min.css"/>
 </head>
 <body data-active-nav="store">
@@ -20,7 +20,7 @@
 					<div id="aside" class="col-md-3">
 						<!-- aside Widget -->
 						<div class="aside">
-							<h3 class="aside-title">Categories</h3>
+							<h3 class="aside-title" data-i18n="categories"></h3>
 							<div class="checkbox-filter" id="categories-filter">
 
 								
@@ -31,13 +31,13 @@
 
 						<!-- aside Widget -->
 						<div class="aside">
-							<h3 class="aside-title">Price</h3>
+							<h3 class="aside-title" data-i18n="price"></h3>
 
 							<div style="margin-bottom:10px;">
 								<input
 									type="number"
 									id="min-price"
-									placeholder="Min"
+									data-i18n-placeholder="min"
 									class="input"
 								>
 							</div>
@@ -46,7 +46,7 @@
 								<input
 									type="number"
 									id="max-price"
-									placeholder="Max"
+									data-i18n-placeholder="max"
 									class="input"
 								>
 							</div>
@@ -54,15 +54,15 @@
 							<button
 								class="primary-btn"
 								onclick="applyFilters()"
+								data-i18n="apply"
 							>
-								Apply
 							</button>
 						</div>
 						<!-- /aside Widget -->
 
 						<!-- aside Widget -->
 						<div class="aside">
-							<h3 class="aside-title">Brand</h3>
+							<h3 class="aside-title" data-i18n="brand"></h3>
 							<div class="checkbox-filter" id="brands-filter">
 								
 							</div>
@@ -71,7 +71,7 @@
 
 						<!-- aside Widget -->
 						<div class="aside">
-							<h3 class="aside-title">Top selling</h3>
+							<h3 class="aside-title" data-i18n="topSelling">الأكثر مبيعاً</h3>
 							<div id="top-selling-container"></div>
 						</div>
 						<!-- /aside Widget -->
@@ -86,7 +86,7 @@
 								
 
 								<label>
-									Show:
+									<span data-i18n="show"></span>:
 									<select 
 										class="input-select"
 										id="per-page"
@@ -108,11 +108,9 @@
 						<!-- /store products -->
 
 						<!-- store bottom filter -->
-						<div class="store-filter clearfix">
+						<div class="store-filter store-filter--bottom clearfix">
 							<span class="store-qty" id="products-count"></span>
-							<ul class="store-pagination" id="pagination"> </ul>
-
-							</ul>
+							<ul class="store-pagination" id="pagination"></ul>
 						</div>
 						<!-- /store bottom filter -->
 					</div>
@@ -126,11 +124,15 @@
 
 @include('partials.electro-footer')
 
-
-
-
+@include('partials.electro-scripts', ['withNouislider' => true])
 
 		<script>
+			function t(key, replacements) {
+				if (window.ElectroI18n && typeof window.ElectroI18n.t === 'function') {
+					return window.ElectroI18n.t(key, replacements);
+				}
+				return key;
+			}
 
 			let allProducts = [];
 			let allCategories = [];
@@ -259,8 +261,11 @@
 				if (!products.length) {
 
 					container.innerHTML =
-						"<h3>No products found</h3>";
+						"<h3>" + t('noProducts') + "</h3>";
 
+					renderPagination();
+					renderProductsCount();
+					updateStoreBreadcrumb();
 					return;
 				}
 
@@ -291,11 +296,11 @@
 								</h3>
 
 								<h4 class="product-price">
-									$${product.price}
+									${formatPrice(product.price)}
 								</h4>
 
 								<p class="product-brand">
-									By ${product.brand?.name ?? 'Unknown'}
+									${t('by')} ${product.brand?.name ?? t('unknown')}
 								</p>
 
 							</div>
@@ -307,7 +312,7 @@
 								>
 									<i class="fa fa-shopping-cart"></i>
 
-									add to cart
+									${t('addToCart')}
 								</button>
 
 							</div>
@@ -432,12 +437,18 @@
 				const maxPrice =
 					document.getElementById('max-price').value;
 
-				if (minPrice) {
-					params.set('min_price', minPrice);
+				if (minPrice && window.ElectroCurrency) {
+					const usdMin = window.ElectroCurrency.displayToUsd(minPrice);
+					if (usdMin != null) {
+						params.set('min_price', usdMin);
+					}
 				}
 
-				if (maxPrice) {
-					params.set('max_price', maxPrice);
+				if (maxPrice && window.ElectroCurrency) {
+					const usdMax = window.ElectroCurrency.displayToUsd(maxPrice);
+					if (usdMax != null) {
+						params.set('max_price', usdMax);
+					}
 				}
 
 				return params;
@@ -479,7 +490,7 @@
 				if (!products.length) {
 
 					container.innerHTML =
-						'<p>No top selling products yet</p>';
+						'<p>' + t('noTopSelling') + '</p>';
 
 					return;
 				}
@@ -501,7 +512,7 @@
 									</a>
 								</h3>
 								<h4 class="product-price">
-									$${product.price}
+									${formatPrice(product.price)}
 								</h4>
 							</div>
 						</div>
@@ -573,22 +584,19 @@
 						).value
 					);
 
-				// filter min
-				if (minPrice) {
+				const minUsd = minPrice && window.ElectroCurrency
+					? window.ElectroCurrency.displayToUsd(minPrice)
+					: null;
+				const maxUsd = maxPrice && window.ElectroCurrency
+					? window.ElectroCurrency.displayToUsd(maxPrice)
+					: null;
 
-					filtered = filtered.filter(product => {
-
-						return product.price >= minPrice;
-					});
+				if (minUsd != null) {
+					filtered = filtered.filter(product => product.price >= minUsd);
 				}
 
-				// filter max
-				if (maxPrice) {
-
-					filtered = filtered.filter(product => {
-
-						return product.price <= maxPrice;
-					});
+				if (maxUsd != null) {
+					filtered = filtered.filter(product => product.price <= maxUsd);
 				}
 
 				filteredProducts = filtered;
@@ -730,27 +738,29 @@ function updateStoreBreadcrumb() {
 // PRODUCTS COUNT
 // =========================
 function renderProductsCount() {
+    const countEl = document.getElementById('products-count');
+    if (!countEl) {
+        return;
+    }
 
-    const start =
-        (currentPage - 1) * perPage + 1;
+    const total = filteredProducts.length;
 
-    const end =
-        Math.min(
-            currentPage * perPage,
-            filteredProducts.length
-        );
+    if (total === 0) {
+        countEl.innerText = t('showingProductsNone');
+        return;
+    }
 
-    document.getElementById(
-        "products-count"
-    ).innerText =
+    const start = (currentPage - 1) * perPage + 1;
+    const end = Math.min(currentPage * perPage, total);
 
-        `Showing ${start}-${end}
-         of ${filteredProducts.length} products`;
+    countEl.innerText = t('showingProducts', {
+        start: start,
+        end: end,
+        total: total
+    });
 }
 
 		</script>
-
-@include('partials.electro-scripts', ['withNouislider' => true])
 
 	</body>
 </html>

@@ -2,6 +2,7 @@
 	'use strict';
 
 	const API = '/api';
+	const t = window.ElectroI18n ? window.ElectroI18n.t.bind(window.ElectroI18n) : function (k) { return k; };
 
 	function getToken() {
 		return localStorage.getItem('auth_token');
@@ -34,7 +35,7 @@
 		const params = new URLSearchParams(window.location.search);
 		const selected = params.get('category') || '';
 
-		let html = '<option value="">All Categories</option>';
+		let html = '<option value="">' + t('allCategories') + '</option>';
 		categories.forEach(function (category) {
 			const active = String(category.id) === selected ? ' selected' : '';
 			html += '<option value="' + category.id + '"' + active + '>' + category.name + '</option>';
@@ -51,8 +52,8 @@
 		const activeNav = document.body.dataset.activeNav || '';
 		let html = '';
 
-		html += '<li class="' + (activeNav === 'home' ? 'active' : '') + '"><a href="/home">Home</a></li>';
-		html += '<li class="' + (activeNav === 'store' ? 'active' : '') + '"><a href="/store">Store</a></li>';
+		html += '<li class="' + (activeNav === 'home' ? 'active' : '') + '"><a href="/home">' + t('home') + '</a></li>';
+		html += '<li class="' + (activeNav === 'store' ? 'active' : '') + '"><a href="/store">' + t('store') + '</a></li>';
 
 		categories.forEach(function (category) {
 			const key = 'category-' + category.id;
@@ -70,7 +71,7 @@
 		}
 
 		if (!categories.length) {
-			list.innerHTML = '<li><a href="/store">Browse store</a></li>';
+			list.innerHTML = '<li><a href="/store">' + t('browseStore') + '</a></li>';
 			return;
 		}
 
@@ -81,6 +82,7 @@
 
 	async function updateAccountLinks() {
 		const headerLink = document.getElementById('header-account-link');
+		const dashboardItem = document.getElementById('header-dashboard-item');
 		const footerAccount = document.getElementById('footer-account-link');
 		const footerOrders = document.getElementById('footer-orders-link');
 		const token = getToken();
@@ -88,11 +90,14 @@
 		function setGuestLinks() {
 			if (headerLink) {
 				headerLink.href = '/login';
-				headerLink.innerHTML = '<i class="fa fa-user-o"></i> Sign In';
+				headerLink.innerHTML = '<i class="fa fa-user-o"></i> ' + t('signIn');
+			}
+			if (dashboardItem) {
+				dashboardItem.style.display = 'none';
 			}
 			if (footerAccount) {
 				footerAccount.href = '/login';
-				footerAccount.textContent = 'Sign In';
+				footerAccount.textContent = t('signIn');
 			}
 			if (footerOrders) {
 				footerOrders.style.display = 'none';
@@ -111,19 +116,23 @@
 			}
 
 			const user = (await res.json()).user;
-			const accountUrl = Number(user.role) === 1 ? '/dashboard' : '/profile';
+			const isAdmin = Number(user.role) === 1;
+			const accountUrl = '/profile';
 
 			if (headerLink) {
 				headerLink.href = accountUrl;
-				headerLink.innerHTML = '<i class="fa fa-user-o"></i> My Account';
+				headerLink.innerHTML = '<i class="fa fa-user-o"></i> ' + t('myAccount');
+			}
+			if (dashboardItem) {
+				dashboardItem.style.display = isAdmin ? 'inline-block' : 'none';
 			}
 			if (footerAccount) {
 				footerAccount.href = accountUrl;
-				footerAccount.textContent = 'My Account';
+				footerAccount.textContent = t('myAccount');
 			}
 			if (footerOrders) {
 				const ordersLink = footerOrders.querySelector('a');
-				if (Number(user.role) === 1) {
+				if (isAdmin) {
 					footerOrders.style.display = 'none';
 				} else {
 					footerOrders.style.display = 'list-item';
@@ -149,12 +158,38 @@
 					'<img src="' + image + '" alt="">' +
 				'</div>' +
 				'<div class="product-body">' +
-					'<h3 class="product-name"><a href="/product?id=' + product.id + '">' + (product.name || 'Product') + '</a></h3>' +
-					'<h4 class="product-price"><span class="qty">' + item.quantity + 'x</span>$' + product.price + '</h4>' +
+					'<h3 class="product-name"><a href="/product?id=' + product.id + '">' + (product.name || t('product')) + '</a></h3>' +
+					'<h4 class="product-price"><span class="qty">' + item.quantity + 'x</span>' + formatPrice(product.price) + '</h4>' +
 				'</div>' +
 				'<button type="button" class="delete" data-remove-cart="' + item.id + '"><i class="fa fa-close"></i></button>' +
 			'</div>'
 		);
+	}
+
+	function shouldSkipHeaderCart() {
+		const body = document.body;
+
+		if (!document.getElementById('header-cart-list')) {
+			return true;
+		}
+
+		if (body.classList.contains('minimal-header-page')) {
+			return true;
+		}
+
+		if (body.classList.contains('admin-profile-page')) {
+			return true;
+		}
+
+		if (body.classList.contains('page-profile') && body.classList.contains('account-ui-pending')) {
+			return true;
+		}
+
+		if (body.dataset.hideHeaderCart === 'pending') {
+			return true;
+		}
+
+		return false;
 	}
 
 	async function loadHeaderCart() {
@@ -164,15 +199,15 @@
 		const subtotalEl = document.getElementById('header-cart-subtotal');
 		const token = getToken();
 
-		if (!list) {
+		if (!list || shouldSkipHeaderCart()) {
 			return;
 		}
 
 		if (!token) {
-			list.innerHTML = '<p style="padding:15px;margin:0;color:#8D99AE;">Sign in to view your cart</p>';
+			list.innerHTML = '<p style="padding:15px;margin:0;color:#8D99AE;">' + t('signInForCart') + '</p>';
 			if (qtyEl) qtyEl.textContent = '0';
-			if (summaryEl) summaryEl.textContent = '0 Item(s) selected';
-			if (subtotalEl) subtotalEl.textContent = 'SUBTOTAL: $0.00';
+			if (summaryEl) summaryEl.textContent = '0 ' + t('itemsSelected');
+			if (subtotalEl) subtotalEl.textContent = t('subtotal') + ': ' + formatPrice(0);
 			return;
 		}
 
@@ -187,7 +222,7 @@
 			let subtotal = 0;
 
 			if (!items.length) {
-				list.innerHTML = '<p style="padding:15px;margin:0;color:#8D99AE;">Your cart is empty</p>';
+				list.innerHTML = '<p style="padding:15px;margin:0;color:#8D99AE;">' + t('cartEmpty') + '</p>';
 			} else {
 				list.innerHTML = items.map(renderCartItem).join('');
 				items.forEach(function (item) {
@@ -198,10 +233,10 @@
 			}
 
 			if (qtyEl) qtyEl.textContent = totalQty;
-			if (summaryEl) summaryEl.textContent = totalQty + ' Item(s) selected';
-			if (subtotalEl) subtotalEl.textContent = 'SUBTOTAL: $' + subtotal.toFixed(2);
+			if (summaryEl) summaryEl.textContent = totalQty + ' ' + t('itemsSelected');
+			if (subtotalEl) subtotalEl.textContent = t('subtotal') + ': ' + formatPrice(subtotal);
 		} catch (e) {
-			list.innerHTML = '<p style="padding:15px;margin:0;color:#8D99AE;">Could not load cart</p>';
+			list.innerHTML = '<p style="padding:15px;margin:0;color:#8D99AE;">' + t('cartUnavailable') + '</p>';
 		}
 	}
 
@@ -219,7 +254,7 @@
 
 		if (!res.ok) {
 			const body = await res.json().catch(function () { return {}; });
-			alert(body.message || 'Could not remove item from cart');
+			alert(body.message || t('cartRemoveError'));
 			return;
 		}
 
@@ -254,7 +289,10 @@
 		renderFooterCategories(categories);
 		fillSearchFromUrl();
 		await updateAccountLinks();
-		await loadHeaderCart();
+
+		if (!shouldSkipHeaderCart()) {
+			await loadHeaderCart();
+		}
 	}
 
 	bindCartActions();
