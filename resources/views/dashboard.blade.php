@@ -281,6 +281,7 @@ body {
 
     <hr style="border-color:#333;">
 
+    <a href="/home/">🏠 <span data-i18n="home"></span></a>
     <a onclick="goProfile()">👤 <span data-i18n="profile"></span></a>
     <a onclick="confirmLogout()">🚪 <span data-i18n="logout"></span></a>
     </div>
