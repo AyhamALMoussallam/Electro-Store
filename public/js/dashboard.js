@@ -499,7 +499,8 @@ async function saveProduct() {
     formData.append("category_id", document.getElementById("product-category").value);
     formData.append("brand_id", document.getElementById("product-brand").value);
     formData.append("name", document.getElementById("product-name").value);
-    formData.append("description", document.getElementById("product-description").value);
+    formData.append("description_en", document.getElementById("product-description-en").value);
+    formData.append("description_ar", document.getElementById("product-description-ar").value);
     formData.append(
         "price",
         priceFromInput(document.getElementById("product-price").value)
@@ -757,7 +758,8 @@ function startEdit(type, item) {
         document.getElementById("edit-product-name").value = item.name;
         document.getElementById("edit-product-price").value = priceToInput(item.price);
         document.getElementById("edit-product-stock").value = item.stock;
-        document.getElementById("edit-product-desc").value = item.description || "";
+        document.getElementById("edit-product-desc-en").value = item.description_en || "";
+        document.getElementById("edit-product-desc-ar").value = item.description_ar || "";
 
         loadCategoriesForEdit().then(() => {
             document.getElementById("edit-product-category").value = item.category_id;
@@ -896,7 +898,8 @@ async function saveEdit() {
             name: document.getElementById("edit-product-name").value,
             price: priceFromInput(document.getElementById("edit-product-price").value),
             stock: document.getElementById("edit-product-stock").value,
-            description: document.getElementById("edit-product-desc").value,
+            description_en: document.getElementById("edit-product-desc-en").value,
+            description_ar: document.getElementById("edit-product-desc-ar").value,
             category_id: document.getElementById("edit-product-category").value,
             brand_id: document.getElementById("edit-product-brand").value
         };

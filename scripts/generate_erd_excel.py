@@ -27,6 +27,7 @@ REL_HEADER_FILL = PatternFill("solid", fgColor="2B2D42")
 REL_HEADER_FONT = Font(bold=True, color="FFFFFF", size=10)
 
 # Table order left-to-right on the sheet
+# Core e-commerce schema (matches edited ERD workbook layout)
 TABLE_ORDER = [
     "users",
     "categories",
@@ -40,10 +41,6 @@ TABLE_ORDER = [
     "order_items",
     "order_logs",
     "reviews",
-    "settings",
-    "password_reset_tokens",
-    "sessions",
-    "personal_access_tokens",
 ]
 
 ENTITIES = {
@@ -91,7 +88,8 @@ ENTITIES = {
         ("category_id", "BIGINT UNSIGNED", "FK→categories", ""),
         ("brand_id", "BIGINT UNSIGNED", "FK→brands", ""),
         ("name", "VARCHAR", "", ""),
-        ("description", "TEXT", "", ""),
+        ("description_en", "TEXT", "", "English; shown when site language is EN"),
+        ("description_ar", "TEXT", "", "Arabic; shown when site language is AR"),
         ("price", "INT", "", "stored in USD"),
         ("image", "VARCHAR", "", ""),
         ("stock", "INT", "", ""),
@@ -202,8 +200,6 @@ RELATIONSHIPS = [
     ("users", "order_logs", "1:N", "admin_id", "CASCADE", ""),
     ("users", "reviews", "1:N", "user_id", "CASCADE", ""),
     ("products", "reviews", "1:N", "product_id", "CASCADE", ""),
-    ("users", "sessions", "1:N", "user_id", "SET NULL", ""),
-    ("users", "personal_access_tokens", "1:N", "tokenable_id", "CASCADE", "via tokenable_type"),
 ]
 
 
@@ -363,7 +359,8 @@ def main():
         row=note_row,
         column=1,
         value="No N:N relationships in this schema. All FKs are on the child (many) table. "
-        "Customer order number is per-user sequence, not orders.id.",
+        "Customer order number is per-user sequence, not orders.id. "
+        "Product descriptions: description_en / description_ar (UI picks by language).",
     ).font = Font(italic=True, size=9)
 
     ws.freeze_panes = "A2"

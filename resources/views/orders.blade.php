@@ -7,7 +7,7 @@
 <body class="page-orders hide-main-nav-page account-ui-ready" data-active-nav="">
 
 @include('partials.electro-header', ['hideMainNav' => true])
-@include('partials.electro-account-toolbar', ['toolbarTitle' => 'طلباتي', 'showLogout' => true, 'showNavProfile' => true])
+@include('partials.electro-account-toolbar', ['toolbarTitleKey' => 'myOrders', 'showLogout' => true, 'showNavProfile' => true])
 
 <div class="account-page-section">
 	<div class="container account-container-wide">

@@ -92,7 +92,7 @@
 
 								<div class="header-profile-label" data-i18n="profile"></div>
 
-								<div class="header-profile-name" id="header-user-name" data-i18n="loading"></div>
+								<div class="header-profile-name" id="header-user-name"></div>
 
 							</div>
 

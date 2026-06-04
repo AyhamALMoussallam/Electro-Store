@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\CategoryProductImageSync;
+use App\Support\ProductDescriptionGenerator;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
@@ -102,11 +103,14 @@ class ProductSeeder extends Seeder
             $image = $sync->imageForCategory($catName, $categoryCounters[$catName]);
             $categoryCounters[$catName]++;
 
+            $descriptions = ProductDescriptionGenerator::pair($item['name'], $item['category']);
+
             Product::create([
                 'category_id' => $category->id,
                 'brand_id' => $brands->random()->id,
                 'name' => $item['name'],
-                'description' => $this->descriptionFor($item['name'], $item['category']),
+                'description_en' => $descriptions['en'],
+                'description_ar' => $descriptions['ar'],
                 'price' => fake()->numberBetween(15, 2499),
                 'image' => $image ?? 'products/mobile-tablets-1.jpg',
                 'stock' => fake()->numberBetween(5, 120),
@@ -143,13 +147,4 @@ class ProductSeeder extends Seeder
         return $list;
     }
 
-    private function descriptionFor(string $name, string $category): string
-    {
-        return implode("\n", [
-            $name . ' — premium ' . strtolower($category) . ' from Electro.',
-            'Reliable performance for everyday use and demanding tasks.',
-            'Official warranty. Fast delivery across Syria.',
-            'Features: high build quality, energy efficient design, and full compatibility with modern accessories.',
-        ]);
-    }
 }

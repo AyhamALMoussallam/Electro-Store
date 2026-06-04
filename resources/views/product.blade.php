@@ -414,8 +414,24 @@
 		document.getElementById('product-price').textContent =
 			formatPrice(product.price);
 
+		const descLang = window.ElectroI18n
+			? window.ElectroI18n.getLang()
+			: 'ar';
+		const descText = descLang === 'ar'
+			? (product.description_ar || product.description_en || '')
+			: (product.description_en || product.description_ar || '');
+
 		document.getElementById('product-description').innerHTML =
-    		product.description.replace(/\n/g, '<br>');
+			descText
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/\n/g, '<br>');
+		document.getElementById('product-description').setAttribute(
+			'dir',
+			descLang === 'ar' ? 'rtl' : 'ltr'
+		);
+		document.getElementById('product-description').setAttribute('lang', descLang);
 
 		document.getElementById('product-stock').textContent =
 			product.stock > 0

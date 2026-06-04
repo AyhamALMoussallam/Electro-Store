@@ -447,7 +447,13 @@ body {
 
         <br>
 
-        <textarea id="product-description" class="form-control" data-i18n-placeholder="description" placeholder="الوصف"></textarea>
+        <label data-i18n="descriptionEn">الوصف (إنجليزي)</label>
+        <textarea id="product-description-en" class="form-control" rows="5"></textarea>
+
+        <br>
+
+        <label data-i18n="descriptionAr">الوصف (عربي)</label>
+        <textarea id="product-description-ar" class="form-control" rows="5" dir="rtl"></textarea>
 
         <br>
 
@@ -640,8 +646,10 @@ body {
         <input id="edit-product-price" type="number" step="0.01">
         <label data-i18n="stock">المخزون</label>
         <input id="edit-product-stock" type="number">
-        <label data-i18n="description">الوصف</label>
-        <textarea id="edit-product-desc"></textarea>
+        <label data-i18n="descriptionEn">الوصف (إنجليزي)</label>
+        <textarea id="edit-product-desc-en" rows="5"></textarea>
+        <label data-i18n="descriptionAr">الوصف (عربي)</label>
+        <textarea id="edit-product-desc-ar" rows="5" dir="rtl"></textarea>
         <label data-i18n="image">الصورة</label>
         <input type="file" id="edit-product-image">
         <button onclick="saveEdit()" data-i18n="save">حفظ</button>

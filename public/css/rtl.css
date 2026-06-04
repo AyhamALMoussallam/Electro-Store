@@ -58,6 +58,18 @@ html[dir="rtl"] .account-toolbar-inner {
 	flex-direction: row-reverse;
 }
 
+html[dir="rtl"] .header-profile-center,
+html[dir="rtl"] .account-card h3,
+html[dir="rtl"] .account-info-row label,
+html[dir="rtl"] .account-info-row .value,
+html[dir="rtl"] .account-card p {
+	text-align: right;
+}
+
+html[dir="ltr"] .account-toolbar-inner {
+	flex-direction: row;
+}
+
 html[dir="rtl"] .breadcrumb-tree li + li::before {
 	content: "\\";
 	transform: scaleX(-1);

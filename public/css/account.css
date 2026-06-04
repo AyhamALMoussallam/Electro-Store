@@ -31,6 +31,23 @@ body.page-profile.customer-profile #header .header-ctn > .dropdown {
 .header-profile-center {
   padding: 10px 0;
   text-align: center;
+  width: 100%;
+}
+
+body.page-profile #header .row {
+  display: flex;
+  align-items: center;
+}
+
+body.page-profile #header .col-md-3,
+body.page-profile #header .col-md-6 {
+  float: none;
+  flex: 0 0 auto;
+}
+
+body.page-profile #header .col-md-6 {
+  flex: 1 1 auto;
+  max-width: none;
 }
 
 .header-profile-label {
@@ -109,6 +126,50 @@ body.page-profile.customer-profile #header .header-ctn > .dropdown {
   justify-content: space-between;
   gap: 15px;
   flex-wrap: wrap;
+}
+
+body.page-profile .account-toolbar-inner {
+  width: 100%;
+}
+
+body.page-profile .account-toolbar-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+body.page-profile .account-toolbar-actions {
+  flex-shrink: 0;
+}
+
+.account-toolbar-left a .account-toolbar-chevron:before {
+  content: "\f104";
+}
+
+html[dir="rtl"] .account-toolbar-left a .account-toolbar-chevron:before {
+  content: "\f105";
+}
+
+.account-btn-inline {
+  display: inline-block;
+  width: auto;
+  margin-top: 5px;
+}
+
+html[dir="ltr"] .account-card h3,
+html[dir="ltr"] .account-info-row label,
+html[dir="ltr"] .account-info-row .value,
+html[dir="ltr"] .account-card p,
+html[dir="ltr"] .account-loading,
+html[dir="ltr"] .account-empty {
+  text-align: left;
+}
+
+html[dir="ltr"] .account-message {
+  text-align: center;
+}
+
+html[dir="ltr"] .account-toolbar-title {
+  text-align: center;
 }
 
 .account-toolbar-left a {
@@ -342,11 +403,23 @@ body.page-profile.customer-profile #header .header-ctn > .dropdown {
   .account-toolbar-title {
     order: 3;
     width: 100%;
-    text-align: left;
     margin-top: 5px;
   }
 
-  .account-toolbar-actions {
+  html[dir="ltr"] .account-toolbar-title {
+    text-align: left;
+  }
+
+  html[dir="rtl"] .account-toolbar-title {
+    text-align: right;
+  }
+
+  html[dir="ltr"] .account-toolbar-actions {
     margin-left: auto;
+  }
+
+  html[dir="rtl"] .account-toolbar-actions {
+    margin-right: auto;
+    margin-left: 0;
   }
 }
