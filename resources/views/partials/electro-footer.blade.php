@@ -7,9 +7,9 @@
 						<h3 class="footer-title" data-i18n="aboutUs"></h3>
 						<p data-i18n="aboutText"></p>
 						<ul class="footer-links">
-							<li><a href="#"><i class="fa fa-map-marker"></i>Damascus, Syria, AL-Mazzah</a></li>
-							<li><a href="tel:+963959498994"><i class="fa fa-phone"></i>+963 959 498 994</a></li>
-							<li><a href="mailto:electro@gmail.com"><i class="fa fa-envelope-o"></i>electro@gmail.com</a></li>
+							<li><a href="#" class="contact-link"><i class="fa fa-map-marker" aria-hidden="true"></i><span class="contact-link__text" dir="ltr">Damascus, Syria, AL-Mazzah</span></a></li>
+							<li><a href="tel:+963959498994" class="contact-link"><i class="fa fa-phone" aria-hidden="true"></i><span class="contact-link__text" dir="ltr">+963 959 498 994</span></a></li>
+							<li><a href="mailto:electro@gmail.com" class="contact-link contact-link--email"><i class="fa fa-envelope-o" aria-hidden="true"></i><span class="contact-link__text" dir="ltr">electro@gmail.com</span></a></li>
 						</ul>
 					</div>
 				</div>

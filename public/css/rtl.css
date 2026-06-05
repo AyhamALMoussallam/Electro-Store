@@ -18,6 +18,73 @@ html[dir="rtl"] .header-links li i {
 	margin-left: 5px;
 }
 
+/* Header & footer contact: phone/email/address LTR; icon on the right in Arabic */
+.contact-link {
+	display: inline-flex;
+	align-items: center;
+	max-width: 100%;
+}
+
+html[dir="ltr"] .contact-link {
+	flex-direction: row;
+}
+
+html[dir="ltr"] #top-header .contact-link {
+	gap: 5px;
+}
+
+html[dir="ltr"] .footer-links .contact-link {
+	gap: 10px;
+}
+
+.footer-links .contact-link i {
+	margin-right: 0;
+}
+
+html[dir="rtl"] .contact-link {
+	flex-direction: row-reverse;
+	direction: rtl;
+}
+
+html[dir="rtl"] .contact-link__text {
+	direction: ltr;
+	unicode-bidi: isolate;
+	text-align: left;
+}
+
+html[dir="rtl"] #top-header .contact-link {
+	gap: 6px;
+}
+
+html[dir="rtl"] #top-header .header-links li {
+	margin-right: 0;
+	margin-left: 12px;
+}
+
+html[dir="rtl"] #top-header .header-contact-location {
+	margin-right: 28px;
+}
+
+html[dir="rtl"] #top-header .contact-link--email {
+	gap: 10px;
+}
+
+html[dir="rtl"] .footer-links .contact-link {
+	gap: 12px;
+}
+
+html[dir="rtl"] .footer-links .contact-link--email {
+	gap: 14px;
+}
+
+html[dir="rtl"] .contact-link i {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	width: 14px;
+	text-align: center;
+	flex-shrink: 0;
+}
+
 /* Search bar: same layout as English (category | input | button), Arabic text only */
 html[dir="rtl"] .header-search form {
 	flex-direction: row;
