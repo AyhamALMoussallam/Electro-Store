@@ -25,15 +25,6 @@ if (!token) {
 }
 const headers = { Authorization: 'Bearer ' + token };
 
-function logout() {
-    axios.post(`${apiBase}/logout`, {}, { headers })
-        .then(() => {
-            localStorage.removeItem('auth_token');
-            window.location.href = '/login';
-        })
-        .catch(() => { window.location.href = '/login'; });
-}
-
 function formatDate(value) {
     return new Date(value).toLocaleString();
 }

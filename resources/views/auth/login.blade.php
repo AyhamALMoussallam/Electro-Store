@@ -67,10 +67,10 @@ function redirectAfterLogin(token) {
 	})
 	.then(res => {
 		const role = Number(res.data.user.role);
-		window.location.href = role === 1 ? '/dashboard' : '/profile';
+		window.location.href = role === 1 ? '/dashboard/' : '/home/';
 	})
 	.catch(() => {
-		window.location.href = '/profile';
+		window.location.href = '/home/';
 	});
 }
 

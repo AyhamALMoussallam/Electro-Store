@@ -709,6 +709,7 @@ body {
 <script src="/js/electro-currency.js"></script>
 <script src="/js/electro-preferences.js"></script>
 <script src="/js/electro-dialog.js"></script>
+<script src="/js/electro-logout.js"></script>
 <script src="/js/dashboard.js"></script>
 </body>
 </html>

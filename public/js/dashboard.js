@@ -1009,40 +1009,6 @@ function goProfile() {
 }
 
 
-// =========================
-// LOGOUT
-// =========================
-async function confirmLogout() {
-
-    const ok = await ElectroDialog.confirm(
-        t('logoutConfirm'),
-        { title: t('logout'), confirmText: t('logout') }
-    );
-
-    if (!ok) return;
-
-    try {
-
-        await fetch("/api/logout", {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json"
-            }
-        });
-
-    } catch (err) {
-        console.error(err);
-    }
-
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("activeTab");
-
-    window.location.href = "/login";
-}
-
-
-
 let allOrders = [];
 
 async function loadOrders() {

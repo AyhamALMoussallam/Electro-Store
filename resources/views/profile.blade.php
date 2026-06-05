@@ -94,15 +94,6 @@ function getApiErrorMessage(err, fallback) {
 	return data.message || fallback;
 }
 
-function logout() {
-	axios.post(`${apiBase}/logout`, {}, { headers })
-		.then(() => {
-			localStorage.removeItem('auth_token');
-			window.location.href = '/login';
-		})
-		.catch(() => { window.location.href = '/login'; });
-}
-
 function loadProfile() {
 	axios.get(`${apiBase}/user`, { headers })
 		.then(res => {
