@@ -113,6 +113,9 @@ body {
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.6);
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
 
     justify-content: center;
     align-items: center;
@@ -125,8 +128,12 @@ body {
     background: #fff;
     width: 420px;
     max-width: 95%;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 20px;
     border-radius: 12px;
+    margin: auto;
 
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 
@@ -176,8 +183,10 @@ body {
 #orderDetailsModal > div {
     width: 760px;
     max-width: 95%;
-    max-height: 85vh;
-    overflow-y: auto;
+}
+
+#productModal > div {
+    width: 480px;
 }
 
 .order-details-meta {
